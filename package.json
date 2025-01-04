@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  },
+  "scripts": {
+    "setup-db": "psql -f ./db/yxra.sql"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
