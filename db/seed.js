@@ -55,7 +55,7 @@ const createShop = () => {
 };
 const createProduct = () => {
   return db.query(`CREATE TABLE products
-    (category_id SERIAL PRIMARY KEY,
+    (product_id SERIAL PRIMARY KEY,
     product_url VARCHAR (250) NOT NULL,
     image VARCHAR (250) NOT NULL,
     product_name VARCHAR (250) NOT NULL,

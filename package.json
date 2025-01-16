@@ -1,12 +1,16 @@
 {
   "dependencies": {
     "express": "^4.21.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "pg-format": "^1.0.4"
   },
   "scripts": {
-    "setup-db": "psql -f ./db/yxra.sql"
+    "setup-db": "psql -f ./db/yxra.sql",
+    "test": "PGDATABASE=yxra jest"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
   }
 }
