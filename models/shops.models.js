@@ -30,3 +30,17 @@ exports.postShop = (shopName, shopUrl, location, categoryId) => {
       return rows;
     });
 };
+
+exports.patchShop = (shop_id, shop_name, shop_url, location, category_id) => {
+  return db
+    .query(
+      `UPDATE shops
+        SET shop_name = $1,shop_url=$2,location=$3,
+        category_id=$4
+        WHERE shop_id = $5 RETURNING *`,
+      [shop_name, shop_url, location, category_id, shop_id]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
