@@ -18,7 +18,7 @@ exports.getProductById = async (req, res, next) => {
   try {
     const { product_id } = req.params;
     const specificProduct = await fetchProductById(product_id);
-    res.status(200).send(specificProduct);
+    res.status(200).send({ specificProduct });
   } catch (err) {
     next(err);
   }
@@ -48,7 +48,7 @@ exports.addProduct = async (req, res, next) => {
       product_category,
       shop_id
     );
-    res.status(201).send(newProduct);
+    res.status(201).send({ newProduct });
   } catch (err) {
     next(err);
   }
@@ -80,7 +80,7 @@ exports.updateProduct = async (req, res, next) => {
       product_category,
       shop_id
     );
-    res.status(200).send(updatedProduct);
+    res.status(200).send({ updatedProduct });
   } catch (err) {
     next(err);
   }
