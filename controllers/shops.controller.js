@@ -3,6 +3,7 @@ const {
   fetchShopById,
   postShop,
   patchShop,
+  deleteShop,
 } = require("../models/shops.models");
 
 exports.getAllShops = async (req, res, next) => {
@@ -47,4 +48,8 @@ exports.updateShop = async (req, res, next) => {
     next(err);
   }
 };
-exports.removeShop = () => {};
+exports.removeShop = async (req, res, next) => {
+  const { shop_id } = req.params;
+  await deleteShop(shop_id);
+  res.status(200).send("Successfully deleted shop");
+};
