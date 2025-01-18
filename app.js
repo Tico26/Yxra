@@ -2,13 +2,13 @@ const express = require("express");
 
 const app = express();
 app.use(express.json());
-// const {
-//   getAllShops,
-//   getShopById,
-//   addShop,
-//   updateShop,
-//   removeShop,
-// } = require("./controllers/shops.controller");
+const {
+  getAllShops,
+  // getShopById,
+  // addShop,
+  // updateShop,
+  // removeShop,
+} = require("./controllers/shops.controller");
 const {
   getAllProducts,
   getProductById,
@@ -30,7 +30,7 @@ app.post("/api/products", addProduct);
 app.patch("/api/products/:product_id", updateProduct);
 app.delete("/api/products/:product_id", removeProduct);
 
-// app.get("/api/shops", getAllShops);
+app.get("/api/shops", getAllShops);
 // app.get("/api/shop/:shop_id", getShopById);
 // app.post("/api/shop", addShop);
 // app.patch("/api/shop/:shop_id", updateShop);

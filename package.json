@@ -6,6 +6,8 @@
   },
   "scripts": {
     "setup-db": "psql -f ./db/yxra.sql",
+    "seed": "PGDATABASE=yxra node db/run-seed.js",
+    "start": "PGDATABASE=yxra nodemon listen.js",
     "test": "PGDATABASE=yxra jest"
   },
   "devDependencies": {
