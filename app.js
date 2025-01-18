@@ -6,7 +6,7 @@ const {
   getAllShops,
   getShopById,
   addShop,
-  // updateShop,
+  updateShop,
   // removeShop,
 } = require("./controllers/shops.controller");
 const {
@@ -33,7 +33,7 @@ app.delete("/api/products/:product_id", removeProduct);
 app.get("/api/shops", getAllShops);
 app.get("/api/shops/:shop_id", getShopById);
 app.post("/api/shops", addShop);
-// app.patch("/api/shops/:shop_id", updateShop);
+app.patch("/api/shops/:shop_id", updateShop);
 // app.delete("/api/shops/:shop_id", removeShop);
 
 // app.get("/api/categories", getAllCategories);

@@ -2,6 +2,7 @@ const {
   fetchShops,
   fetchShopById,
   postShop,
+  patchShop,
 } = require("../models/shops.models");
 
 exports.getAllShops = async (req, res, next) => {
@@ -30,5 +31,20 @@ exports.addShop = async (req, res, next) => {
     next(err);
   }
 };
-exports.updateShop = () => {};
+exports.updateShop = async (req, res, next) => {
+  try {
+    const { shop_id } = req.params;
+    const { shop_name, shop_url, location, category_id } = req.body;
+    const shop = await patchShop(
+      shop_id,
+      shop_name,
+      shop_url,
+      location,
+      category_id
+    );
+    res.status(200).send(shop);
+  } catch (err) {
+    next(err);
+  }
+};
 exports.removeShop = () => {};
