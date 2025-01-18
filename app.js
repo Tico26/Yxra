@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 const {
   getAllShops,
-  // getShopById,
+  getShopById,
   // addShop,
   // updateShop,
   // removeShop,
@@ -31,7 +31,7 @@ app.patch("/api/products/:product_id", updateProduct);
 app.delete("/api/products/:product_id", removeProduct);
 
 app.get("/api/shops", getAllShops);
-// app.get("/api/shop/:shop_id", getShopById);
+app.get("/api/shops/:shop_id", getShopById);
 // app.post("/api/shop", addShop);
 // app.patch("/api/shop/:shop_id", updateShop);
 // app.delete("/api/shop/:shop_id", removeShop);
