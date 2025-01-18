@@ -5,7 +5,7 @@ app.use(express.json());
 const {
   getAllShops,
   getShopById,
-  // addShop,
+  addShop,
   // updateShop,
   // removeShop,
 } = require("./controllers/shops.controller");
@@ -32,9 +32,9 @@ app.delete("/api/products/:product_id", removeProduct);
 
 app.get("/api/shops", getAllShops);
 app.get("/api/shops/:shop_id", getShopById);
-// app.post("/api/shop", addShop);
-// app.patch("/api/shop/:shop_id", updateShop);
-// app.delete("/api/shop/:shop_id", removeShop);
+app.post("/api/shops", addShop);
+// app.patch("/api/shops/:shop_id", updateShop);
+// app.delete("/api/shops/:shop_id", removeShop);
 
 // app.get("/api/categories", getAllCategories);
 // app.get("/api/categories/:category_id", getCategoryById);
