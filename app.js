@@ -16,13 +16,13 @@ const {
   updateProduct,
   removeProduct,
 } = require("./controllers/products.controller");
-// const {
-//   getAllCategories,
-//   getCategoryById,
-//   addCategory,
-//   updateCategory,
-//   removeCategory,
-// } = require("./controllers/categories.controller");
+const {
+  getAllCategories,
+  getCategoryById,
+  addCategory,
+  updateCategory,
+  removeCategory,
+} = require("./controllers/categories.controller");
 
 app.get("/api/products", getAllProducts);
 app.get("/api/products/:product_id", getProductById);
@@ -36,10 +36,10 @@ app.post("/api/shops", addShop);
 app.patch("/api/shops/:shop_id", updateShop);
 app.delete("/api/shops/:shop_id", removeShop);
 
-// app.get("/api/categories", getAllCategories);
-// app.get("/api/categories/:category_id", getCategoryById);
-// app.post("/api/categories", addCategory);
-// app.patch("/api/categories/:category_id", updateCategory);
-// app.delete("/api/cagegories/:category_id", removeCategory);
+app.get("/api/categories", getAllCategories);
+app.get("/api/categories/:category_id", getCategoryById);
+app.post("/api/categories", addCategory);
+app.patch("/api/categories/:category_id", updateCategory);
+app.delete("/api/categories/:category_id", removeCategory);
 
 module.exports = { app };

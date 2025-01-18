@@ -49,7 +49,6 @@ const createShop = () => {
           shop_name VARCHAR (250) NOT NULL,
           shop_url VARCHAR (250) NOT NULL,
           location VARCHAR (250),
-
           category_id INT REFERENCES categories(category_id)
           )`);
 };

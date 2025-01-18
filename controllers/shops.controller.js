@@ -9,7 +9,7 @@ const {
 exports.getAllShops = async (req, res, next) => {
   try {
     const allShops = await fetchShops();
-    res.status(200).send(allShops);
+    res.status(200).send({ allShops });
   } catch (err) {
     next(err);
   }
@@ -17,7 +17,7 @@ exports.getAllShops = async (req, res, next) => {
 exports.getShopById = async (req, res, next) => {
   try {
     const { shop_id } = req.params;
-    const shop = await fetchShopById(shop_id);
+    const shop = await fetchShopById({ shop_id });
     res.status(200).send(shop);
   } catch (err) {
     next(err);
@@ -27,7 +27,7 @@ exports.addShop = async (req, res, next) => {
   try {
     const { shop_name, shop_url, location, category_id } = req.body;
     const shop = await postShop(shop_name, shop_url, location, category_id);
-    res.status(201).send(shop);
+    res.status(201).send({ shop });
   } catch (err) {
     next(err);
   }
@@ -43,7 +43,7 @@ exports.updateShop = async (req, res, next) => {
       location,
       category_id
     );
-    res.status(200).send(shop);
+    res.status(200).send({ shop });
   } catch (err) {
     next(err);
   }
