@@ -31,16 +31,24 @@ exports.postShop = (shopName, shopUrl, location, categoryId) => {
     });
 };
 
-exports.patchShop = (shop_id, shop_name, shop_url, location, category_id) => {
+exports.patchShop = (shopId, shopName, shopUrl, location, categoryId) => {
   return db
     .query(
       `UPDATE shops
         SET shop_name = $1,shop_url=$2,location=$3,
         category_id=$4
         WHERE shop_id = $5 RETURNING *`,
-      [shop_name, shop_url, location, category_id, shop_id]
+      [shopName, shopUrl, location, categoryId, shopId]
     )
     .then(({ rows }) => {
       return rows[0];
     });
+};
+
+exports.deleteShop = (shopId) => {
+  return db.query(
+    `
+    DELETE FROM shops WHERE shop_id = $1`,
+    [shopId]
+  );
 };
