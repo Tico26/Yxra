@@ -1,4 +1,8 @@
-const { fetchShops, fetchShopById } = require("../models/shops.models");
+const {
+  fetchShops,
+  fetchShopById,
+  postShop,
+} = require("../models/shops.models");
 
 exports.getAllShops = async (req, res, next) => {
   try {
@@ -17,6 +21,14 @@ exports.getShopById = async (req, res, next) => {
     next(err);
   }
 };
-exports.addShop = () => {};
+exports.addShop = async (req, res, next) => {
+  try {
+    const { shop_name, shop_url, location, category_id } = req.body;
+    const shop = await postShop(shop_name, shop_url, location, category_id);
+    res.status(201).send(shop);
+  } catch (err) {
+    next(err);
+  }
+};
 exports.updateShop = () => {};
 exports.removeShop = () => {};
