@@ -2,3 +2,4 @@ yxra.sql
 showTables.txt
 showTables.sql
 node_modules
+.env.*
