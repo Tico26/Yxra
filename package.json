@@ -1,16 +1,18 @@
 {
   "dependencies": {
     "express": "^4.21.2",
+    "nodenv": "^0.1.0",
     "pg": "^8.13.1",
     "pg-format": "^1.0.4"
   },
   "scripts": {
     "setup-db": "psql -f ./db/yxra.sql",
-    "seed": "PGDATABASE=yxra node db/run-seed.js",
-    "start": "PGDATABASE=yxra nodemon listen.js",
-    "test": "PGDATABASE=yxra jest"
+    "seed": "NODE_ENV=test node db/run-seed.js",
+    "start": "NODE_ENV=test nodemon listen.js",
+    "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
+    "dotenv": "^16.4.7",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0"
