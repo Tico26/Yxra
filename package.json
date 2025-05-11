@@ -1,18 +1,20 @@
 {
+  "main": "listen.js",
   "dependencies": {
     "express": "^4.21.2",
     "nodenv": "^0.1.0",
     "pg": "^8.13.1",
-    "pg-format": "^1.0.4"
+    "pg-format": "^1.0.4",
+    "dotenv": "^16.5.0"
   },
   "scripts": {
     "setup-db": "psql -f ./db/yxra.sql",
     "seed": "NODE_ENV=test node db/run-seed.js",
-    "start": "NODE_ENV=test nodemon listen.js",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest",
+    "start": "node listen.js",
+    "seed-prod": "NODE_ENV=production npm run seed"
   },
   "devDependencies": {
-    "dotenv": "^16.4.7",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0"
