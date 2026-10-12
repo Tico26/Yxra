@@ -1,13 +1,13 @@
 # Yxra
 
-Yxra helps plus-size shoppers in the UK find clothes in their size across many retailers, see what is still in stock, and go straight to where they can buy it. Yxra sells nothing itself.
+Yxra helps plus-size women in the UK find clothes in their size across many retailers, see what is still in stock, and go straight to where they can buy it. Yxra sells nothing itself.
 
 ## Language
 
 ### People
 
 **Shopper**:
-A person browsing Yxra to find clothes in her size.
+A plus-size woman browsing Yxra to find clothes in her size. Menswear is out of scope for now.
 _Avoid_: User, customer, visitor
 
 ### Who sells
