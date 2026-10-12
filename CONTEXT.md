@@ -1,0 +1,43 @@
+# Yxra
+
+Yxra helps plus-size shoppers in the UK find clothes in their size across many retailers, see what is still in stock, and go straight to where they can buy it. Yxra sells nothing itself.
+
+## Language
+
+### People
+
+**Shopper**:
+A person browsing Yxra to find clothes in her size.
+_Avoid_: User, customer, visitor
+
+### Who sells
+
+**Retailer**:
+A business a Shopper can buy from, online or in person (ASOS, Yours).
+_Avoid_: Shop, store, merchant
+
+**Range**:
+A Retailer's named plus-size line within its wider catalogue (ASOS Curve).
+_Avoid_: Sub-brand, collection
+
+**Brand**:
+The label on the garment itself, which may differ from the Retailer selling it.
+_Avoid_: Designer, maker
+
+**Branch**:
+One physical shop belonging to a Retailer, at a real address (Yours Leeds).
+_Avoid_: Store, outlet, location
+
+### Stock
+
+**Stock check**:
+The regular refresh of whether each product is still available, and in which sizes, at its Retailer.
+_Avoid_: Sync, update, crawl
+
+**Live check**:
+A one-off Stock check of a single product made at the moment a Shopper chooses to go to the Retailer.
+_Avoid_: Real-time stock, refresh
+
+**Click-out**:
+A Shopper leaving Yxra for a Retailer's site to look at or buy a product.
+_Avoid_: Redirect, referral, outbound click
