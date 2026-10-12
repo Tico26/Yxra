@@ -65,3 +65,7 @@ _Avoid_: Area, location, zone
 **Slot**:
 A named space on a Yxra page whose content can change by Region or be sold (home-hero, category-top-row).
 _Avoid_: Ad space, banner, position
+
+**Placement**:
+A Slot sold to a Retailer for a fixed period, optionally in one Region, always shown labelled as Sponsored.
+_Avoid_: Ad, booking, sponsorship
