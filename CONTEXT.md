@@ -28,6 +28,20 @@ _Avoid_: Designer, maker
 One physical shop belonging to a Retailer, at a real address (Yours Leeds).
 _Avoid_: Store, outlet, location
 
+### Size
+
+**Size label**:
+The size exactly as a Retailer writes it ("3X", "EU 50", "22/24").
+_Avoid_: Retailer size, raw size
+
+**UK size**:
+Yxra's single standard size scale, which every Size label is translated onto so one size can be searched across all Retailers.
+_Avoid_: Normalised size, standard size, Yxra size
+
+**Plus size**:
+A product made in UK size 18 or above, whether or not that size is in stock today.
+_Avoid_: Curve, extended size (except as Range names)
+
 ### Stock
 
 **Stock check**:
