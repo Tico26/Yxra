@@ -16,6 +16,10 @@ _Avoid_: User, customer, visitor
 A business a Shopper can buy from, online or in person (ASOS, Yours).
 _Avoid_: Shop, store, merchant
 
+**Suggested Retailer**:
+A shop Yxra found by itself that waits for Tico's approval before it becomes a Retailer. Tico can also add a Retailer directly.
+_Avoid_: Candidate, lead, prospect
+
 **Range**:
 A Retailer's named plus-size line within its wider catalogue (ASOS Curve).
 _Avoid_: Sub-brand, collection
