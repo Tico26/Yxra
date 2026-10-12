@@ -52,6 +52,10 @@ _Avoid_: Sync, update, crawl
 A one-off Stock check of a single product made at the moment a Shopper chooses to go to the Retailer.
 _Avoid_: Real-time stock, refresh
 
+**Back-in-stock alert**:
+An email to a Shopper when a product she chose comes back in stock in her UK size.
+_Avoid_: Notification, restock alert
+
 **Click-out**:
 A Shopper leaving Yxra for a Retailer's site to look at or buy a product.
 _Avoid_: Redirect, referral, outbound click
