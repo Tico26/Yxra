@@ -28,6 +28,12 @@ _Avoid_: Designer, maker
 One physical shop belonging to a Retailer, at a real address (Yours Leeds).
 _Avoid_: Store, outlet, location
 
+### What is sold
+
+**Product**:
+One garment in one colour at one Retailer, with its own photos, sizes in stock and link. The same dress in black and in red is two Products.
+_Avoid_: Item, listing, variant, style
+
 ### Size
 
 **Size label**:
