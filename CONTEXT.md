@@ -52,6 +52,10 @@ _Avoid_: Normalised size, standard size, Yxra size
 A product made in UK size 18 or above, whether or not that size is in stock today.
 _Avoid_: Curve, extended size (except as Range names)
 
+**Review list**:
+Products, sizes and Suggested Retailers Yxra could not settle by itself, waiting for Tico to decide. A Size label with no confident UK size is never shown to Shoppers until it is settled here.
+_Avoid_: Queue, inbox, moderation
+
 ### Stock
 
 **Stock check**:
