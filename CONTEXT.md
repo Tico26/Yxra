@@ -55,3 +55,13 @@ _Avoid_: Real-time stock, refresh
 **Click-out**:
 A Shopper leaving Yxra for a Retailer's site to look at or buy a product.
 _Avoid_: Redirect, referral, outbound click
+
+### Placement
+
+**Region**:
+One area of the UK a Shopper is treated as shopping from, used to choose what a Slot shows her.
+_Avoid_: Area, location, zone
+
+**Slot**:
+A named space on a Yxra page whose content can change by Region or be sold (home-hero, category-top-row).
+_Avoid_: Ad space, banner, position
