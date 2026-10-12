@@ -10,7 +10,7 @@
   "scripts": {
     "setup-db": "psql -f ./db/yxra.sql",
     "seed": "NODE_ENV=test node db/run-seed.js",
-    "test": "NODE_ENV=test jest",
+    "test": "NODE_ENV=test jest --runInBand",
     "start": "node listen.js",
     "seed-prod": "NODE_ENV=production npm run seed"
   },
