@@ -16,6 +16,10 @@ _Avoid_: User, customer, visitor
 A business a Shopper can buy from, online or in person (ASOS, Yours).
 _Avoid_: Shop, store, merchant
 
+**Suggested Retailer**:
+A shop Yxra found by itself that waits for Tico's approval before it becomes a Retailer. Tico can also add a Retailer directly.
+_Avoid_: Candidate, lead, prospect
+
 **Range**:
 A Retailer's named plus-size line within its wider catalogue (ASOS Curve).
 _Avoid_: Sub-brand, collection
@@ -28,6 +32,12 @@ _Avoid_: Designer, maker
 One physical shop belonging to a Retailer, at a real address (Yours Leeds).
 _Avoid_: Store, outlet, location
 
+### What is sold
+
+**Product**:
+One garment in one colour at one Retailer, with its own photos, sizes in stock and link. The same dress in black and in red is two Products.
+_Avoid_: Item, listing, variant, style
+
 ### Size
 
 **Size label**:
@@ -35,12 +45,16 @@ The size exactly as a Retailer writes it ("3X", "EU 50", "22/24").
 _Avoid_: Retailer size, raw size
 
 **UK size**:
-Yxra's single standard size scale for clothing, swimwear and activewear, which every Size label is translated onto so one size can be searched across all Retailers. Lingerie and shoes will need their own scales.
+Yxra's single standard size scale for clothing, swimwear and activewear, which every Size label is translated onto so one size can be searched across all Retailers. One Size label can translate to more than one UK size ("18/20" is both 18 and 20). Lingerie and shoes will need their own scales.
 _Avoid_: Normalised size, standard size, Yxra size
 
 **Plus size**:
 A product made in UK size 18 or above, whether or not that size is in stock today.
 _Avoid_: Curve, extended size (except as Range names)
+
+**Review list**:
+Products, sizes and Suggested Retailers Yxra could not settle by itself, waiting for Tico to decide. A Size label with no confident UK size is never shown to Shoppers until it is settled here.
+_Avoid_: Queue, inbox, moderation
 
 ### Stock
 
