@@ -35,7 +35,7 @@ The size exactly as a Retailer writes it ("3X", "EU 50", "22/24").
 _Avoid_: Retailer size, raw size
 
 **UK size**:
-Yxra's single standard size scale, which every Size label is translated onto so one size can be searched across all Retailers.
+Yxra's single standard size scale for clothing, swimwear and activewear, which every Size label is translated onto so one size can be searched across all Retailers. Lingerie and shoes will need their own scales.
 _Avoid_: Normalised size, standard size, Yxra size
 
 **Plus size**:
