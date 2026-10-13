@@ -1,148 +1,110 @@
-const db = require("./connection");
-
+const fs = require("fs");
+const path = require("path");
 const format = require("pg-format");
+const db = require("./connection");
+const { brandKey, sizeLabelKey } = require("../lib/sizes");
 
-const seed = ({ products, categories, shops }) => {
-  return db
-    .query("DROP TABLE IF EXISTS products")
-    .then(() => {
-      return db.query("DROP TABLE IF EXISTS shops");
-    })
-    .then(() => {
-      return db.query("DROP TABLE IF EXISTS categories");
-    })
-    .then(() => {
-      return createCategory();
-    })
-    .then(() => {
-      return createShop();
-    })
-    .then(() => {
-      return createProduct();
-    })
-    .then(() => {
-      return insertCategory(categories);
-    })
-    .then(({ rows }) => {
-      modifyShops(rows, shops);
-    })
-    .then(() => {
-      return insertShops(shops);
-    })
-    .then(({ rows }) => {
-      return modifyProducts(rows, products);
-    })
-    .then(() => {
-      return insertProducts(products);
-    });
-};
-const createCategory = () => {
-  return db.query(`CREATE TABLE categories
-          (category_id SERIAL PRIMARY KEY,
-          category_name VARCHAR (250) NOT NULL,
-          category_description VARCHAR(250))`);
-};
+const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
 
-const createShop = () => {
-  return db.query(`CREATE TABLE shops
-          (shop_id SERIAL PRIMARY KEY,
-          shop_name VARCHAR (250) NOT NULL,
-          shop_url VARCHAR (250) NOT NULL,
-          location VARCHAR (250),
-          category_id INT REFERENCES categories(category_id)
-          )`);
-};
-const createProduct = () => {
-  return db.query(`CREATE TABLE products
-    (product_id SERIAL PRIMARY KEY,
-    product_url VARCHAR (250) NOT NULL,
-    image VARCHAR (250) NOT NULL,
-    product_name VARCHAR (250) NOT NULL,
-    price_in_pence INT,
-    product_description VARCHAR (250),
-    size VARCHAR (250),
-    colour VARCHAR (250),
-    product_category VARCHAR(250) NOT NULL,
-    shop_id INT REFERENCES shops(shop_id)
-    )`);
-};
+const dropAll = () =>
+  db.query(`DROP TABLE IF EXISTS click_outs, suggested_retailers, size_translations,
+    product_sizes, products, retailers, categories, shops CASCADE`);
 
-const insertCategory = (categories) => {
-  const formattedCategories = categories.map((category) => {
-    return [category.category_name, category.category_description];
-  });
+const seed = async ({
+  categories,
+  retailers,
+  products,
+  sizeTranslations = [],
+  suggestedRetailers = [],
+}) => {
+  await dropAll();
+  await db.query(schema);
 
-  const insertCategories = format(
-    `INSERT INTO categories(category_name, category_description)
-    VALUES %L
-    RETURNING *`,
-    formattedCategories
+  await db.query(
+    format(
+      `INSERT INTO categories (category_name, category_description) VALUES %L`,
+      categories.map((c) => [c.category_name, c.category_description])
+    )
   );
-  return db.query(insertCategories);
-};
 
-const modifyShops = (categories, shops) => {
-  const updatedShops = shops.map((shop) => {
-    categories.forEach((category) => {
-      if (category.category_name === shop.shop_category) {
-        shop.category_id = category.category_id;
-        delete shop.category_name;
-      }
-    });
-    return shop;
-  });
-  return updatedShops;
-};
-
-const insertShops = (shops) => {
-  const formattedShops = shops.map((shop) => {
-    return [shop.shop_name, shop.shop_url, shop.location, shop.category_id];
-  });
-
-  const insertedShops = format(
-    `INSERT INTO shops(shop_name, shop_url,location,category_id)
-      VALUES %L
-      RETURNING *`,
-    formattedShops
+  const { rows: insertedRetailers } = await db.query(
+    format(
+      `INSERT INTO retailers (retailer_name, site_url, source, women_only, removed_at)
+       VALUES %L RETURNING retailer_id, site_url`,
+      retailers.map((r) => [
+        r.retailer_name,
+        r.site_url,
+        r.source,
+        r.women_only || false,
+        r.removed_at || null,
+      ])
+    )
   );
-  return db.query(insertedShops);
-};
-
-const modifyProducts = (shops, products) => {
-  const updatedProducts = products.map((product) => {
-    shops.forEach((shop) => {
-      if (product.shop_name === shop.shop_name) {
-        product.shop_id = shop.shop_id;
-        delete product.shop_name;
-      }
-    });
-    return product;
-  });
-  return updatedProducts;
-};
-
-const insertProducts = (products) => {
-  const formattedProducts = products.map((product) => {
-    return [
-      product.product_url,
-      product.image,
-      product.product_name,
-      product.price_in_pence,
-      product.product_description,
-      product.size,
-      product.colour,
-      product.category,
-      product.shop_id,
-    ];
-  });
-  const insertedProducts = format(
-    `INSERT INTO products(product_url,image,product_name,price_in_pence, product_description,size,colour,product_category,shop_id)
-    VALUES %L
-    RETURNING *
-    `,
-    formattedProducts
+  const retailerIds = Object.fromEntries(
+    insertedRetailers.map((r) => [r.site_url, r.retailer_id])
   );
-  return db.query(insertedProducts);
+
+  for (const p of products) {
+    const {
+      rows: [{ product_id }],
+    } = await db.query(
+      `INSERT INTO products (retailer_id, external_id, title, description, brand, colour,
+         product_url, image_url, price_in_pence, product_type, tags, audience, category,
+         sort_status, last_checked_at, missing_since)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+       RETURNING product_id`,
+      [
+        retailerIds[p.retailer_site],
+        p.external_id,
+        p.title,
+        p.description,
+        p.brand,
+        p.colour,
+        p.product_url,
+        p.image_url,
+        p.price_in_pence,
+        p.product_type,
+        p.tags,
+        p.audience,
+        p.category,
+        p.sort_status,
+        p.last_checked_at,
+        p.missing_since,
+      ]
+    );
+    for (const s of p.sizes) {
+      await db.query(
+        `INSERT INTO product_sizes (product_id, size_label, uk_sizes, size_status, in_stock,
+           variant_refs, last_checked_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [
+          product_id,
+          s.size_label,
+          s.uk_sizes,
+          s.size_status || "translated",
+          s.in_stock,
+          s.variant_refs || [],
+          p.last_checked_at,
+        ]
+      );
+    }
+  }
+
+  for (const t of sizeTranslations) {
+    await db.query(
+      `INSERT INTO size_translations (brand_key, size_label_key, uk_sizes, source)
+       VALUES ($1,$2,$3,$4)`,
+      [brandKey(t.brand), sizeLabelKey(t.size_label), t.uk_sizes, t.source]
+    );
+  }
+
+  for (const s of suggestedRetailers) {
+    await db.query(
+      `INSERT INTO suggested_retailers (retailer_name, site_url, source, found_via, status)
+       VALUES ($1,$2,$3,$4,$5)`,
+      [s.retailer_name, s.site_url, s.source, s.found_via || null, s.status || "pending"]
+    );
+  }
 };
 
 module.exports = seed;

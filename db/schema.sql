@@ -1,0 +1,105 @@
+-- Yxra schema. Safe to run repeatedly: `npm run migrate` applies it to an
+-- existing database without touching data; `npm run seed` drops everything
+-- first and then applies it.
+
+CREATE TABLE IF NOT EXISTS categories (
+  category_id SERIAL PRIMARY KEY,
+  category_name VARCHAR(50) NOT NULL UNIQUE,
+  category_description VARCHAR(250)
+);
+
+-- A business a Shopper can buy from. Only Retailers Tico added (or approved
+-- from Suggested Retailers) are collected; removing one sets removed_at.
+CREATE TABLE IF NOT EXISTS retailers (
+  retailer_id SERIAL PRIMARY KEY,
+  retailer_name VARCHAR(250) NOT NULL,
+  site_url VARCHAR(250) NOT NULL UNIQUE,
+  source VARCHAR(30) NOT NULL CHECK (source IN ('shopify', 'structured_data')),
+  women_only BOOLEAN NOT NULL DEFAULT FALSE,
+  added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  removed_at TIMESTAMPTZ,
+  last_collected_at TIMESTAMPTZ,
+  last_error TEXT
+);
+
+-- One garment, one colour, one Retailer.
+CREATE TABLE IF NOT EXISTS products (
+  product_id SERIAL PRIMARY KEY,
+  retailer_id INT NOT NULL REFERENCES retailers(retailer_id) ON DELETE CASCADE,
+  external_id VARCHAR(250) NOT NULL,
+  title VARCHAR(500) NOT NULL,
+  description TEXT,
+  brand VARCHAR(250),
+  colour VARCHAR(250),
+  product_url VARCHAR(1000) NOT NULL,
+  image_url VARCHAR(1000),
+  price_in_pence INT,
+  product_type VARCHAR(250),
+  tags TEXT[] NOT NULL DEFAULT '{}',
+  audience VARCHAR(20) CHECK (audience IN ('women', 'men', 'other')),
+  category VARCHAR(50) REFERENCES categories(category_name),
+  -- shown: a Shopper can find it. excluded: rules or Tico said no.
+  -- unsettled: rules could not decide; waits for the AI or Tico.
+  sort_status VARCHAR(20) NOT NULL DEFAULT 'unsettled'
+    CHECK (sort_status IN ('shown', 'excluded', 'unsettled')),
+  sort_reason VARCHAR(250),
+  -- Hash of title, description and Size labels. The AI is asked again only
+  -- when this changes.
+  text_hash VARCHAR(64) NOT NULL DEFAULT '',
+  ai_asked_hash VARCHAR(64),
+  first_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  missing_since TIMESTAMPTZ,
+  UNIQUE (retailer_id, external_id)
+);
+
+-- One row per Size label of a Product. A label can cover several UK sizes.
+CREATE TABLE IF NOT EXISTS product_sizes (
+  product_size_id SERIAL PRIMARY KEY,
+  product_id INT NOT NULL REFERENCES products(product_id) ON DELETE CASCADE,
+  size_label VARCHAR(100) NOT NULL,
+  uk_sizes INT[] NOT NULL DEFAULT '{}',
+  -- translated: uk_sizes is confident. unsettled: waits for the AI or Tico.
+  size_status VARCHAR(20) NOT NULL DEFAULT 'unsettled'
+    CHECK (size_status IN ('translated', 'unsettled')),
+  in_stock BOOLEAN NOT NULL DEFAULT FALSE,
+  variant_refs TEXT[] NOT NULL DEFAULT '{}',
+  last_checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (product_id, size_label)
+);
+
+-- Known translations of a Brand's Size label: from the Brand's size chart,
+-- settled by Tico, or answered by the AI. uk_sizes is empty when the AI was
+-- not confident, which keeps the label on the Review list.
+CREATE TABLE IF NOT EXISTS size_translations (
+  brand_key VARCHAR(250) NOT NULL,
+  size_label_key VARCHAR(100) NOT NULL,
+  uk_sizes INT[] NOT NULL DEFAULT '{}',
+  source VARCHAR(20) NOT NULL CHECK (source IN ('chart', 'tico', 'ai')),
+  confidence REAL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (brand_key, size_label_key)
+);
+
+CREATE TABLE IF NOT EXISTS suggested_retailers (
+  suggested_retailer_id SERIAL PRIMARY KEY,
+  retailer_name VARCHAR(250) NOT NULL,
+  site_url VARCHAR(250) NOT NULL UNIQUE,
+  source VARCHAR(30) NOT NULL CHECK (source IN ('shopify', 'structured_data')),
+  found_via TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'approved', 'rejected')),
+  suggested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  decided_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS click_outs (
+  click_out_id SERIAL PRIMARY KEY,
+  product_id INT REFERENCES products(product_id) ON DELETE SET NULL,
+  uk_size INT NOT NULL,
+  outcome VARCHAR(20) NOT NULL CHECK (outcome IN ('sent', 'sold_out', 'check_failed')),
+  clicked_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS product_sizes_uk_sizes_idx ON product_sizes USING GIN (uk_sizes);
+CREATE INDEX IF NOT EXISTS products_retailer_idx ON products (retailer_id);
