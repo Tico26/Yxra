@@ -36,10 +36,14 @@ CREATE TABLE IF NOT EXISTS products (
   price_in_pence INT,
   product_type VARCHAR(250),
   tags TEXT[] NOT NULL DEFAULT '{}',
+  -- Who it is for and what it is: set by the rules, or by the AI or Tico
+  -- when the rules could not tell. excluded_as names a kind Yxra does not
+  -- show (lingerie, shoes, accessories).
   audience VARCHAR(20) CHECK (audience IN ('women', 'men', 'other')),
   category VARCHAR(50) REFERENCES categories(category_name),
-  -- shown: a Shopper can find it. excluded: rules or Tico said no.
-  -- unsettled: rules could not decide; waits for the AI or Tico.
+  excluded_as VARCHAR(50),
+  -- Worked out from the fields above and the sizes. shown: a Shopper can
+  -- find it. excluded: not for Yxra. unsettled: waits for the AI or Tico.
   sort_status VARCHAR(20) NOT NULL DEFAULT 'unsettled'
     CHECK (sort_status IN ('shown', 'excluded', 'unsettled')),
   sort_reason VARCHAR(250),

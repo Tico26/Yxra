@@ -1,7 +1,12 @@
 const express = require("express");
 const { handleErrors, notFound } = require("./lib/errors");
 const { getProducts, getProductById } = require("./controllers/products.controller");
-const { getRetailers } = require("./controllers/retailers.controller");
+const {
+  getRetailers,
+  postRetailer,
+  deleteRetailer,
+} = require("./controllers/retailers.controller");
+const { requireAdmin } = require("./lib/admin");
 const {
   getAllCategories,
   getCategoryById,
@@ -14,6 +19,8 @@ app.get("/api/products", getProducts);
 app.get("/api/products/:product_id", getProductById);
 
 app.get("/api/retailers", getRetailers);
+app.post("/api/retailers", requireAdmin, postRetailer);
+app.delete("/api/retailers/:retailer_id", requireAdmin, deleteRetailer);
 
 app.get("/api/categories", getAllCategories);
 app.get("/api/categories/:category_id", getCategoryById);
