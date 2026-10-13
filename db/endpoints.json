@@ -1,5 +1,26 @@
 {
-  "GET /api": {
-    "description": "serves a json representation of all the available endpoints"
-  }
+  "GET /api/products": {
+    "description": "Products in stock in one UK size, optionally in one category (clothes, swimwear, activewear)",
+    "queries": ["uk_size (required)", "category"]
+  },
+  "GET /api/products/:product_id": { "description": "One Product with all its Size labels" },
+  "POST /api/click-outs": {
+    "description": "Live check, then { outcome: 'sent', url } or { outcome: 'sold_out', message, similar }",
+    "body": { "product_id": 1, "uk_size": 20 }
+  },
+  "GET /api/retailers": { "description": "Current Retailers" },
+  "POST /api/retailers": {
+    "admin": true,
+    "description": "Add (or bring back) a Retailer",
+    "body": { "retailer_name": "Name", "site_url": "https://www.example.co.uk", "source": "shopify | structured_data", "women_only": false }
+  },
+  "DELETE /api/retailers/:retailer_id": { "admin": true, "description": "Remove a Retailer; its Products leave search at once" },
+  "GET /api/review": { "admin": true, "description": "The Review list: unsettled Size labels, Products and Suggested Retailers" },
+  "POST /api/review/size-labels": { "admin": true, "body": { "brand": "Brand", "size_label": "3X", "uk_sizes": [26] } },
+  "POST /api/review/products/:product_id": { "admin": true, "body": { "audience": "women", "category": "clothes" }, "or": { "excluded_as": "shoes" } },
+  "PUT /api/size-charts/:brand": { "admin": true, "body": { "sizes": [{ "size_label": "1X", "uk_sizes": [18, 20] }] } },
+  "POST /api/suggested-retailers/:id/approve": { "admin": true, "body": { "women_only": true } },
+  "POST /api/suggested-retailers/:id/reject": { "admin": true },
+  "GET /api/categories": { "description": "The launch categories" },
+  "GET /admin": { "description": "Tico's Review list page" }
 }
