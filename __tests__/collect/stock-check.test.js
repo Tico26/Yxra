@@ -94,3 +94,44 @@ describe("nightly Stock check", () => {
     expect(await productByExternal("1001:black")).toBeUndefined();
   });
 });
+
+describe("Retailers whose source is structured data", () => {
+  const fs = require("fs");
+  const path = require("path");
+  const CURVE = "https://curve-house.example";
+  const fixture = (name) =>
+    fs.readFileSync(path.join(__dirname, "../fixtures/structured-data", name), "utf8");
+
+  test("R2: are collected nightly from their own source, like a Shopify one", async () => {
+    await db.query(
+      `INSERT INTO retailers (retailer_name, site_url, source, women_only)
+       VALUES ('Curve House', $1, 'structured_data', TRUE)`,
+      [CURVE]
+    );
+    const pages = {
+      [`${CURVE}/sitemap.xml`]: fixture("sitemap-products-1.xml"),
+      [`${CURVE}/p/tea-dress`]: fixture("tea-dress.html"),
+      [`${CURVE}/p/swim-dress`]: fixture("swim-dress.html"),
+    };
+    const shopifyAsked = [];
+    const fetcher = {
+      getJson: async (url) => {
+        shopifyAsked.push(new URL(url).origin);
+        return { products: [] };
+      },
+      getText: async (url) => {
+        if (!(url in pages)) throw new Error("404");
+        return pages[url];
+      },
+      sitemapsFor: async () => [],
+    };
+    await runStockCheck({ fetcher, now: NIGHT(0), ...quiet });
+
+    expect(shopifyAsked).not.toContain(CURVE);
+    const results = await search(20);
+    expect(results.filter((p) => p.retailer_name === "Curve House").map((p) => p.colour)).toEqual([
+      "Red",
+    ]);
+    expect((await search(22)).map((p) => p.title)).toContain("Tummy Control Swim Dress");
+  });
+});
