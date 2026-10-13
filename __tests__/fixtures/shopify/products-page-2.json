@@ -1,0 +1,36 @@
+{
+  "products": [
+    {
+      "id": 1003,
+      "title": "Tankini Set",
+      "handle": "tankini-set",
+      "body_html": "",
+      "vendor": "Seaside Plus",
+      "product_type": "Swimwear",
+      "tags": ["swim"],
+      "options": [
+        { "name": "Size", "position": 1, "values": ["UK 18", "UK 20"] },
+        { "name": "Color", "position": 2, "values": ["Navy"] }
+      ],
+      "variants": [
+        { "id": 31, "title": "UK 18 / Navy", "option1": "UK 18", "option2": "Navy", "option3": null, "available": true, "price": "42.00", "featured_image": null },
+        { "id": 32, "title": "UK 20 / Navy", "option1": "UK 20", "option2": "Navy", "option3": null, "available": true, "price": "42.00", "featured_image": null }
+      ],
+      "images": []
+    },
+    {
+      "id": 1004,
+      "title": "Gift Card",
+      "handle": "gift-card",
+      "body_html": "",
+      "vendor": "Northern Curve",
+      "product_type": "Gift Card",
+      "tags": [],
+      "options": [{ "name": "Title", "position": 1, "values": ["Default Title"] }],
+      "variants": [
+        { "id": 41, "title": "Default Title", "option1": "Default Title", "option2": null, "option3": null, "available": true, "price": "25.00", "featured_image": null }
+      ],
+      "images": []
+    }
+  ]
+}
