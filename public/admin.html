@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yxra Review list</title>
+<style>
+  :root { --ink: #1f1a24; --muted: #6b6372; --line: #e4dfe8; --accent: #7a2e5c; --bg: #fbf9fc; }
+  body { font: 16px/1.45 system-ui, sans-serif; color: var(--ink); background: var(--bg); margin: 0; padding: 16px; }
+  main { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 28px 0 8px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  .item { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 8px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .item .what { flex: 1 1 260px; min-width: 0; }
+  .item img { width: 56px; height: 72px; object-fit: cover; border-radius: 6px; background: var(--line); }
+  input, select, button { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); }
+  button { background: var(--accent); color: #fff; border: 0; cursor: pointer; }
+  button.secondary { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+  .tag { display: inline-block; font-size: .75rem; background: #f3e8ef; color: var(--accent); border-radius: 999px; padding: 1px 8px; }
+  #login { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+  .error { color: #a1132e; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Review list</h1>
+  <p class="muted">What Yxra could not settle by itself. Nothing here is shown to Shoppers until you decide.</p>
+  <form id="login">
+    <input id="token" type="password" placeholder="Admin token" autocomplete="current-password" aria-label="Admin token">
+    <button>Open</button>
+  </form>
+  <p id="status" class="muted"></p>
+  <section id="lists" hidden>
+    <h2>Size labels</h2>
+    <p class="muted">Type the UK sizes this label means for this Brand, like <code>22, 24</code>.</p>
+    <div id="sizes"></div>
+    <h2>Products</h2>
+    <div id="products"></div>
+    <h2>Suggested Retailers</h2>
+    <div id="suggested"></div>
+  </section>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let token = "";
+  try { token = sessionStorage.getItem("yxra-admin") || ""; } catch {}
+
+  const api = async (method, path, body) => {
+    const res = await fetch(path, {
+      method,
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = res.status === 204 ? {} : await res.json();
+    if (!res.ok) throw new Error(data.msg || res.statusText);
+    return data;
+  };
+
+  const el = (tag, attrs = {}, ...children) => {
+    const node = document.createElement(tag);
+    Object.assign(node, attrs);
+    node.append(...children.filter((c) => c !== null && c !== undefined));
+    return node;
+  };
+
+  const act = (fn) => async (event) => {
+    event.preventDefault();
+    try { await fn(); await load(); } catch (err) { $("status").textContent = err.message; $("status").className = "error"; }
+  };
+
+  const sizeItem = (s) => {
+    const input = el("input", { placeholder: "UK sizes", size: 10 });
+    const form = el("form", {}, input, " ", el("button", { textContent: "Settle" }));
+    form.onsubmit = act(() => api("POST", "/api/review/size-labels", {
+      brand: s.brand, size_label: s.size_label,
+      uk_sizes: input.value.split(/[ ,/]+/).filter(Boolean).map(Number),
+    }));
+    return el("div", { className: "item" },
+      el("div", { className: "what" },
+        el("strong", { textContent: `"${s.size_label}"` }), ` from ${s.brand || "no Brand"} `,
+        s.ai_unsure ? el("span", { className: "tag", textContent: "AI unsure" }) : null,
+        el("div", { className: "muted" }, `${s.products} Product(s) · `,
+          el("a", { href: s.example_url, target: "_blank", rel: "noopener", textContent: "example" }))),
+      form);
+  };
+
+  const productItem = (p) => {
+    const choice = el("select", {},
+      ...["clothes", "swimwear", "activewear"].map((c) => el("option", { value: `women:${c}`, textContent: `Women's ${c}` })),
+      ...["lingerie", "shoes", "accessories", "menswear", "not clothing"].map((x) => el("option", { value: `x:${x}`, textContent: `Not for Yxra: ${x}` })));
+    const form = el("form", {}, choice, " ", el("button", { textContent: "Save" }));
+    form.onsubmit = act(() => {
+      const [kind, value] = choice.value.split(":");
+      return api("POST", `/api/review/products/${p.product_id}`,
+        kind === "women" ? { audience: "women", category: value } : { excluded_as: value });
+    });
+    return el("div", { className: "item" },
+      p.image_url ? el("img", { src: p.image_url, alt: "" }) : null,
+      el("div", { className: "what" },
+        el("a", { href: p.product_url, target: "_blank", rel: "noopener", textContent: `${p.title}${p.colour ? ` (${p.colour})` : ""}` }),
+        " ", p.ai_unsure ? el("span", { className: "tag", textContent: "AI unsure" }) : null,
+        el("div", { className: "muted", textContent: `${p.retailer_name} · ${p.product_type || "no type"} · ${p.sort_reason || ""}` })),
+      form);
+  };
+
+  const suggestedItem = (s) => {
+    const approve = el("button", { textContent: "Approve" });
+    const reject = el("button", { className: "secondary", textContent: "Reject" });
+    approve.onclick = act(() => api("POST", `/api/suggested-retailers/${s.suggested_retailer_id}/approve`));
+    reject.onclick = act(() => api("POST", `/api/suggested-retailers/${s.suggested_retailer_id}/reject`));
+    return el("div", { className: "item" },
+      el("div", { className: "what" },
+        el("a", { href: s.site_url, target: "_blank", rel: "noopener", textContent: s.retailer_name }),
+        el("div", { className: "muted", textContent: `${s.site_url} · ${s.source}${s.found_via ? ` · found via ${s.found_via}` : ""}` })),
+      approve, reject);
+  };
+
+  const fill = (id, items, make, empty) => {
+    $(id).replaceChildren(...(items.length ? items.map(make) : [el("p", { className: "muted", textContent: empty })]));
+  };
+
+  async function load() {
+    const list = await api("GET", "/api/review");
+    $("lists").hidden = false;
+    $("status").className = "muted";
+    $("status").textContent = `${list.size_labels.length} labels, ${list.products.length} Products, ${list.suggested_retailers.length} Suggested Retailers`;
+    fill("sizes", list.size_labels, sizeItem, "No labels waiting.");
+    fill("products", list.products, productItem, "No Products waiting.");
+    fill("suggested", list.suggested_retailers, suggestedItem, "No Suggested Retailers waiting.");
+  }
+
+  $("login").onsubmit = act(async () => {
+    token = $("token").value.trim();
+    try { sessionStorage.setItem("yxra-admin", token); } catch {}
+  });
+  if (token) load().catch((err) => { $("status").textContent = err.message; });
+</script>
+</body>
+</html>
