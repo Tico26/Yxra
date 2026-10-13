@@ -7,6 +7,7 @@ name: Nightly Stock check
 # Needs these repository settings (Settings > Secrets and variables > Actions):
 #   secret   DATABASE_URL   Supabase connection string (Session pooler URI)
 #   variable YXRA_CONTACT   contact address Retailers see in our User-Agent
+#   secret   ANTHROPIC_API_KEY  for the AI tagging batch (skipped if unset)
 
 on:
   schedule:
@@ -39,3 +40,7 @@ jobs:
         run: npm run migrate
       - name: Stock check
         run: npm run stock-check
+      - name: AI tagging for what the rules could not settle
+        run: npm run ai-tagging
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
