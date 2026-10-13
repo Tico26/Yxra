@@ -18,7 +18,8 @@
     "collect": "node scripts/collect.js",
     "add-retailer": "node scripts/add-retailer.js",
     "stock-check": "node scripts/stock-check.js",
-    "ai-tagging": "node scripts/ai-tagging.js"
+    "ai-tagging": "node scripts/ai-tagging.js",
+    "discover": "node scripts/discover.js"
   },
   "devDependencies": {
     "jest": "^29.7.0",

@@ -9,6 +9,7 @@ const {
 } = require("./controllers/retailers.controller");
 const { requireAdmin } = require("./lib/admin");
 const { postClickOut } = require("./controllers/click-outs.controller");
+const { postApprove, postReject } = require("./controllers/suggested-retailers.controller");
 const {
   getReviewList,
   postSizeLabel,
@@ -40,6 +41,8 @@ app.get("/api/review", requireAdmin, getReviewList);
 app.post("/api/review/size-labels", requireAdmin, postSizeLabel);
 app.post("/api/review/products/:product_id", requireAdmin, postProductDecision);
 app.put("/api/size-charts/:brand", requireAdmin, putSizeChart);
+app.post("/api/suggested-retailers/:suggested_retailer_id/approve", requireAdmin, postApprove);
+app.post("/api/suggested-retailers/:suggested_retailer_id/reject", requireAdmin, postReject);
 
 app.get("/api/categories", getAllCategories);
 app.get("/api/categories/:category_id", getCategoryById);
