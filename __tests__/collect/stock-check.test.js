@@ -67,6 +67,14 @@ describe("nightly Stock check", () => {
     expect(summary.failed).toEqual([{ retailer: "Northern Curve", error: "timed out" }]);
   });
 
+  test("R6: a Retailer whose data comes back empty counts as failed, so nothing is hidden", async () => {
+    const before = await productByExternal("101:black");
+    const summary = await runStockCheck({ fetcher: savedWeb({}), now: NIGHT(0), ...quiet });
+    expect(summary.failed.map((f) => f.retailer)).toEqual(["Northern Curve", "Seaside Plus"]);
+    expect((await productByExternal("101:black")).missing_since).toBeNull();
+    expect((await search(22)).map((p) => p.product_id)).toContain(before.product_id);
+  });
+
   test("R16: a Product gone from its Retailer's data is hidden, and back when it returns", async () => {
     const sites = { [NORTHERN]: { 1: page1 } };
     await runStockCheck({ fetcher: savedWeb(sites), now: NIGHT(0), ...quiet });
@@ -84,7 +92,7 @@ describe("nightly Stock check", () => {
   test("R17: a Product missing from its Retailer's data for 30 nights in a row is deleted", async () => {
     const web = savedWeb({ [NORTHERN]: { 1: page1 } });
     await runStockCheck({ fetcher: web, now: NIGHT(0), ...quiet });
-    const empty = savedWeb({});
+    const empty = savedWeb({ [NORTHERN]: { 1: { products: page1.products.slice(1) } } });
 
     await runStockCheck({ fetcher: empty, now: NIGHT(1), ...quiet });
     await runStockCheck({ fetcher: empty, now: NIGHT(30), ...quiet });

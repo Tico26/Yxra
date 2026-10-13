@@ -6,13 +6,15 @@ const { createPoliteFetcher } = require("../lib/collect/polite-fetch");
 const LIVE_CHECK_TIMEOUT_MS = 2500;
 
 let defaultFetcher;
-// Live checks are single requests made while a Shopper waits, so they skip
-// the pause between requests but still honour robots.txt and identify Yxra.
+// Live checks are made while a Shopper waits, so the pause between requests
+// to one Retailer is short. When Shoppers click faster than that, the wait
+// runs past the timeout and she is sent on unchecked (R20) rather than
+// hammering the Retailer. robots.txt and identifying Yxra still apply.
 const liveFetcher = (app) => {
   if (app.get("liveFetcher")) return app.get("liveFetcher");
   if (!defaultFetcher) {
     try {
-      defaultFetcher = createPoliteFetcher({ minDelayMs: 0, timeoutMs: LIVE_CHECK_TIMEOUT_MS });
+      defaultFetcher = createPoliteFetcher({ minDelayMs: 1000, timeoutMs: LIVE_CHECK_TIMEOUT_MS });
     } catch {
       return null; // No contact address set: Shoppers are sent on unchecked (R20).
     }

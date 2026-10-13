@@ -1,6 +1,6 @@
 name: Weekly discovery
 
-# Finds new UK plus-size shops and adds the ones Yxra can read as Suggested
+# Finds new UK plus-size Retailers and adds the ones Yxra can read as Suggested
 # Retailers on the Review list (spec 0001, rules R22 and R23). It never adds
 # a Retailer by itself. Uses the same secrets as the nightly Stock check.
 

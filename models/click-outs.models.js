@@ -15,6 +15,19 @@ const withTimeout = (promise, ms) => {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 };
 
+// Shopify links name a variant; point it at her size so she lands with it
+// already chosen rather than on the first (often smallest, maybe sold-out) size.
+const linkForHerSize = (product, sizes, live) => {
+  if (product.source !== "shopify") return product.product_url;
+  const size =
+    sizes.find((s) => live && live.get(s.size_label) === true && s.variant_refs.length) ||
+    sizes.find((s) => s.variant_refs.length);
+  if (!size) return product.product_url;
+  const url = new URL(product.product_url);
+  url.searchParams.set("variant", size.variant_refs[0]);
+  return url.toString();
+};
+
 const record = (productId, ukSize, outcome) =>
   db.query(`INSERT INTO click_outs (product_id, uk_size, outcome) VALUES ($1, $2, $3)`, [
     productId,
@@ -44,7 +57,7 @@ exports.clickOut = async ({ productId, ukSize, fetcher, timeoutMs }) => {
     live = await withTimeout(check(product, sizes, fetcher), timeoutMs);
   } catch {
     await record(productId, ukSize, "check_failed");
-    return { outcome: "sent", url: product.product_url };
+    return { outcome: "sent", url: linkForHerSize(product, sizes, null) };
   }
 
   for (const [label, inStock] of live) {
@@ -57,7 +70,7 @@ exports.clickOut = async ({ productId, ukSize, fetcher, timeoutMs }) => {
   const stillInStock = sizes.some((s) => live.get(s.size_label) !== false);
   if (stillInStock) {
     await record(productId, ukSize, "sent");
-    return { outcome: "sent", url: product.product_url };
+    return { outcome: "sent", url: linkForHerSize(product, sizes, live) };
   }
 
   await record(productId, ukSize, "sold_out");

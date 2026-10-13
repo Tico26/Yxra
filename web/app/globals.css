@@ -127,7 +127,7 @@ button:focus-visible, select:focus-visible, a:focus-visible {
 
 .card-body p { margin: 0; }
 
-.card-shop { color: var(--grey); font-size: 0.85rem; }
+.card-retailer { color: var(--grey); font-size: 0.85rem; }
 
 .card-title {
   font-size: 1rem;

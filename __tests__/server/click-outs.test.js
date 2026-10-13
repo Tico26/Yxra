@@ -42,7 +42,7 @@ const recorded = async () =>
   (await db.query(`SELECT product_id, uk_size, outcome, clicked_at FROM click_outs`)).rows;
 
 describe("POST /api/click-outs", () => {
-  test("R18: a Live check runs, then she is sent to the Retailer", async () => {
+  test("R18: a Live check runs, then she is sent to the Retailer with her size chosen", async () => {
     const shop = liveShop({ 11: true, 12: false, 13: true });
     app.set("liveFetcher", shop);
     const id = await productId("101:black");
@@ -50,7 +50,7 @@ describe("POST /api/click-outs", () => {
     expect(shop.asked).toEqual(["https://northern-curve.example/products/wrap-midi-dress.js"]);
     expect(body).toEqual({
       outcome: "sent",
-      url: "https://northern-curve.example/products/wrap-midi-dress?variant=1",
+      url: "https://northern-curve.example/products/wrap-midi-dress?variant=11",
     });
   });
 

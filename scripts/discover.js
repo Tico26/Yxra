@@ -1,4 +1,4 @@
-// Looks for new UK plus-size shops and adds the readable ones as Suggested
+// Looks for new UK plus-size Retailers and adds the readable ones as Suggested
 // Retailers for Tico to approve or reject on the Review list (/admin).
 const db = require("../db/connection");
 const { runDiscovery } = require("../lib/discovery");

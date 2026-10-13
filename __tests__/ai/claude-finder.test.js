@@ -24,7 +24,7 @@ const handover = {
       type: "tool_use",
       id: "t1",
       name: "suggest_retailers",
-      input: { shops: [{ retailer_name: "Big Bloom", site_url: "https://bigbloom.example", why: "sizes 18-32" }] },
+      input: { retailers: [{ retailer_name: "Big Bloom", site_url: "https://bigbloom.example", why: "sizes 18-32" }] },
     },
   ],
 };

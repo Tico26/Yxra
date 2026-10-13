@@ -15,7 +15,7 @@ export default function ProductCard({ product, size }) {
           ) : null}
         </div>
         <div className="card-body">
-          <p className="card-shop">{product.retailer_name}</p>
+          <p className="card-retailer">{product.retailer_name}</p>
           <h3 className="card-title">{name}</h3>
           <p className="card-price">{formatPrice(product.price_in_pence)}</p>
           <p className="card-stock">

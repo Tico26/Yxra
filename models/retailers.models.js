@@ -9,8 +9,6 @@ exports.fetchRetailers = async () => {
   return rows;
 };
 
-exports.fetchActiveRetailers = exports.fetchRetailers;
-
 // Adds a Retailer, or brings back one Tico removed earlier.
 exports.addRetailer = async ({ retailer_name, site_url, source, women_only = false }, client = db) => {
   if (!retailer_name || typeof retailer_name !== "string") {

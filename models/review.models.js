@@ -1,8 +1,8 @@
 // The Review list: what Yxra could not settle by itself, waiting for Tico.
 const db = require("../db/connection");
 const { badRequest, notFound } = require("../lib/errors");
-const { brandKey, sizeLabelKey } = require("../lib/sizes");
-const { refreshProducts } = require("../lib/catalogue");
+const { brandKey, sizeLabelKey, isUkSize } = require("../lib/sizes");
+const { retranslateAndSortProducts } = require("../lib/catalogue");
 const { LAUNCH_CATEGORIES } = require("../lib/query");
 
 const LIVE = `r.removed_at IS NULL AND p.missing_since IS NULL`;
@@ -11,7 +11,7 @@ const parseUkSizes = (value) => {
   if (
     !Array.isArray(value) ||
     value.length === 0 ||
-    !value.every((n) => Number.isInteger(n) && n >= 4 && n <= 40 && n % 2 === 0)
+    !value.every(isUkSize)
   ) {
     throw badRequest("uk_sizes must be a list of even UK sizes, like [18, 20]");
   }
@@ -79,7 +79,7 @@ exports.settleSizeLabel = async ({ brand, size_label, uk_sizes }) => {
   }
   const ukSizes = parseUkSizes(uk_sizes);
   await saveTranslation(brand || "", size_label, ukSizes, "tico");
-  await refreshProducts(await productsWithLabel(brand || "", size_label));
+  await retranslateAndSortProducts(await productsWithLabel(brand || "", size_label));
   return { brand: brand || "", size_label, uk_sizes: ukSizes };
 };
 
@@ -94,7 +94,7 @@ exports.saveSizeChart = async (brand, sizes) => {
     return { size_label: s.size_label, uk_sizes: parseUkSizes(s.uk_sizes) };
   });
   for (const row of rows) await saveTranslation(brand, row.size_label, row.uk_sizes, "chart");
-  await refreshProducts(await productsWithLabel(brand, rows.map((r) => r.size_label)));
+  await retranslateAndSortProducts(await productsWithLabel(brand, rows.map((r) => r.size_label)));
   return rows;
 };
 
@@ -123,5 +123,5 @@ exports.settleProduct = async (productId, { audience, category, excluded_as }) =
     ]
   );
   if (!rowCount) throw notFound("Product");
-  await refreshProducts([productId]);
+  await retranslateAndSortProducts([productId]);
 };

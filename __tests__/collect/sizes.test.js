@@ -35,6 +35,13 @@ describe("translateSizeLabel (R11–R13)", () => {
     expect(t(label).uk_sizes).toEqual(uk);
   });
 
+  test("a bare number above 32 could be a European size, so only a UK-marked one is translated", () => {
+    expect(t("36")).toEqual({ uk_sizes: [], size_status: "unsettled" });
+    expect(t("34/36").size_status).toBe("unsettled");
+    expect(t("UK 36")).toEqual({ uk_sizes: [36], size_status: "translated" });
+    expect(t("32")).toEqual({ uk_sizes: [32], size_status: "translated" });
+  });
+
   test.each(["3X", "XXL", "One Size", "17", "M/L", "18/22/26", "42", "Small"])(
     "R12: %s has no confident UK size and is left unsettled",
     (label) => {
