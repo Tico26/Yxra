@@ -1,0 +1,41 @@
+name: Nightly Stock check
+
+# Refreshes every Retailer's Products and stock in the Supabase database
+# each night (spec 0001, rules R6, R14, R16, R17). Run it by hand from the
+# Actions tab with "Run workflow".
+#
+# Needs these repository settings (Settings > Secrets and variables > Actions):
+#   secret   DATABASE_URL   Supabase connection string (Session pooler URI)
+#   variable YXRA_CONTACT   contact address Retailers see in our User-Agent
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: stock-check
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  stock-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      NODE_ENV: production
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      YXRA_CONTACT: ${{ vars.YXRA_CONTACT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Apply schema
+        run: npm run migrate
+      - name: Stock check
+        run: npm run stock-check

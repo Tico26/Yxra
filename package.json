@@ -15,7 +15,8 @@
     "start": "node listen.js",
     "seed-prod": "NODE_ENV=production npm run seed",
     "collect": "node scripts/collect.js",
-    "add-retailer": "node scripts/add-retailer.js"
+    "add-retailer": "node scripts/add-retailer.js",
+    "stock-check": "node scripts/stock-check.js"
   },
   "devDependencies": {
     "jest": "^29.7.0",
