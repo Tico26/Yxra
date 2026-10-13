@@ -28,7 +28,14 @@ exports.fitsRange = fitsRange;
 
 // Products in stock in one UK size, optionally in one category. When several
 // of a Product's Size labels cover the size, the narrowest one is shown.
-exports.searchProducts = async ({ ukSize, category, excludeProductId = null }) => {
+// With priceNear, the closest prices come first (used for "similar").
+exports.searchProducts = async ({
+  ukSize,
+  category,
+  excludeProductId = null,
+  priceNear = null,
+  limit = 500,
+}) => {
   const { rows } = await db.query(
     `SELECT * FROM (
        SELECT DISTINCT ON (p.product_id)
@@ -44,8 +51,10 @@ exports.searchProducts = async ({ ukSize, category, excludeProductId = null }) =
          AND ($3::int IS NULL OR p.product_id <> $3)
        ORDER BY p.product_id, cardinality(s.uk_sizes)
      ) found
-     ORDER BY first_seen_at DESC, product_id`,
-    [ukSize, category || null, excludeProductId]
+     ORDER BY CASE WHEN $4::int IS NULL THEN 0 ELSE ABS(price_in_pence - $4::int) END,
+              first_seen_at DESC, product_id
+     LIMIT $5`,
+    [ukSize, category || null, excludeProductId, priceNear, limit]
   );
   return rows.map(({ uk_sizes, first_seen_at, ...row }) => ({
     ...row,

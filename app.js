@@ -8,6 +8,7 @@ const {
   deleteRetailer,
 } = require("./controllers/retailers.controller");
 const { requireAdmin } = require("./lib/admin");
+const { postClickOut } = require("./controllers/click-outs.controller");
 const {
   getReviewList,
   postSizeLabel,
@@ -28,6 +29,8 @@ app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "public", "adm
 
 app.get("/api/products", getProducts);
 app.get("/api/products/:product_id", getProductById);
+
+app.post("/api/click-outs", postClickOut);
 
 app.get("/api/retailers", getRetailers);
 app.post("/api/retailers", requireAdmin, postRetailer);
