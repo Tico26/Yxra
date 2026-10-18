@@ -1,0 +1,164 @@
+:root {
+  --plum: #2e1a3b;
+  --cream: #fbf6ef;
+  --grey: #5e5566;
+  --stock: #1f6f5c;
+  --line: #e7dfd4;
+  --card: #ffffff;
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --text: "Atkinson Hyperlegible", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--cream);
+  color: var(--plum);
+  font: 17px/1.5 var(--text);
+}
+
+a { color: var(--plum); }
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+h1, h2, h3, .wordmark { font-family: var(--display); }
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px 16px 8px;
+}
+
+.wordmark {
+  font-size: 1.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.tagline { color: var(--grey); }
+
+.search {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 16px 20px;
+  margin: 12px 0 20px;
+}
+
+.search h1 { margin: 0 0 12px; font-size: 1.6rem; }
+
+.search-row {
+  display: grid;
+  gap: 12px;
+}
+
+.search label { display: grid; gap: 4px; font-weight: 700; font-size: 0.95rem; }
+
+select, button {
+  font: inherit;
+  min-height: 48px;
+  border-radius: 10px;
+  padding: 0 12px;
+}
+
+select {
+  border: 1px solid #cfc4b6;
+  background: var(--cream);
+  color: var(--plum);
+  width: 100%;
+}
+
+button {
+  border: 0;
+  background: var(--plum);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:focus-visible, select:focus-visible, a:focus-visible {
+  outline: 3px solid var(--stock);
+  outline-offset: 2px;
+}
+
+.count { color: var(--grey); margin: 0 0 12px; }
+
+.notice {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.card-link { display: block; height: 100%; text-decoration: none; color: inherit; }
+
+.card-photo { aspect-ratio: 3 / 4; background: #efe8de; }
+
+.card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.card-body { padding: 10px 12px 12px; }
+
+.card-body p { margin: 0; }
+
+.card-retailer { color: var(--grey); font-size: 0.85rem; }
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 2px 0 4px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.card-price { font-weight: 700; }
+
+.card-stock { color: var(--stock); font-weight: 700; font-size: 0.9rem; margin-top: 4px !important; }
+
+.card-checked { color: var(--grey); font-size: 0.8rem; }
+
+.sold-out h1 { font-size: 1.7rem; margin: 20px 0 8px; }
+
+.site-footer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  color: var(--grey);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 640px) {
+  .search-row { grid-template-columns: 1fr 1fr auto; align-items: end; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+}
+
+@media (min-width: 960px) {
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

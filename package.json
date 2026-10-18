@@ -1,6 +1,7 @@
 {
   "main": "listen.js",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "nodenv": "^0.1.0",
@@ -10,13 +11,25 @@
   "scripts": {
     "setup-db": "psql -f ./db/yxra.sql",
     "seed": "NODE_ENV=test node db/run-seed.js",
+    "migrate": "node db/migrate.js",
     "test": "NODE_ENV=test jest --runInBand",
     "start": "node listen.js",
-    "seed-prod": "NODE_ENV=production npm run seed"
+    "seed-prod": "NODE_ENV=production npm run seed",
+    "collect": "node scripts/collect.js",
+    "add-retailer": "node scripts/add-retailer.js",
+    "stock-check": "node scripts/stock-check.js",
+    "ai-tagging": "node scripts/ai-tagging.js",
+    "discover": "node scripts/discover.js"
   },
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/web/"
+    ]
   }
 }

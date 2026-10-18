@@ -1,9 +1,7 @@
-const products = require("./products");
-const categories = require("./shop_category");
-const shops = require("./shops");
-
 module.exports = {
-  products,
-  categories,
-  shops,
+  categories: require("./categories"),
+  retailers: require("./retailers"),
+  products: require("./products"),
+  sizeTranslations: require("./size_translations"),
+  suggestedRetailers: [],
 };

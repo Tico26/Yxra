@@ -13,5 +13,8 @@ if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
 if (ENV === "production") {
   config.connectionString = process.env.DATABASE_URL;
   config.max = 2;
+  // Supabase requires TLS; its certificate is signed by Supabase's own CA,
+  // which Node does not ship, so the connection is encrypted but not pinned.
+  config.ssl = { rejectUnauthorized: false };
 }
 module.exports = new Pool(config);

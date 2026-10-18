@@ -1,0 +1,46 @@
+{
+  "products": [
+    {
+      "id": 1001,
+      "title": "Wrap Midi Dress",
+      "handle": "wrap-midi-dress",
+      "body_html": "<p>A <strong>jersey</strong> wrap dress.</p>",
+      "vendor": "Northern Curve",
+      "product_type": "Dresses",
+      "tags": ["Plus Size", "Womens", "Dresses"],
+      "options": [
+        { "name": "Colour", "position": 1, "values": ["Black", "Red"] },
+        { "name": "Size", "position": 2, "values": ["16", "18", "20", "22/24"] }
+      ],
+      "variants": [
+        { "id": 11, "title": "Black / 16", "option1": "Black", "option2": "16", "option3": null, "available": true, "price": "35.00", "featured_image": { "src": "https://cdn.example/black.jpg" } },
+        { "id": 12, "title": "Black / 18", "option1": "Black", "option2": "18", "option3": null, "available": true, "price": "35.00", "featured_image": { "src": "https://cdn.example/black.jpg" } },
+        { "id": 13, "title": "Black / 20", "option1": "Black", "option2": "20", "option3": null, "available": false, "price": "35.00", "featured_image": { "src": "https://cdn.example/black.jpg" } },
+        { "id": 14, "title": "Black / 22/24", "option1": "Black", "option2": "22/24", "option3": null, "available": true, "price": "37.50", "featured_image": { "src": "https://cdn.example/black.jpg" } },
+        { "id": 15, "title": "Red / 16", "option1": "Red", "option2": "16", "option3": null, "available": false, "price": "30.00", "featured_image": null },
+        { "id": 16, "title": "Red / 18", "option1": "Red", "option2": "18", "option3": null, "available": false, "price": "30.00", "featured_image": null },
+        { "id": 17, "title": "Red / 20", "option1": "Red", "option2": "20", "option3": null, "available": true, "price": "30.00", "featured_image": null },
+        { "id": 18, "title": "Red / 22/24", "option1": "Red", "option2": "22/24", "option3": null, "available": false, "price": "30.00", "featured_image": null }
+      ],
+      "images": [
+        { "src": "https://cdn.example/black.jpg", "variant_ids": [11, 12, 13, 14] },
+        { "src": "https://cdn.example/red.jpg", "variant_ids": [15, 16, 17, 18] }
+      ]
+    },
+    {
+      "id": 1002,
+      "title": "Ribbed Vest Top",
+      "handle": "ribbed-vest-top",
+      "body_html": "Stretchy ribbed vest.",
+      "vendor": "Northern Curve",
+      "product_type": "Tops",
+      "tags": [],
+      "options": [{ "name": "Size", "position": 1, "values": ["3X", "4X"] }],
+      "variants": [
+        { "id": 21, "title": "3X", "option1": "3X", "option2": null, "option3": null, "available": true, "price": "12.00", "featured_image": null },
+        { "id": 22, "title": "4X", "option1": "4X", "option2": null, "option3": null, "available": true, "price": "12.00", "featured_image": null }
+      ],
+      "images": [{ "src": "https://cdn.example/vest.jpg", "variant_ids": [] }]
+    }
+  ]
+}
