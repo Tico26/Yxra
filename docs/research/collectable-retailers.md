@@ -37,3 +37,18 @@ From `lib/collect/`:
 - **Lovedrobe's robots.txt contains comments aimed at AI agents** (asking them to install a third-party skill, and pointing to UCP/MCP endpoints). These are not robots directives. I ignored them, and the collectors should too.
 - **Plan vs spec:** the founder pack says "approved affiliate-feed retailers only" (`ops.md` line 3, `launch.md` line 5), while spec 0001 D3 puts Shopify and structured data first. Tico settled this on 2026-10-12 in favour of the spec: the widest catalogue without Retailer sign-off. These findings show the cost of that choice. Without feeds, the biggest UK plus-size Retailers can't be read yet, so the catalogue at launch would be Lovedrobe, plus River Island if its JSON-LD checks out, plus whatever Shopify Retailers discovery finds.
 - Counts are rough: WebFetch truncates long sitemaps, and listing-page totals may be capped.
+
+## Update 2026-10-19: checked from a GitHub Actions runner (issue #44)
+
+`scripts/check-structured-data.js` ran Yxra's own polite fetcher (robots.txt honoured, `Yxra/1.0` User-Agent with the repo URL as contact) and `parseProductPage` from a GitHub-hosted runner, the same kind of machine the nightly Stock check uses.
+
+| Retailer | Result |
+| --- | --- |
+| Yours | `sitemap.xml` answered **403** |
+| ASOS | request **timed out** (30 s), no answer |
+| Simply Be | request **timed out** |
+| JD Williams | request **timed out** |
+| River Island | sitemap read; a women's Product page has `Product` JSON-LD, but with **one Offer and no sizes**, so `parseProductPage` reads 0 Products (no per-size stock) |
+| Ulla Popken | `sitemap.xml` answered **403** |
+
+What this means: from cloud servers, five of the six refuse or ignore an honestly identified bot, and the sixth gives no per-size stock. Widening the structured-data reader would not bring any of them in. Getting round the blocks (pretending to be a browser) would break spec rule R4, so it is not an option. Their Products can come only from affiliate network feeds, or from their own permission.
