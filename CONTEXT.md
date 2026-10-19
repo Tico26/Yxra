@@ -74,6 +74,14 @@ _Avoid_: Notification, restock alert
 A Shopper leaving Yxra for a Retailer's site to look at or buy a product.
 _Avoid_: Redirect, referral, outbound click
 
+**Wrong-Product report**:
+A Shopper telling Yxra that a Product she saw was sold out, in the wrong size, not plus size, or had a broken link. It puts the Product on the Review list.
+_Avoid_: Flag, complaint, feedback
+
+**Accuracy number**:
+The weekly share of Click-outs that found her UK size in stock, and of spot-checked Products whose UK sizes matched the Retailer, shown to Shoppers.
+_Avoid_: Score, rating, quality metric
+
 ### Placement
 
 **Region**:
