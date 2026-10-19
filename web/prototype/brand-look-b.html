@@ -1,0 +1,335 @@
+<title>Yxra Shop Look B</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- PROTOTYPE (issue #40), throwaway: more home page designs built on variant B (size-first home). Tico asked 2026-10-19. Sample Products only. Sponsored and Standouts rows are marked "after launch". -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap">
+<style>
+/* Layout: B's family — her size first, then categories, then rows of Products in her size. */
+:root {
+  --ink: #2E1A3B; --bg: #FBF6EF; --surface: #FFFFFF; --muted: #5E5566; --line: #E7DED3;
+  --stock: #1F6F5C; --on-ink: #FBF6EF; --tint: #F1E8F3;
+  --amber-fg: #7A4E00; --amber-bg: #FFF1D6;
+  --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --text: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ink: #EBDDF2; --bg: #1A1220; --surface: #241A2C; --muted: #B6A9BE; --line: #3A2E44;
+  --stock: #5FC7A9; --on-ink: #1A1220; --tint: #2E2238; --amber-fg: #F5C76B; --amber-bg: #3A2C12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ink: #EBDDF2; --bg: #1A1220; --surface: #241A2C; --muted: #B6A9BE; --line: #3A2E44;
+  --stock: #5FC7A9; --on-ink: #1A1220; --tint: #2E2238; --amber-fg: #F5C76B; --amber-bg: #3A2C12; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 15px; line-height: 1.45; padding-bottom: 88px }
+a { color: inherit }
+button, input, select { font: inherit; color: inherit }
+:focus-visible { outline: 2px solid var(--stock); outline-offset: 2px }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0 }
+.variant[hidden] { display: none }
+.muted { color: var(--muted) }
+
+.logo { font-family: var(--display); font-weight: 800; font-size: 28px; letter-spacing: -0.02em; text-decoration: none }
+.logo b { color: var(--stock) }
+.btn { background: var(--ink); color: var(--on-ink); border: 0; border-radius: 999px; padding: 12px 20px; font-weight: 700; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-flex; justify-content: center }
+.btn.light { background: var(--bg); color: var(--ink) }
+.search { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 4px 4px 16px; min-width: 0 }
+.search input { border: 0; background: transparent; flex: 1; min-width: 0; padding: 10px 0; outline: none; color: var(--ink) }
+.sizepill { display: inline-flex; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-weight: 700; white-space: nowrap; cursor: pointer }
+.sizepill span { color: var(--muted); font-weight: 400 }
+.accuracy { color: var(--stock); font-weight: 700 }
+
+.head .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; flex-wrap: wrap }
+.head nav { display: flex; gap: 20px; font-weight: 700; font-size: 14px; flex-wrap: wrap }
+.head nav a { text-decoration: none }
+
+.chipsz { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px }
+.chipsz button { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 12px 0; font-family: var(--display); font-weight: 700; font-size: 20px; cursor: pointer; font-variant-numeric: tabular-nums }
+.chipsz button.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink) }
+
+.photo { aspect-ratio: 3 / 4; max-width: 100%; border-radius: 6px; position: relative; overflow: hidden; display: grid; place-items: center }
+.photo svg { width: 46%; height: auto }
+.photo .colour { position: absolute; left: 8px; bottom: 8px; font-size: 11px; background: rgba(255,255,255,.88); color: #2E1A3B; padding: 2px 8px; border-radius: 999px }
+.shop { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
+.price { font-weight: 700; font-variant-numeric: tabular-nums }
+.price s { color: var(--muted); font-weight: 400; margin-left: 6px }
+.tick { color: var(--stock); font-weight: 700; font-size: 13px }
+.badge { font-size: 12px; font-weight: 700; color: var(--ink); background: var(--tint); padding: 2px 8px; border-radius: 999px; justify-self: start }
+.pcard { display: grid; gap: 3px; text-decoration: none }
+.pcard .photo { margin-bottom: 6px }
+
+.rail { padding-block: 28px 4px }
+.rail > header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; flex-wrap: wrap }
+.rail h2 { font-size: 24px }
+.rail > header a { font-weight: 700; font-size: 14px }
+.track { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(170px, 1fr); gap: 16px; overflow-x: auto; padding: 0 0 8px; margin: 0; scroll-snap-type: x mandatory; list-style: none }
+.track li { scroll-snap-align: start }
+.later { font-family: var(--text); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; border: 1px dashed currentColor; padding: 2px 6px; border-radius: 4px; color: var(--muted); vertical-align: middle; margin-left: 8px }
+.sponsored { background: var(--amber-bg); border-radius: 12px; padding: 18px; margin-top: 28px }
+.sponsored .label { color: var(--amber-fg); font-weight: 700; font-size: 13px }
+.sponsored h2 { font-size: 22px; margin: 2px 0 14px }
+.trust .wrap { display: flex; gap: 28px; padding-block: 14px; font-size: 13px; flex-wrap: wrap; justify-content: center }
+.foot { margin-top: 48px; background: var(--tint) }
+.foot .wrap { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 24px; padding-block: 32px; font-size: 13px }
+.foot h3 { font-size: 15px; margin-bottom: 8px }
+.foot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; color: var(--muted) }
+
+/* B1: original */
+.b1-hero { background: var(--ink); color: var(--on-ink) }
+.b1-hero .wrap { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; padding-block: 44px; align-items: center }
+.b1-hero h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.02; letter-spacing: -0.02em }
+.b1-hero p { max-width: 46ch; opacity: .85 }
+.picker { background: var(--bg); color: var(--ink); border-radius: 14px; padding: 20px; display: grid; gap: 14px }
+.picker h2 { font-size: 18px }
+.trust { border-bottom: 1px solid var(--line) }
+.cats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; padding-block: 32px 8px }
+.cat { text-decoration: none; display: grid; gap: 8px; text-align: center; font-weight: 700 }
+.cat .photo { aspect-ratio: 1; border-radius: 50% }
+.cat small { font-weight: 400; color: var(--muted) }
+
+/* B2: split hero with photo collage, Standouts and Sponsored shown */
+.b2-hero .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding-block: 36px; align-items: center }
+.b2-hero h1 { font-size: clamp(36px, 5.4vw, 64px); line-height: .98; letter-spacing: -0.03em }
+.b2-hero h1 em { font-style: normal; color: var(--stock) }
+.b2-left { display: grid; gap: 18px }
+.b2-collage { display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; aspect-ratio: 1.1; max-width: 100% }
+.b2-collage .photo { aspect-ratio: auto; height: 100% }
+.b2-collage .photo:first-child { grid-row: span 2 }
+.b2-collage .tag { position: absolute; right: 8px; top: 8px; background: var(--surface); color: var(--stock); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px }
+.b2-sizes { display: flex; gap: 6px; flex-wrap: wrap }
+.b2-sizes button { min-width: 52px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 10px 14px; font-family: var(--display); font-weight: 700; font-size: 17px; cursor: pointer }
+.b2-sizes button.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink) }
+.b2-cats { display: flex; gap: 10px; overflow-x: auto; padding-block: 20px 4px }
+.b2-cats a { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 10px 16px; text-decoration: none; font-weight: 700; white-space: nowrap }
+.b2-cats a small { color: var(--muted); font-weight: 400; margin-left: 6px }
+
+/* B3: guided finder (size, occasion, type) */
+.b3-hero { background: var(--tint) }
+.b3-hero .wrap { padding-block: 36px; display: grid; gap: 22px }
+.b3-hero h1 { font-size: clamp(30px, 4.4vw, 50px); letter-spacing: -0.02em; max-width: 20ch }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px }
+.step { background: var(--surface); border-radius: 12px; padding: 16px; display: grid; gap: 12px; align-content: start; border: 1px solid var(--line) }
+.step h2 { font-size: 15px; display: flex; gap: 10px; align-items: center }
+.step h2 i { font-style: normal; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--on-ink); display: grid; place-items: center; font-size: 13px; flex: none }
+.step .chipsz { grid-template-columns: repeat(4, 1fr) }
+.step .chipsz button { font-size: 16px; padding: 8px 0 }
+.opts { display: flex; flex-wrap: wrap; gap: 8px }
+.opts button { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 8px 14px; cursor: pointer }
+.opts button.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink) }
+.b3-go { display: flex; gap: 16px; align-items: center; flex-wrap: wrap }
+.b3-go .count { font-family: var(--display); font-weight: 700; font-size: 20px }
+.b3-go .count b { color: var(--stock) }
+
+/* B4: stacked category banners, app-like */
+.b4-sizebar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--ink); color: var(--on-ink) }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+.b4-sizebar .wrap { display: flex; gap: 12px; align-items: center; padding-block: 10px; overflow-x: auto }
+.b4-sizebar span { font-size: 13px; opacity: .8; white-space: nowrap }
+.b4-sizebar button { background: transparent; color: var(--on-ink); border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 6px 12px; font-family: var(--display); font-weight: 700; cursor: pointer }
+.b4-sizebar button.on { background: var(--on-ink); color: var(--ink) }
+.b4-intro { padding-block: 28px 8px; display: grid; gap: 14px }
+.b4-intro h1 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -0.02em }
+.banners { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-block: 16px }
+.banner { position: relative; border-radius: 14px; overflow: hidden; min-height: 220px; display: grid; grid-template-columns: 1fr 1fr; text-decoration: none; color: #fff }
+.banner .txt { padding: 22px; display: grid; align-content: end; gap: 6px; z-index: 1 }
+.banner h2 { font-size: 30px; line-height: 1 }
+.banner p { margin: 0; font-size: 14px; opacity: .9 }
+.banner .art { display: grid; place-items: center }
+.banner .art svg { width: 60%; height: auto }
+.banner.wide { grid-column: span 2; min-height: 180px; grid-template-columns: 2fr 1fr }
+
+@media (max-width: 860px) {
+  .b1-hero .wrap, .b2-hero .wrap { grid-template-columns: 1fr; padding-block: 28px }
+  .cats { grid-template-columns: repeat(3, 1fr) }
+  .track { grid-auto-columns: 46% }
+  .steps { grid-template-columns: 1fr }
+  .banners { grid-template-columns: 1fr }
+  .banner.wide { grid-column: auto }
+  .foot .wrap { grid-template-columns: 1fr }
+}
+
+.switcher { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; display: flex; align-items: center; gap: 4px; background: #111; color: #fff; border-radius: 999px; padding: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.35); font: 13px/1.2 system-ui, sans-serif; max-width: calc(100vw - 32px) }
+.switcher button { background: #333; color: #fff; border: 0; border-radius: 999px; width: 34px; height: 34px; cursor: pointer; font-size: 16px; flex: none }
+.switcher span { padding: 0 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.sample { position: fixed; right: max(12px, env(safe-area-inset-right, 0px)); top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 20; background: #111; color: #fff; font: 11px system-ui, sans-serif; padding: 4px 8px; border-radius: 4px; opacity: .8 }
+@media (prefers-reduced-motion: no-preference) { .photo { transition: transform .2s } a:hover .photo { transform: scale(1.015) } }
+</style>
+
+<div class="sample">Prototype · sample Products</div>
+
+<template id="tpl-head">
+  <header class="head"><div class="wrap">
+    <a class="logo" href="#">Yxra<b>.</b></a>
+    <nav><a href="#">Dresses</a><a href="#">Tops</a><a href="#">Jeans</a><a href="#">Swimwear</a><a href="#">Activewear</a></nav>
+    <button class="sizepill"><span>Your size</span> UK 24</button>
+  </div></header>
+</template>
+<template id="tpl-foot">
+  <footer class="foot"><div class="wrap">
+    <div><a class="logo" href="#">Yxra<b>.</b></a><p class="muted">Shops pay us commission when you buy through our links. It never changes the order of results.</p></div>
+    <div><h3>Help</h3><ul><li>How we check stock</li><li>Report a wrong item</li><li>Shops we search</li></ul></div>
+    <div><h3>About</h3><ul><li>Privacy</li><li>Cookies (we use none)</li><li>Contact</li></ul></div>
+  </div></footer>
+</template>
+
+<!-- 1: B as before -->
+<section class="variant" id="v1" data-name="B as before">
+  <div class="slot" data-t="tpl-head"></div>
+  <div class="b1-hero"><div class="wrap">
+    <div><h1>Every plus-size shop. Only what's in your size.</h1>
+      <p>Yxra searches the UK's plus-size shops overnight and shows you only what is in stock in your size. We check again the moment you click.</p></div>
+    <div class="picker"><h2>Pick your UK size</h2><div class="chipsz sizes8"></div>
+      <label class="search"><input id="q1" placeholder="What are you after? e.g. black wide-leg jeans"></label>
+      <button class="btn">Show what's in stock</button></div>
+  </div></div>
+  <div class="trust"><div class="wrap">
+    <span class="accuracy">✓ 96 of 100 checked items were in stock last week</span><span>1,240 items in a 24 tonight</span><span>From 9 shops</span><span>Free, no account</span>
+  </div></div>
+  <div class="wrap">
+    <div class="cats" id="cats1"></div>
+    <section class="rail"><header><h2>New in, in a 24</h2><a href="#">See all 86</a></header><ul class="track" data-rail="mix:1"></ul></section>
+    <section class="rail"><header><h2>Swimwear for the holiday</h2><a href="#">See all 64</a></header><ul class="track" data-rail="swim:4"></ul></section>
+  </div>
+  <div class="slot" data-t="tpl-foot"></div>
+</section>
+
+<!-- 2: split hero, collage, Standouts + Sponsored -->
+<section class="variant" id="v2" data-name="Split hero with photos, best sellers and Sponsored" hidden>
+  <div class="slot" data-t="tpl-head"></div>
+  <div class="b2-hero"><div class="wrap">
+    <div class="b2-left">
+      <p class="accuracy">✓ 96% of items were right last week</p>
+      <h1>Your size. <em>In stock.</em> Every shop.</h1>
+      <p class="muted" style="margin:0;max-width:44ch">Pick your UK size once. We remember it on this phone and only ever show you what's in stock in it.</p>
+      <div class="b2-sizes sizes8"></div>
+      <label class="search"><input id="q2" placeholder="Search dresses, swimwear, jeans…"><button class="btn">Search</button></label>
+    </div>
+    <div class="b2-collage" id="collage"></div>
+  </div></div>
+  <div class="wrap">
+    <div class="b2-cats" id="cats2"></div>
+    <section class="rail"><header><h2>Best sellers in a 24 this week<span class="later">Standouts, after launch</span></h2><a href="#">See all</a></header><ul class="track" data-rail="dress:5:standout"></ul></section>
+    <section class="sponsored"><span class="label">Sponsored ad · Lovedrobe</span><h2>Lovedrobe's party edit, in a 24<span class="later">Placement, after launch</span></h2><ul class="track" data-rail="dress:2:lovedrobe"></ul></section>
+    <section class="rail"><header><h2>New in, in a 24</h2><a href="#">See all 86</a></header><ul class="track" data-rail="mix:3"></ul></section>
+  </div>
+  <div class="slot" data-t="tpl-foot"></div>
+</section>
+
+<!-- 3: guided finder -->
+<section class="variant" id="v3" data-name="Guided finder: size, occasion, type" hidden>
+  <div class="slot" data-t="tpl-head"></div>
+  <div class="b3-hero"><div class="wrap">
+    <h1>Three taps to everything in stock in your size.</h1>
+    <div class="steps">
+      <div class="step"><h2><i>1</i> Your UK size</h2><div class="chipsz sizes8"></div></div>
+      <div class="step"><h2><i>2</i> What's it for?</h2><div class="opts" id="occ"></div></div>
+      <div class="step"><h2><i>3</i> What are you after?</h2><div class="opts" id="kind"></div></div>
+    </div>
+    <div class="b3-go"><span class="count"><b>143</b> wedding guest dresses in a 24</span><button class="btn">Show them</button><span class="accuracy" style="font-size:13px">✓ 96% were right last week</span></div>
+  </div></div>
+  <div class="wrap">
+    <section class="rail"><header><h2>A first look: wedding guest dresses in a 24</h2><a href="#">See all 143</a></header><ul class="track" data-rail="dress:6"></ul></section>
+    <section class="rail"><header><h2>Holiday? Swimwear in a 24</h2><a href="#">See all 64</a></header><ul class="track" data-rail="swim:2"></ul></section>
+  </div>
+  <div class="slot" data-t="tpl-foot"></div>
+</section>
+
+<!-- 4: sticky size bar, stacked banners -->
+<section class="variant" id="v4" data-name="Size bar and big category banners" hidden>
+  <div class="b4-sizebar"><div class="wrap"><a class="logo" href="#" style="font-size:22px;color:inherit;margin-right:8px">Yxra<b>.</b></a><span>Showing size</span><span id="sz4" style="display:contents"></span></div></div>
+  <div class="wrap">
+    <div class="b4-intro">
+      <h1>1,240 things in stock in a 24 tonight</h1>
+      <label class="search"><input id="q4" placeholder="Search across 9 shops"><button class="btn">Search</button></label>
+      <span class="accuracy" style="font-size:13px">✓ 96 of 100 checked items were in stock last week. How we check</span>
+    </div>
+    <div class="banners" id="banners"></div>
+    <section class="rail"><header><h2>Best sellers this week<span class="later">Standouts, after launch</span></h2><a href="#">See all</a></header><ul class="track" data-rail="mix:7:standout"></ul></section>
+    <section class="rail"><header><h2>Under £30</h2><a href="#">See all 210</a></header><ul class="track" data-rail="top:6:cheap"></ul></section>
+  </div>
+  <div class="slot" data-t="tpl-foot"></div>
+</section>
+
+<div class="switcher" role="group" aria-label="Prototype variant">
+  <button id="prev" aria-label="Previous variant">←</button><span id="label"></span><button id="next" aria-label="Next variant">→</button>
+</div>
+
+<script>
+const SIZES = [18, 20, 22, 24, 26, 28, 30, 32];
+const SHOPS = ["Lovedrobe", "Hollin & Rye", "Marlow Curve", "Ninth Street", "Fernhill", "Sable & Co"];
+const tones = [["#C9B6D9","Lilac"],["#2F3A4A","Navy"],["#B4472F","Rust"],["#E7C9A9","Sand"],["#1F1A1D","Black"],["#7E9C82","Sage"],["#D9677E","Rose"],["#F0D36B","Lemon"],["#3D6C8C","Teal"]];
+const svg = d => `<svg viewBox="0 0 60 80"><path fill="rgba(255,255,255,.55)" d="${d}"/></svg>`;
+const shapes = {
+  dress: svg("M22 2h16l2 12 10 8-6 6 12 50H4l12-50-6-6 10-8z"),
+  top: svg("M18 14l12 6 12-6 16 12-8 10-6-4v34H16V32l-6 4-8-10z"),
+  swim: svg("M16 6h6l8 18 8-18h6l2 26-6 14 10 26H6l10-26-6-14z"),
+  legs: svg("M10 2h40l4 76H36L30 28l-6 50H6z")
+};
+const names = {
+  dress: ["Wrap midi dress","Tiered maxi dress","Satin slip dress","Shirt dress with belt","Ruched jersey dress","Floral tea dress"],
+  top: ["Linen blend shirt","Puff sleeve blouse","Ribbed vest top","Oversized tee"],
+  swim: ["Ruched swimsuit","Plunge swimsuit","Tankini set","Halterneck swimsuit"],
+  legs: ["Wide-leg jeans","Ponte straight trousers","Barrel-leg jeans","Leggings with pockets"]
+};
+const pick = (a, i) => a[i % a.length];
+const item = (kind, i) => { const t = pick(tones, i * 5 + 2), price = [24, 32, 38, 45, 28, 55, 19, 42, 65, 36][i % 10];
+  return { kind, name: pick(names[kind], i), shop: pick(SHOPS, i * 7 + 1), colour: t[1], bg: t[0], price, was: i % 4 === 1 ? price + 12 : null }; };
+const photo = p => `<div class="photo" style="background:${p.bg}">${shapes[p.kind]}<span class="colour">${p.colour}</span></div>`;
+const card = (p, extra = "") => `<li><a class="pcard" href="#">${photo(p)}${extra}<span class="shop">${p.shop}</span><span>${p.name}</span>
+  <span class="price">£${p.price}${p.was ? `<s>£${p.was}</s>` : ""}</span><span class="tick">✓ In stock in 24</span></a></li>`;
+const sizeButtons = () => SIZES.map(s => `<button class="${s === 24 ? "on" : ""}">${s}</button>`).join("");
+
+document.querySelectorAll(".slot").forEach(s => s.replaceWith(document.getElementById(s.dataset.t).content.cloneNode(true)));
+document.querySelectorAll(".sizes8").forEach(el => el.innerHTML = sizeButtons());
+
+document.querySelectorAll("[data-rail]").forEach(el => {
+  const [kind, seed, mode] = el.dataset.rail.split(":"); const s = +seed;
+  const kinds = kind === "mix" ? ["dress", "top", "legs", "swim"] : [kind];
+  el.innerHTML = Array.from({ length: 8 }, (_, k) => {
+    const p = item(kinds[k % kinds.length], s + k);
+    if (mode === "lovedrobe") p.shop = "Lovedrobe";
+    if (mode === "cheap") { p.price = Math.min(p.price, 29); p.was = null; }
+    return card(p, mode === "standout" ? `<span class="badge">★ Bought ${21 - k * 2} times this week</span>` : "");
+  }).join("");
+});
+
+const catList = [["Dresses","dress",312,0],["Tops","top",401,2],["Jeans & trousers","legs",188,4],["Swimwear","swim",64,6],["Activewear","legs",97,8],["New in","dress",86,3]];
+document.getElementById("cats1").innerHTML = catList.map(([n, k, c, t]) => `<a class="cat" href="#"><div class="photo" style="background:${tones[t][0]}">${shapes[k]}</div>${n}<small>${c} in a 24</small></a>`).join("");
+document.getElementById("cats2").innerHTML = catList.map(([n, , c]) => `<a href="#">${n}<small>${c}</small></a>`).join("");
+document.getElementById("collage").innerHTML = [item("dress", 3), item("swim", 5), item("legs", 2)]
+  .map((p, i) => `<div class="photo" style="background:${p.bg}">${shapes[p.kind]}<span class="tag">✓ In a 24 · £${p.price}</span></div>`).join("");
+
+document.getElementById("occ").innerHTML = ["Wedding guest", "Holiday", "Work", "Night out", "Everyday", "Gym"].map((o, i) => `<button class="${i === 0 ? "on" : ""}">${o}</button>`).join("");
+document.getElementById("kind").innerHTML = ["Dresses", "Jumpsuits", "Tops", "Skirts", "Coats", "Anything"].map((o, i) => `<button class="${i === 0 ? "on" : ""}">${o}</button>`).join("");
+document.querySelectorAll(".opts, .sizes8").forEach(g => g.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  g.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+}));
+
+document.getElementById("sz4").innerHTML = sizeButtons();
+document.getElementById("sz4").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  document.querySelectorAll("#sz4 button").forEach(x => x.classList.toggle("on", x === b));
+});
+document.getElementById("banners").innerHTML = [["Dresses","312 in a 24, from £19","dress",0,"wide"],["Swimwear","64 in a 24","swim",8,""],["Jeans & trousers","188 in a 24","legs",1,""],["Tops","401 in a 24","top",2,""],["Activewear","97 in a 24","legs",5,""]]
+  .map(([n, s, k, t, w]) => `<a class="banner ${w}" href="#" style="background:${tones[t][0]}"><div class="txt" style="background:linear-gradient(90deg, rgba(46,26,59,.85), rgba(46,26,59,0))"><h2>${n}</h2><p>${s}</p></div><div class="art">${shapes[k]}</div></a>`).join("");
+
+const ids = ["1", "2", "3", "4"];
+let cur = Math.max(0, ids.indexOf((location.hash || "#v1").replace("#v", "")));
+const show = () => {
+  ids.forEach((k, i) => document.getElementById("v" + k).hidden = i !== cur);
+  document.getElementById("label").textContent = `${cur + 1} of 4 · ${document.getElementById("v" + ids[cur]).dataset.name}`;
+  try { history.replaceState(null, "", "#v" + ids[cur]); } catch {}
+  window.scrollTo(0, 0);
+};
+const step = d => { cur = (cur + d + ids.length) % ids.length; show(); };
+document.getElementById("prev").onclick = () => step(-1);
+document.getElementById("next").onclick = () => step(1);
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input, textarea, select, [contenteditable]")) return;
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+document.addEventListener("click", e => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); });
+show();
+</script>
