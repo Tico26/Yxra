@@ -60,7 +60,7 @@ const findPage = async (r, fetcher) => {
 
 const main = async () => {
   const fetcher = createPoliteFetcher({ minDelayMs: 3000 });
-  for (const r of RETAILERS) {
+  for (const r of RETAILERS.filter((x) => !process.env.ONLY || x.name === process.env.ONLY)) {
     console.log(`\n=== ${r.name} ===`);
     try {
       const { page, sitemaps } = await findPage(r, fetcher);
@@ -73,6 +73,9 @@ const main = async () => {
       const html = await fetcher.getText(page);
       console.log(`html bytes: ${html.length}`);
       console.log(`json-ld types: ${jsonLdTypes(html).join(", ") || "(none)"}`);
+      for (const [, body] of html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
+        if (/"Product"/.test(body)) console.log(`product json-ld (first 1500 chars): ${body.trim().slice(0, 1500)}`);
+      }
       const products = parseProductPage(html, page);
       console.log(`RESULT: ${products.length} Product(s) parsed`);
       for (const p of products.slice(0, 2)) {
