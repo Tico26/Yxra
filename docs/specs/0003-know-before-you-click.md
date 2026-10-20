@@ -27,7 +27,7 @@ Adds:
 | # | Question | Decision | Why |
 |---|---|---|---|
 | D1 | How Size guides are collected | A Claude Code routine on Tico's plan reads each Retailer's size guide page and drafts the rows; nothing shows until Tico approves them on the admin page. Tico can also type a guide in by hand (Tico, 20 Oct) | £0 like spec 0002 D7, keeps Tico's time to checking, and scales as discovery adds Retailers |
-| D2 | How Returns terms are collected | The same routine drafts them from the Retailer's returns page and Tico approves (Tico, 20 Oct); _(proposed)_ re-checked every 30 days | Terms change rarely; a date keeps them honest |
+| D2 | How Returns terms are collected | The same routine drafts them from the Retailer's returns page and Tico approves and re-checks them every 30 days (Tico, 20 Oct) | Terms change rarely; a date keeps them honest |
 | D3 | What a card shows when a guide or terms are missing or stale | _(proposed)_ The line is left off, and the card links to the Retailer's own size guide or returns page instead | Never shows a figure Yxra has not checked |
 | D4 | Where the Sale price comes from | _(proposed)_ Shopify's `compare_at_price` when it is above the price; Retailers read from structured data have no Sale price until their data gives one | Only what the Retailer itself marks down |
 | D5 | Default order | _(proposed)_ Newest first stays the default; price low to high and high to low are choices | Matches spec 0001; commission never changes the order (ADR 0005) |
@@ -73,6 +73,6 @@ Adds:
 
 ## Open questions
 
-- D2's re-check interval, then D3 to D5, one at a time (Tico).
+- D3 to D5, one at a time (Tico).
 - Should the card also show the same size in Yours' or Simply Be's guide, so she can compare with a shop she knows? The panel's version had this (Tico).
 - Is "Under £45" the right price line, or should it be a choice of price bands (Tico)?
