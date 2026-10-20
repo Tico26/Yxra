@@ -1,6 +1,6 @@
 # 0003: Know before you click
 
-**Draft, being agreed with Tico one question at a time.** Decisions marked _(proposed)_ are Claude's recommendation and are still open. Comes from pipeline run 3: the shopper panel said what would win them over was each card showing the Retailer's own size measurements and its return costs, plus sorting by sale and price (retest: 5 of 20, 25%, which meets the bar). The offer is "Know before you click" in `yxra-founder/run-3/founder/offer.md`, items A, C and D.
+Agreed with Tico on 20 Oct 2026, one decision at a time. Comes from pipeline run 3: the shopper panel said what would win them over was each card showing the Retailer's own size measurements and its return costs, plus sorting by sale and price (retest: 5 of 20, 25%, which meets the bar). The offer is "Know before you click" in `yxra-founder/run-3/founder/offer.md`, items A, C and D.
 
 ## Goal
 
@@ -30,7 +30,7 @@ Adds:
 | D2 | How Returns terms are collected | The same routine drafts them from the Retailer's returns page and Tico approves and re-checks them every 30 days (Tico, 20 Oct) | Terms change rarely; a date keeps them honest |
 | D3 | What a card shows when a guide or terms are missing or stale | The line is left off, and the card links to the Retailer's own size guide or returns page instead (Tico, 20 Oct) | Never shows a figure Yxra has not checked |
 | D4 | Where the Sale price comes from | Shopify's `compare_at_price` when it is above the price; Retailers read from structured data have no Sale price until their data gives one; Yxra's own price history never makes a Sale price (Tico, 20 Oct) | Only what the Retailer itself marks down |
-| D5 | Default order | _(proposed)_ Newest first stays the default; price low to high and high to low are choices | Matches spec 0001; commission never changes the order (ADR 0005) |
+| D5 | Default order | Newest first stays the default; price low to high and high to low are choices (Tico, 20 Oct) | Matches spec 0001; commission never changes the order (ADR 0005) |
 
 ## Rules
 
@@ -73,6 +73,5 @@ Adds:
 
 ## Open questions
 
-- D5 (Tico).
 - Should the card also show the same size in Yours' or Simply Be's guide, so she can compare with a shop she knows? The panel's version had this (Tico).
 - Is "Under £45" the right price line, or should it be a choice of price bands (Tico)?
