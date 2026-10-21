@@ -40,7 +40,7 @@ exports.searchProducts = async ({
     `SELECT * FROM (
        SELECT DISTINCT ON (p.product_id)
          p.product_id, p.title, p.colour, p.brand, p.category, p.image_url, p.product_url,
-         p.price_in_pence, p.last_checked_at, p.first_seen_at, r.retailer_name,
+         p.price_in_pence, p.last_checked_at, p.first_seen_at, p.retailer_id, r.retailer_name,
          s.size_label, s.uk_sizes
        FROM products p
        JOIN retailers r USING (retailer_id)
