@@ -1,7 +1,7 @@
 import { formatChecked, formatPrice, stockLine } from "../lib/format.mjs";
 
-// One Product in her size. The link goes through the Click-out, which checks
-// stock again before she leaves. A plain <a> so nothing is prefetched.
+// One Product in her size. The link goes through the Click-out, which records
+// it and sends her to the shop. A plain <a> so nothing is prefetched.
 export default function ProductCard({ product, size }) {
   const name = product.colour ? `${product.title}, ${product.colour}` : product.title;
   return (
@@ -13,9 +13,9 @@ export default function ProductCard({ product, size }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={product.image_url} alt={name} loading="lazy" />
           ) : null}
+          <span className="shop-badge">{product.retailer_name}</span>
         </div>
         <div className="card-body">
-          <p className="card-retailer">{product.retailer_name}</p>
           <h3 className="card-title">{name}</h3>
           <p className="card-price">{formatPrice(product.price_in_pence)}</p>
           <p className="card-stock">
