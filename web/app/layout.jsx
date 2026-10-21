@@ -1,7 +1,7 @@
-import "@fontsource/bricolage-grotesque/600.css";
-import "@fontsource/bricolage-grotesque/700.css";
-import "@fontsource/atkinson-hyperlegible/400.css";
-import "@fontsource/atkinson-hyperlegible/700.css";
+import "@fontsource/gfs-didot/400.css";
+import "@fontsource/outfit/400.css";
+import "@fontsource/outfit/500.css";
+import "@fontsource/outfit/700.css";
 import "./globals.css";
 import { SITE } from "../lib/site.mjs";
 import TraderLine from "./trader-line";
@@ -13,7 +13,15 @@ export const metadata = {
     "Search plus-size clothes, swimwear and activewear across UK shops, and see only what is in stock in your size.",
 };
 
-export const viewport = { width: "device-width", initialScale: 1, themeColor: "#2E1A3B" };
+export const viewport = { width: "device-width", initialScale: 1, themeColor: "#FFFFFF" };
+
+// The header's category links open the size picker with that category chosen.
+const NAV = [
+  ["/?category=clothes#size", "Clothes"],
+  ["/?category=swimwear#size", "Swimwear"],
+  ["/?category=activewear#size", "Activewear"],
+  ["/shops", "Shops"],
+];
 
 // Spec 0002 rule 26: every page links to these.
 const FOOTER_LINKS = [
@@ -26,18 +34,37 @@ const FOOTER_LINKS = [
   ["/contact", "Contact"],
 ];
 
+// The YX|RA logo from Tico's earlier frontend: Didot letters split by a bar.
+function Wordmark({ small = false }) {
+  return (
+    <a href="/" className={small ? "wordmark small" : "wordmark"} aria-label="Yxra home">
+      YX<span className="bar" aria-hidden="true" />RA
+    </a>
+  );
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en-GB">
       <body>
         <header className="site-header">
-          <a href="/" className="wordmark">
-            Yxra
-          </a>
-          <span className="tagline">Your size, in stock.</span>
+          <div className="wrap">
+            <nav aria-label="Browse">
+              {NAV.map(([href, label]) => (
+                <a key={label} href={href}>
+                  {label}
+                </a>
+              ))}
+            </nav>
+            <Wordmark />
+            <a href="/#size" className="sizepill">
+              Your size
+            </a>
+          </div>
         </header>
         <main>{children}</main>
         <footer className="site-footer">
+          <Wordmark small />
           <p>
             Free for you. We earn nothing from these links yet; later, shops pay a small commission
             that never changes the order.
