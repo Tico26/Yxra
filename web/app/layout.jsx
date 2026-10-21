@@ -43,8 +43,8 @@ export default function RootLayout({ children }) {
             that never changes the order.
           </p>
           <p>
-            If Yxra shows it, it was in stock in your size when we last checked, and we check again
-            when you click.
+            If Yxra shows it, it was in stock in your size at our last nightly check. Each item
+            shows when that was.
           </p>
           <nav aria-label="About Yxra">
             <ul className="footer-links">

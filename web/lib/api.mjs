@@ -35,8 +35,8 @@ export const listRetailers = async () => {
   return (await res.json()).retailers;
 };
 
-// Runs the Live check. Returns { outcome: "sent", url } or
-// { outcome: "sold_out", message, similar }, or null if the Product is gone.
+// Records the Click-out. Returns { outcome: "sent", url }, or null if the
+// Product is gone.
 export const clickOut = async ({ productId, size }) => {
   const res = await apiFetch("/api/click-outs", {
     method: "POST",

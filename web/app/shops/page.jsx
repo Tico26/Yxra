@@ -23,7 +23,8 @@ export default async function ShopsPage() {
       <h1>Shops we search</h1>
       <p>
         Yxra searches the shops below. We read each shop&apos;s own product pages every night and
-        only show what is in stock in your UK size. We check again the moment you click.
+        only show what was in stock in your UK size at that check. Each item shows when it was
+        last checked.
       </p>
       {retailers === null ? (
         <p className="notice">The list isn&apos;t loading right now. Please try again in a minute.</p>

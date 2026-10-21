@@ -26,10 +26,6 @@ export default function ForRetailersPage() {
           follow your robots.txt, and wait at least 5 seconds between requests to your site.
         </li>
         <li>
-          When a shopper clicks, we check that one product once more, so we don&apos;t send her to
-          something that just sold out in her size.
-        </li>
-        <li>
           We show the product name, colour, price, sizes in stock and your main photo, which loads
           from your own site. Everything else is on your page.
         </li>

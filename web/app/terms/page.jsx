@@ -17,7 +17,7 @@ export default function TermsPage() {
       </p>
       <h2>Accuracy</h2>
       <p>
-        We read each shop&apos;s products every night and check an item again when you click it. Shops
+        We read each shop&apos;s products once a night, and each item shows when it was checked. Shops
         change prices and stock all the time, so the shop&apos;s own page is always the final word. Our
         target is that 95 in 100 items we send you to are in stock in your size, and 98 in 100 have the
         right sizes. If something is wrong, please <a href="/contact">tell us</a>.
