@@ -3,7 +3,6 @@ const path = require("path");
 const {
   parseProductPage,
   readStructuredData,
-  liveCheckStructuredData,
 } = require("../../lib/collect/structured-data");
 
 const FIXTURES = path.join(__dirname, "../fixtures/structured-data");
@@ -111,22 +110,5 @@ describe("readStructuredData", () => {
       [`${SITE}/sitemap.xml`]: fixture("sitemap-products-1.xml"),
     });
     await expect(readStructuredData({ site_url: SITE }, web)).rejects.toThrow(/pages failed/);
-  });
-});
-
-describe("liveCheckStructuredData", () => {
-  test("reads the Product's page again and reports each Size label's stock", async () => {
-    const [navy] = parseProductPage(fixture("tea-dress.html"), `${SITE}/p/tea-dress`);
-    const soldOut = fixture("tea-dress.html").replace(
-      '"price": "39.00", "priceCurrency": "GBP", "availability": "https://schema.org/InStock"',
-      '"price": "39.00", "priceCurrency": "GBP", "availability": "https://schema.org/OutOfStock"'
-    );
-    const web = savedSite({ [`${SITE}/p/tea-dress?colour=navy`]: soldOut });
-    const live = await liveCheckStructuredData(
-      { product_url: navy.product_url, external_id: navy.external_id },
-      [{ size_label: "18", variant_refs: ["TD100-NAV-18"] }],
-      web
-    );
-    expect(live).toEqual(new Map([["18", false]]));
   });
 });

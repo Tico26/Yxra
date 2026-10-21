@@ -59,9 +59,9 @@ Adds: **Wrong-Product report** and **Accuracy number** (see [CONTEXT.md](../../C
 
 ### Click-out
 
-11. When she chooses a Product, a Live check runs before she leaves Yxra.
-12. When the Live check finds her size sold out, she is not sent; that size is marked sold out and she sees similar in-stock Products.
-13. When the Live check fails or takes longer than 3 seconds, she is sent to the Retailer anyway (spec 0001 rule 20).
+11. ~~When she chooses a Product, a Live check runs before she leaves Yxra.~~ Removed by Tico on 21 Oct 2026 ([ADR 0006](../adr/0006-no-live-check-at-click-out.md)): she is sent straight to the Retailer, and stock is as of the nightly Stock check shown on each card.
+12. ~~Sold-out-at-click handling.~~ Removed with rule 11.
+13. ~~Live check timeout.~~ Removed with rule 11.
 14. When the Yxra API cannot be reached at all, the site still sends her to the Retailer's link.
 15. A Retailer with an approved commission link gets that link; every other Retailer gets its plain link.
 16. Every commission link carries an "Ad" label next to it.

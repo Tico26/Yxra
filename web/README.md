@@ -1,9 +1,9 @@
 # Yxra website
 
 Next.js site where a Shopper picks her UK size and a category and sees only
-Products in stock in that size. Choosing one goes through `/go/<id>?size=<n>`,
-which runs the Live check through the API and either sends her to the
-Retailer or shows "Just sold out in <size>" with similar Products. The footer
+Products in stock in that size at the nightly Stock check. Choosing one goes
+through `/go/<id>?size=<n>`, which records the Click-out and sends her to the
+Retailer's page in her size (no Live check, ADR 0006). The footer
 links to the pages spec 0002 rule 26 asks for; who runs Yxra and the contact
 email come from `lib/site.mjs`.
 

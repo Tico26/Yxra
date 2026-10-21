@@ -62,7 +62,7 @@ _Avoid_: Queue, inbox, moderation
 The regular refresh of whether each product is still available, and in which sizes, at its Retailer.
 _Avoid_: Sync, update, crawl
 
-**Live check**:
+**Live check** (removed at launch, see ADR 0006):
 A one-off Stock check of a single product made at the moment a Shopper chooses to go to the Retailer.
 _Avoid_: Real-time stock, refresh
 
