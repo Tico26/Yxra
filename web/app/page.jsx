@@ -45,7 +45,13 @@ export default async function Home({ searchParams }) {
   return (
     <>
       <form className="search" action="/" method="get">
-        <h1>What are you after?</h1>
+        <h1>Plus-size shops in one search. Only what&apos;s in your size.</h1>
+        <p className="intro">
+          Free. Search UK plus-size shops at once, then buy from the shop itself.
+        </p>
+        <p className="intro-small">
+          No ads. Shops can&apos;t pay to rank higher. <a href="/shops">See which shops we search</a>.
+        </p>
         <div className="search-row">
           <label>
             <span>Your UK size</span>

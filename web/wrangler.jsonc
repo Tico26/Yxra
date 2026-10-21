@@ -1,0 +1,13 @@
+// The Yxra website Worker, built with OpenNext. Deployed by
+// .github/workflows/deploy.yml after the API Worker.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "yxra-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  // Calls to the API go straight to the yxra-api Worker, not over the internet.
+  "services": [{ "binding": "API", "service": "yxra-api" }],
+  "observability": { "enabled": true }
+}

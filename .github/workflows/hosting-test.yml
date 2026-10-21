@@ -1,0 +1,35 @@
+name: Hosting test
+
+# Spec 0002 build step 1: measures the CPU time of the home page, a search
+# and Click-outs on the live Workers, against Workers Free's 10 ms limit.
+# Run by hand from the Actions tab after a deploy. The API token needs
+# Account Analytics: Read as well as the Workers permissions.
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: Website address, e.g. https://yxra-web.<you>.workers.dev
+        required: true
+      api_url:
+        description: API address, e.g. https://yxra-api.<you>.workers.dev
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  hosting-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/hosting-test.mjs
+        env:
+          SITE_URL: ${{ inputs.site_url }}
+          API_URL: ${{ inputs.api_url }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
