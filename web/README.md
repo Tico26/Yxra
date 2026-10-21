@@ -3,7 +3,9 @@
 Next.js site where a Shopper picks her UK size and a category and sees only
 Products in stock in that size. Choosing one goes through `/go/<id>?size=<n>`,
 which runs the Live check through the API and either sends her to the
-Retailer or shows "Just sold out in <size>" with similar Products.
+Retailer or shows "Just sold out in <size>" with similar Products. The footer
+links to the pages spec 0002 rule 26 asks for; who runs Yxra and the contact
+email come from `lib/site.mjs`.
 
 ## Run locally
 
@@ -15,8 +17,18 @@ npm install
 YXRA_API_URL=http://localhost:9090 npm run dev
 ```
 
-## Deploy on Vercel
+## On Cloudflare Workers
 
-Create a Vercel project from this repo with **Root Directory** set to `web`
-and one environment variable, `YXRA_API_URL`, pointing at the Express API.
-Every pull request then gets its own preview URL.
+The site runs as the `yxra-web` Worker, built with OpenNext, and reaches the
+`yxra-api` Worker (the Express API, `api-worker.mjs` in the repo root) through
+a service binding. `.github/workflows/deploy.yml` deploys both on every push
+to `main`; it lists the repository settings it needs.
+
+To try the Workers locally against a local Postgres:
+
+```sh
+# in the repo root
+npx wrangler dev --port 8787
+# here, in a second terminal
+npm run cf:build && npx wrangler dev --port 8788
+```

@@ -47,7 +47,7 @@ app.post("/api/suggested-retailers/:suggested_retailer_id/reject", requireAdmin,
 app.get("/api/categories", getAllCategories);
 app.get("/api/categories/:category_id", getCategoryById);
 
-app.all("/api/*", (req, res, next) => next(notFound("Endpoint")));
+app.all("/api/*path", (req, res, next) => next(notFound("Endpoint")));
 app.use(handleErrors);
 
 module.exports = { app };

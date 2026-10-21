@@ -154,6 +154,33 @@ button:focus-visible, select:focus-visible, a:focus-visible {
   border-top: 1px solid var(--line);
 }
 
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+
+.trader { font-size: 0.85rem; }
+
+.intro { margin: 0 0 4px; font-weight: 700; }
+
+.intro-small { margin: 0 0 12px; color: var(--grey); }
+
+.prose { max-width: 680px; padding-top: 8px; }
+
+.prose h1 { font-size: 1.9rem; margin: 12px 0 8px; line-height: 1.2; }
+
+.prose h2 { font-size: 1.25rem; margin: 28px 0 6px; }
+
+.prose li { margin-bottom: 6px; }
+
+.prose .updated { color: var(--grey); font-size: 0.9rem; }
+
+.shop-list li { margin-bottom: 10px; }
+
 @media (min-width: 640px) {
   .search-row { grid-template-columns: 1fr 1fr auto; align-items: end; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
