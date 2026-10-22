@@ -54,6 +54,35 @@ describe("translateSizeLabel (R11–R13)", () => {
     expect(t("18", { uk_sizes: [16] })).toEqual({ uk_sizes: [16], size_status: "translated" });
   });
 
+  test.each([
+    ["38DD", 38, "DD"],
+    ["40 G", 40, "G"],
+    ["34ff", 34, "FF"],
+    ["46HH", 46, "HH"],
+    ["32A", 32, "A"],
+  ])("a Bra size %s is read as a band and cup, with no UK size", (label, bra_band, bra_cup) => {
+    expect(t(label)).toEqual({ uk_sizes: [], size_status: "translated", bra_band, bra_cup });
+  });
+
+  test.each(["38Z", "37DD", "60B", "38", "DD", "38DDD", "32L", "34L"])(
+    "%s is not a Bra size and is left to the other rules",
+    (label) => {
+      expect(t(label).bra_band).toBeUndefined();
+    }
+  );
+
+  test("a Brand's chart still comes before the Bra size rule", () => {
+    expect(t("38DD", { uk_sizes: [20] })).toEqual({ uk_sizes: [20], size_status: "translated" });
+  });
+
+  test("an unsure answer with no UK size does not hide a Bra size", () => {
+    expect(t("38DD", { uk_sizes: [] })).toMatchObject({ size_status: "translated", bra_band: 38 });
+  });
+
+  test("UK 32 Long stays a UK size, not a bra", () => {
+    expect(t("32L")).toEqual({ uk_sizes: [32], size_status: "translated" });
+  });
+
   test("a known answer with no UK size (the AI was unsure) keeps the label unsettled", () => {
     expect(t("3X", { uk_sizes: [] })).toEqual({ uk_sizes: [], size_status: "unsettled" });
   });

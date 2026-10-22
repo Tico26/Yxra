@@ -75,16 +75,18 @@ const seed = async ({
     for (const s of p.sizes) {
       await db.query(
         `INSERT INTO product_sizes (product_id, size_label, uk_sizes, size_status, in_stock,
-           variant_refs, last_checked_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+           variant_refs, last_checked_at, bra_band, bra_cup)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
         [
           product_id,
           s.size_label,
-          s.uk_sizes,
+          s.uk_sizes || [],
           s.size_status || "translated",
           s.in_stock,
           s.variant_refs || [],
           p.last_checked_at,
+          s.bra_band || null,
+          s.bra_cup || null,
         ]
       );
     }

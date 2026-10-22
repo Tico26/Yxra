@@ -22,6 +22,7 @@ describe("GET /api/categories", () => {
     expect(allCategories.map((c) => c.category_name).sort()).toEqual([
       "activewear",
       "clothes",
+      "lingerie",
       "swimwear",
     ]);
   });
@@ -138,6 +139,16 @@ describe("GET /api/products?uk_size=&category= (search)", () => {
     await request(app).get("/api/products").expect(400);
     await request(app).get("/api/products?uk_size=big").expect(400);
   });
+
+  test("400: a bra search with a band that is not a band size, or a cup with no band", async () => {
+    await request(app).get("/api/products?bra_band=37").expect(400);
+    await request(app).get("/api/products?bra_band=38&bra_cup=Z").expect(400);
+    await request(app).get("/api/products?bra_cup=DD").expect(400);
+    await request(app).get("/api/products?uk_size=20&bra_band=38").expect(400);
+  });
+
+  test("lingerie is a category she can search", () =>
+    request(app).get("/api/products?uk_size=20&category=lingerie").expect(200));
 
   test("400: unknown category", () =>
     request(app).get("/api/products?uk_size=20&category=shoes").expect(400));

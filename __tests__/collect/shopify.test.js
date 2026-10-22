@@ -57,6 +57,36 @@ describe("parseShopifyProducts", () => {
     expect(tankini.sizes.map((s) => s.size_label)).toEqual(["UK 18", "UK 20"]);
   });
 
+  test("a bra with separate band and cup options gets one Size label per band and cup", () => {
+    const [bra] = parseShopifyProducts(
+      [
+        {
+          id: 501,
+          title: "Lace Balcony Bra",
+          handle: "lace-balcony-bra",
+          vendor: "Lounge Underwear",
+          options: [
+            { name: "Colour", position: 1 },
+            { name: "Band Size", position: 2 },
+            { name: "Cup Size", position: 3 },
+          ],
+          variants: [
+            { id: 1, option1: "Black", option2: "38", option3: "DD", available: true, price: "40.00" },
+            { id: 2, option1: "Black", option2: "38", option3: "E", available: false, price: "40.00" },
+            { id: 3, option1: "Black", option2: "40", option3: "DD", available: true, price: "40.00" },
+          ],
+          images: [],
+        },
+      ],
+      SITE
+    );
+    expect(bra.sizes).toEqual([
+      { size_label: "38DD", in_stock: true, variant_refs: ["1"] },
+      { size_label: "38E", in_stock: false, variant_refs: ["2"] },
+      { size_label: "40DD", in_stock: true, variant_refs: ["3"] },
+    ]);
+  });
+
   test("a product with no sizes at all is skipped", () => {
     const titles = parseShopifyProducts(page2.products, SITE).map((p) => p.title);
     expect(titles).not.toContain("Gift Card");

@@ -4,7 +4,7 @@ Agreed with Tico on 12 Oct 2026. The first release aims to get as many Shoppers 
 
 ## Goal
 
-Yxra collects Products from UK online Retailers every night without needing their sign-off, works out which are Plus size clothes, swimwear or activewear, translates every Size label onto the UK size scale, and keeps stock current. A Shopper can then search by her UK size and category and see only Products that are in stock in that size. When she chooses one, Yxra checks it one last time before sending her to the Retailer.
+Yxra collects Products from UK online Retailers every night without needing their sign-off, works out which are Plus size clothes, swimwear, activewear or lingerie (see [ADR 0007](../adr/0007-lingerie-and-bra-sizes.md)), translates every Size label onto the UK size scale, and keeps stock current. A Shopper can then search by her UK size and category and see only Products that are in stock in that size. When she chooses one, Yxra checks it one last time before sending her to the Retailer.
 
 ## Out of scope
 
@@ -12,7 +12,7 @@ Yxra collects Products from UK online Retailers every night without needing thei
 - Branches and in-store stock.
 - Placements, Standouts and Regions.
 - Back-in-stock alerts (but sold-out Products are kept so these can be added).
-- Lingerie and shoes.
+- Shoes. (Lingerie was added on 21 Oct 2026: [ADR 0007](../adr/0007-lingerie-and-bra-sizes.md).)
 - Body-measurement size matching.
 
 ## Terms
@@ -54,18 +54,18 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 7. Plain rules decide category, audience and UK size wherever the Retailer's data makes them clear; the AI is asked only about what the rules cannot settle.
 8. The AI is asked about a Product again only when its title, description or Size labels change; a change in stock alone never triggers it.
 9. Each AI answer carries a confidence; anything below the bar goes to the Review list instead of being shown.
-10. Only Products for women, in clothes, swimwear or activewear, and Plus size (made in UK 18 or above, whatever is in stock today) are shown to Shoppers.
+10. Only Products for women, in clothes, swimwear, activewear or lingerie, and Plus size (made in UK 18 or above, or for a bra band 38 or above, whatever is in stock today) are shown to Shoppers.
 
 ### Sizes
 
-11. Every Size label is translated onto the UK size scale, using the Brand's size chart where Yxra has one, then rules, then the AI.
+11. Every Size label is translated onto the UK size scale (or for a bra, read as a Bra size), using the Brand's size chart where Yxra has one, then rules, then the AI.
 12. A Size label with no confident UK size is never shown to Shoppers and goes to the Review list until Tico settles it.
 13. A Size label that covers more than one UK size appears in searches for each of them, marked with the full range ("fits 18–20").
 
 ### Stock
 
 14. Every Product's stock in each size is refreshed once a night, and the Product shows when that happened.
-15. Search shows a Product only if it is in stock in the Shopper's chosen UK size.
+15. Search shows a Product only if it is in stock in the Shopper's chosen UK size (or for bras, her band and cup).
 16. A Product sold out in every size is hidden but kept, and is shown again automatically when any size comes back.
 17. A Product missing from its Retailer's data for 30 days in a row is deleted.
 
@@ -74,7 +74,7 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 18. When a Shopper chooses to go to the Retailer, a Live check confirms that Product is in stock in her size before she leaves.
 19. When the Live check finds her size sold out, she is not sent; she sees "Just sold out in <size>", that size is marked sold out at once, and similar in-stock Products are offered.
 20. When the Live check fails or takes too long, she is sent to the Retailer as normal.
-21. Every Click-out is recorded with the Product, the UK size and the time.
+21. Every Click-out is recorded with the Product, the UK size (or Bra size) and the time.
 
 ### Discovery (after the first build)
 
