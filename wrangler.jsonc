@@ -16,5 +16,15 @@
     }
   ],
   "vars": { "NODE_ENV": "production" },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // A preview copy (.github/workflows/deploy-preview.yml) with its own name, so
+  // the live yxra-api Worker is untouched. Same Supabase data; no ADMIN_TOKEN,
+  // so its admin routes stay shut.
+  "env": {
+    "preview": {
+      "name": "yxra-api-preview",
+      "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "HYPERDRIVE_ID" }],
+      "vars": { "NODE_ENV": "production" }
+    }
+  }
 }

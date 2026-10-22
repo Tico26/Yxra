@@ -18,6 +18,6 @@ export default async function GoPage({ params, searchParams }) {
   } catch {
     result = null;
   }
-  if (!result) notFound();
+  if (!result?.url) notFound();
   redirect(result.url);
 }

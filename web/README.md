@@ -1,9 +1,12 @@
 # Yxra website
 
 Next.js site where a Shopper picks her UK size and a category and sees only
-Products in stock in that size at the nightly Stock check. Choosing one goes
-through `/go/<id>?size=<n>`, which records the Click-out and sends her to the
-Retailer's page in her size (no Live check, ADR 0006). The footer
+Products in stock in that size at the nightly Stock check. With no size she
+sees everything in stock in a plus size, each card listing the sizes in stock.
+Choosing one goes through `/go/<id>?size=<n>`, which records the Click-out and
+sends her to the Retailer's page in her size (no Live check, ADR 0006). Reading
+the page address and building API queries and links lives in `lib/search.mjs`,
+tested by `npm test`. The footer
 links to the pages spec 0002 rule 26 asks for; who runs Yxra and the contact
 email come from `lib/site.mjs`.
 

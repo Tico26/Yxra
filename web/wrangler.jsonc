@@ -9,5 +9,13 @@
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   // Calls to the API go straight to the yxra-api Worker, not over the internet.
   "services": [{ "binding": "API", "service": "yxra-api" }],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // A preview copy that calls the preview API Worker, so the live site is
+  // untouched (.github/workflows/deploy-preview.yml).
+  "env": {
+    "preview": {
+      "name": "yxra-web-preview",
+      "services": [{ "binding": "API", "service": "yxra-api-preview" }]
+    }
+  }
 }

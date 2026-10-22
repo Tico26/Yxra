@@ -15,11 +15,11 @@ export const metadata = {
 
 export const viewport = { width: "device-width", initialScale: 1, themeColor: "#FFFFFF" };
 
-// The header's category links open the size picker with that category chosen.
+// The header's category links show that category's products, under the hero.
 const NAV = [
-  ["/?category=clothes#size", "Clothes"],
-  ["/?category=swimwear#size", "Swimwear"],
-  ["/?category=activewear#size", "Activewear"],
+  ["/?category=clothes#products", "Clothes"],
+  ["/?category=swimwear#products", "Swimwear"],
+  ["/?category=activewear#products", "Activewear"],
   ["/shops", "Shops"],
 ];
 

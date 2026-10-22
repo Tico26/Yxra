@@ -1,7 +1,7 @@
 {
   "GET /api/products": {
-    "description": "Products in stock in one UK size, optionally in one category (clothes, swimwear, activewear)",
-    "queries": ["uk_size (required)", "category"]
+    "description": "Products in stock in one UK size, optionally in one category (clothes, swimwear, activewear). With no size, Products in stock in at least one plus size (UK 18+), with size_label and fits null. Every result has in_stock_sizes: its in-stock plus Size labels, UK sizes ascending",
+    "queries": ["uk_size (optional)", "category (optional)"]
   },
   "GET /api/products/:product_id": { "description": "One Product with all its Size labels" },
   "POST /api/click-outs": {

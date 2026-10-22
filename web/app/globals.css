@@ -147,32 +147,174 @@ h1, h2, h3, .wordmark {
 
 @keyframes ticker { to { transform: translateX(-50%); } }
 
-/* Hero: the promise on the left, the size picker on the right. */
+/* Hero: the first thing on the home page. White, full width, type first;
+   three product photos beside it on wide screens when the products load. */
 .hero {
+  margin-inline: calc(50% - 50vw);
+  padding: 44px max(16px, calc(50vw - 584px)) 40px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
   display: grid;
-  gap: 28px;
-  padding: 32px 0 8px;
+  gap: 32px;
   align-items: center;
 }
 
-.hero h1 { margin: 0 0 14px; font-size: clamp(36px, 5.4vw, 64px); line-height: 1.02; }
-
-.hero-text p { margin: 0 0 6px; max-width: 46ch; }
-
-.picker {
-  background: var(--card);
-  border: 1px solid var(--line);
-  padding: 20px;
-  display: grid;
-  gap: 14px;
-  scroll-margin-top: 16px;
+.eyebrow {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--grey);
 }
 
-.picker h2 { margin: 0; font-size: 26px; }
+.hero h1 {
+  margin: 0 0 18px;
+  font-size: clamp(40px, 7vw, 84px);
+  line-height: 0.98;
+  max-width: 13ch;
+}
 
-.picker p { margin: 0; }
+.hero-lede { margin: 0 0 24px; max-width: 48ch; font-size: 1.08rem; }
 
-.picker-category { display: grid; gap: 4px; font-weight: 500; font-size: 0.95rem; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-bottom: 16px; }
+
+.cta {
+  display: inline-grid;
+  place-items: center;
+  min-height: 52px;
+  padding: 0 28px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.cta::after { content: " \2193"; margin-left: 0.4em; }
+
+.cta:hover { background: #222; }
+
+.cta-quiet { font-weight: 500; }
+
+.hero .small { margin: 0; }
+
+.hero-photos { display: none; }
+
+@media (min-width: 860px) {
+  .hero { padding-top: 72px; padding-bottom: 72px; }
+  .hero.has-photos { grid-template-columns: 1.15fr 1fr; gap: 48px; }
+  .hero-photos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .hero-photos img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+    background: var(--line);
+  }
+  .hero-photos img:nth-child(2) { margin-top: 40px; }
+}
+
+/* Products: the filter on the left, the grid beside it. On phones the
+   filter is a closed "Filter" panel above the grid. */
+.shop { display: grid; gap: 8px; padding-top: 24px; scroll-margin-top: 0; }
+
+.filter { min-width: 0; }
+
+.filter-panel { background: var(--card); border: 1px solid var(--line); }
+
+.filter-panel > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 16px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 500;
+}
+
+.filter-panel > summary::-webkit-details-marker { display: none; }
+
+.filter-panel > summary::after { content: "+"; margin-left: auto; font-size: 22px; line-height: 1; }
+
+.filter-panel[open] > summary::after { content: "\2212"; }
+
+.filter-label { font-family: var(--display); font-size: 22px; font-weight: 400; color: var(--ink); }
+
+.filter-summary {
+  color: var(--grey);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-body { display: grid; gap: 22px; padding: 4px 16px 18px; }
+
+.filter-group { display: grid; gap: 10px; scroll-margin-top: 16px; }
+
+.filter-group h3 {
+  margin: 0;
+  font-family: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+
+.filter-group p { margin: 0; }
+
+.filter-cats { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.filter-cats a {
+  display: inline-grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.filter-cats a:hover { border-color: var(--ink); }
+
+.filter-cats a.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.filter-form { display: grid; gap: 10px; }
+
+.filter-reset, .filter-clear { font-size: 0.9rem; font-weight: 500; }
+
+.results { min-width: 0; }
+
+.results .section-title { padding-top: 24px; }
+
+.results .section-title h2 { font-size: clamp(36px, 5vw, 60px); }
+
+@media (min-width: 960px) {
+  .shop { grid-template-columns: 260px minmax(0, 1fr); gap: 32px; align-items: start; padding-top: 32px; }
+  .filter { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
+  .filter-panel > summary { display: none; }
+  .filter-panel::details-content { content-visibility: visible; display: contents; }
+  .filter-body { padding-top: 18px; }
+  .filter-cats { display: grid; gap: 0; }
+  .filter-cats a {
+    display: block;
+    min-height: 0;
+    padding: 8px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .filter-cats a.on { background: none; color: var(--ink); font-weight: 700; }
+  .filter-cats a.on::before { content: "\2014  "; }
+  .sizes button { min-height: 44px; font-size: 19px; padding: 0; }
+}
 
 .sizes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
@@ -293,6 +435,20 @@ button:focus-visible, select:focus-visible, a:focus-visible {
 
 .card-checked { color: var(--grey); font-size: 0.8rem; }
 
+.card { display: flex; flex-direction: column; }
+
+.card-link { flex: 1 0 auto; height: auto; }
+
+.card-foot { padding: 0 12px 12px; }
+
+.card-foot p { margin: 0; }
+
+.card-sizes { margin: 0 0 2px !important; overflow-wrap: anywhere; line-height: 1.4; }
+
+.card-sizes a { color: var(--stock); text-underline-offset: 2px; }
+
+.card-more { color: var(--grey); font-weight: 500; }
+
 .sold-out h1 { font-size: 1.7rem; margin: 20px 0 8px; }
 
 .site-footer {
@@ -333,14 +489,14 @@ button:focus-visible, select:focus-visible, a:focus-visible {
   .wordmark { font-size: 40px; }
 }
 
-@media (min-width: 860px) {
-  .hero { grid-template-columns: 1.1fr 1fr; gap: 40px; padding-top: 40px; }
-}
-
 @media (min-width: 640px) {
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 }
 
 @media (min-width: 960px) {
-  .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1140px) {
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
