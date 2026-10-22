@@ -110,21 +110,6 @@ h1, h2, h3, .wordmark {
   border-bottom: 1px solid var(--line);
 }
 
-.ticker-lead {
-  position: absolute;
-  inset: 0 auto 0 0;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  padding: 0 16px;
-  background: var(--card);
-  box-shadow: 12px 0 16px var(--card);
-  color: var(--grey);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .ticker-lane { display: flex; width: max-content; padding: 12px 0; }
 
 .ticker-item { display: flex; align-items: center; gap: 12px; padding-right: 12px; }

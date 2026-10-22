@@ -22,8 +22,7 @@ function ShopTicker({ names }) {
   const lane = Array.from({ length: copies }, () => names).flat();
   return (
     <div className="ticker">
-      <span className="ticker-lead">Shops we search</span>
-      <p className="sr-only">{names.join(", ")}</p>
+      <p className="sr-only">Shops we search: {names.join(", ")}</p>
       <div className="ticker-lane" aria-hidden="true">
         {lane.map((name, i) => (
           <span key={i} className="ticker-item">
