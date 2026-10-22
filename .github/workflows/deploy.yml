@@ -100,7 +100,10 @@ jobs:
         run: |
           sleep 10
           curl -fsS "$API_URL/api/categories" > /dev/null
-          curl -fsS "$SITE_URL/" | grep -q "Plus-size shops in one search"
+          # Save the page first: with pipefail, grep -q stopping at the first
+          # match makes curl fail (exit 23) even when the text is there.
+          curl -fsS "$SITE_URL/" -o home.html
+          grep -q "Plus-size shops in one search" home.html
           curl -fsS "$SITE_URL/privacy" > /dev/null
           echo "### Live" >> "$GITHUB_STEP_SUMMARY"
           echo "- Website: $SITE_URL ${YXRA_DOMAIN:+(and https://$YXRA_DOMAIN)}" >> "$GITHUB_STEP_SUMMARY"
