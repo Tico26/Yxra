@@ -28,6 +28,14 @@ export const searchProducts = async ({ size, category }) => {
   return (await res.json()).products;
 };
 
+// One Product with all its Size labels and their stock, or null if it's gone.
+export const getProduct = async (productId) => {
+  const res = await apiFetch(`/api/products/${productId}`);
+  if (res.status === 404 || res.status === 400) return null;
+  if (!res.ok) throw new Error(`Product failed (${res.status})`);
+  return (await res.json()).product;
+};
+
 // The approved Retailers, for the "Shops we search" list.
 export const listRetailers = async () => {
   const res = await apiFetch("/api/retailers");
