@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=GFS+Didot&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #000000;
+  --color-primary-dark: #374151;
+  
+  --color-secondary: #FF6B6B;
+  --color-accent: #4ECDC4;
+
+  --color-background-body: #F9FAFB;
+  --color-background-card: #FFFFFF;
+
+  --color-text-main: #1F2937;
+  --color-text-muted: #6B7280;
+
+  --color-border: #E5E7EB;
+
+  --font-sans: 'Outfit', sans-serif;
+  --font-didot: 'GFS Didot', serif;
+
+  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+@layer base {
+  body {
+    @apply bg-background-body text-text-main font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark hover:-translate-y-px hover:shadow-md;
+  }
+
+  .btn-outline {
+    @apply border border-border bg-transparent hover:border-primary hover:text-primary;
+  }
+
+  .container-custom {
+    @apply w-full max-w-[1200px] mx-auto px-4;
+  }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.pause-on-hover:hover .animate-marquee {
+  animation-play-state: paused;
+}
