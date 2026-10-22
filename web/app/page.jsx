@@ -211,8 +211,8 @@ export default async function Home({ searchParams }) {
 
   return (
     <>
-      <Hero photos={heroPhotos(products)} />
       <ShopTicker names={retailers.map((r) => r.retailer_name)} />
+      <Hero photos={heroPhotos(products)} />
       <section className="shop" id="products" aria-label="Products">
         <aside className="filter" id="filter" aria-label="Filter">
           <FilterPanel search={search} />
