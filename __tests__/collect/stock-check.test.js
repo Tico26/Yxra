@@ -67,6 +67,24 @@ describe("nightly Stock check", () => {
     expect(summary.failed).toEqual([{ retailer: "Northern Curve", error: "timed out" }]);
   });
 
+  test("R6: a slow Retailer does not hold up the others", async () => {
+    // Northern's site answers only once Seaside has been asked, so collecting
+    // one Retailer after the other would never finish.
+    let seasideAsked;
+    const seasideReached = new Promise((resolve) => (seasideAsked = resolve));
+    const web = savedWeb({ [NORTHERN]: { 1: page1 }, [SEASIDE]: { 1: page2 } });
+    const fetcher = {
+      getJson: async (url) => {
+        if (url.startsWith(SEASIDE)) seasideAsked();
+        else await seasideReached;
+        return web.getJson(url);
+      },
+    };
+    const summary = await runStockCheck({ fetcher, now: NIGHT(0), ...quiet });
+    expect(summary.collected.map((c) => c.retailer)).toEqual(["Northern Curve", "Seaside Plus"]);
+    expect(summary.failed).toEqual([]);
+  });
+
   test("R6: a Retailer whose data comes back empty counts as failed, so nothing is hidden", async () => {
     const before = await productByExternal("101:black");
     const summary = await runStockCheck({ fetcher: savedWeb({}), now: NIGHT(0), ...quiet });
