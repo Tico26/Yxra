@@ -14,3 +14,15 @@ export const CATEGORY_LABELS = {
   swimwear: 'Swimwear',
   activewear: 'Activewear',
 };
+
+// "Mint Velvet's", "Rock Those Curves'".
+export const possessive = (name) => (/s$/i.test(name) ? `${name}’` : `${name}’s`);
+
+// Shops send colours like "PALE PINK"; all-caps names are shown in sentence case.
+export const displayColour = (colour) => {
+  if (!colour) return null;
+  const text = String(colour).trim();
+  if (text !== text.toUpperCase()) return text;
+  const lower = text.toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+};

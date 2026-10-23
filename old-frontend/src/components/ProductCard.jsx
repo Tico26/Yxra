@@ -6,7 +6,8 @@ import { formatPrice } from '../utils/format';
 
 // Photo with its size tag, then shop, title and price. A product whose photo
 // fails to load is hidden, like products with no photo at all.
-const ProductCard = ({ product, headingAs: Heading = 'h3', showShop = true, eager = false }) => {
+const ProductCard = ({ product, headingAs = 'h3', showShop = true, eager = false }) => {
+  const Heading = headingAs;
   const [imageFailed, setImageFailed] = useState(false);
   if (!product.image_url || imageFailed) return null;
   const price = formatPrice(product.price_in_pence);

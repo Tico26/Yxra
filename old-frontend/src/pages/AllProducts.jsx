@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import ProductCard from '../components/ProductCard';
+import PageHeader from '../components/PageHeader';
+import ProductBrowser from '../components/ProductBrowser';
+import { ProductGridSkeleton } from '../components/ProductGrid';
+import EmptyState from '../components/EmptyState';
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
@@ -16,31 +19,18 @@ const AllProducts = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background-body py-10">
-      <div className="container-custom">
-        <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">All Products</h1>
-            <p className="text-gray-500 mt-2">Browse our complete collection of inclusive fashion.</p>
-        </div>
-
-        {loading ? (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-        ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {products.map(product => (
-                    <ProductCard key={product.product_id} product={product} />
-                ))}
-            </div>
-        )}
-        
-        {!loading && products.length === 0 && (
-            <div className="text-center py-20 text-gray-500">
-                No products found.
-            </div>
-        )}
-      </div>
+    <div className="container-custom pb-20 pt-10 md:pb-24 md:pt-16">
+      <PageHeader
+        title="Products"
+        lede="Everything here is in stock in UK 18 and up, or bra band 38 and up."
+      />
+      {loading ? (
+        <ProductGridSkeleton />
+      ) : products.length > 0 ? (
+        <ProductBrowser products={products} headingAs="h2" />
+      ) : (
+        <EmptyState message="No products to show right now. Try again in a moment." />
+      )}
     </div>
   );
 };

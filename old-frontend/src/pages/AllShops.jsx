@@ -1,55 +1,83 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../services/api';
-import { getShopLogo } from '../utils/imageUtils';
+import PageHeader from '../components/PageHeader';
+import ProductImage from '../components/ProductImage';
 
+const THUMBS = 4;
+
+// Shops have only a name, so each row shows the name beside a few of the
+// shop's real products.
 const AllShops = () => {
-    const [shops, setShops] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [shops, setShops] = useState([]);
+  const [productsByShop, setProductsByShop] = useState({});
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadShops = async () => {
-            const data = await api.getShops();
-            setShops(data);
-            setLoading(false);
-        };
-        loadShops();
-    }, []);
+  useEffect(() => {
+    const load = async () => {
+      const [allShops, allProducts] = await Promise.all([api.getShops(), api.getProducts()]);
+      const grouped = {};
+      for (const p of allProducts) {
+        (grouped[p.shop_id] ||= []).push(p);
+      }
+      setShops(allShops);
+      setProductsByShop(grouped);
+      setLoading(false);
+    };
+    load();
+  }, []);
 
-    return (
-        <div className="min-h-screen bg-background-body py-10">
-            <div className="container-custom">
-                <div className="mb-10 text-center max-w-2xl mx-auto">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">Our Partner Boutiques</h1>
-                    <p className="text-gray-500">Discover independent shops curating the best in inclusive fashion.</p>
-                </div>
+  return (
+    <div className="container-custom pb-20 pt-10 md:pb-24 md:pt-16">
+      <PageHeader
+        title="Shops"
+        lede="The shops Yxra shows. Each page lists what that shop has in stock in plus sizes."
+      />
 
-                {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {shops.map(shop => (
-                             <div key={shop.shop_id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 flex items-start gap-4 border border-gray-100">
-                                <img 
-                                    src={getShopLogo(shop)} 
-                                    alt={shop.shop_name} 
-                                    className="w-16 h-16 rounded-full object-cover border border-gray-100 shadow-sm"
-                                />
-                                <div className="flex-1">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-1">{shop.shop_name}</h2>
-                                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{shop.shop_description || "A curated boutique for inclusive styles."}</p>
-                                    <div className="flex items-center text-xs text-gray-400 font-medium">
-                                        <span className="flex items-center gap-1">📍 {shop.location || "Online"}</span>
-                                    </div>
-                                </div>
-                             </div>
-                        ))}
-                    </div>
-                )}
+      {loading ? (
+        <div className="space-y-12" aria-hidden="true">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="grid gap-4 md:grid-cols-12">
+              <div className="h-9 w-2/3 bg-mist md:col-span-5" />
+              <div className="grid grid-cols-4 gap-2 md:col-span-7">
+                {Array.from({ length: THUMBS }, (_, j) => (
+                  <div key={j} className="aspect-[3/4] bg-mist motion-safe:animate-pulse" />
+                ))}
+              </div>
             </div>
+          ))}
         </div>
-    );
+      ) : shops.length === 0 ? (
+        <p className="text-body-l text-graphite">No shops to show right now. Try again in a moment.</p>
+      ) : (
+        <ul className="space-y-12 md:space-y-14">
+          {shops.map((shop) => {
+            const thumbs = (productsByShop[shop.shop_id] || []).slice(0, THUMBS);
+            return (
+              <li key={shop.shop_id}>
+                <Link to={`/shops/${shop.shop_id}`} className="group grid gap-4 text-ink no-underline md:grid-cols-12 md:items-center md:gap-6">
+                  <h2 className="font-display text-h2 font-normal underline-offset-[6px] decoration-2 group-hover:underline md:col-span-5">
+                    {shop.shop_name}
+                  </h2>
+                  <div className="md:col-span-7">
+                    {thumbs.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-2" aria-hidden="true">
+                        {thumbs.map((p) => (
+                          <ProductImage key={p.product_id} src={p.image_url} />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-body text-graphite">No pieces to show right now.</p>
+                    )}
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 };
 
 export default AllShops;
