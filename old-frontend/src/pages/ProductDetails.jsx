@@ -79,7 +79,7 @@ const ProductDetails = () => {
                                 Add to Cart
                             </button>
                             {product.product_url && (
-                                <a href={product.product_url} target="_blank" rel="noreferrer" className="flex-1 btn btn-outline py-4 text-lg text-center">
+                                <a href={product.product_url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); api.clickOut(product); }} className="flex-1 btn btn-outline py-4 text-lg text-center">
                                     View on Store Info
                                 </a>
                             )}

@@ -13,7 +13,7 @@ const PLACEHOLDER_SHOP_LOGOS = [
 ];
 
 export const getProductImage = (product) => {
-  // If api had images: if (product.image_url) return product.image_url;
+  if (product.image_url) return product.image_url;
   // Deterministic random based on ID so it stays same for same product
   const index = (product.product_id || 0) % PLACEHOLDER_PRODUCTS.length;
   return PLACEHOLDER_PRODUCTS[index];

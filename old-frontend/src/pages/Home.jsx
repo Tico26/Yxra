@@ -7,6 +7,7 @@ import ProductGridShowcase from '../components/ProductGridShowcase';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { getProductImage } from '../utils/imageUtils';
 
 
 
@@ -32,7 +33,7 @@ const Home = () => {
 
     const fetchStandouts = async () => {
       try {
-        const standoutIds = [1, 2, 3];
+        const standoutIds = await api.getStandoutIds();
         const standoutData = await Promise.all(standoutIds.map(async (id) => {
           // Get product for its image and shop_id
           const product = await api.getProductById(id);
@@ -44,8 +45,8 @@ const Home = () => {
           return {
             productId: id,
             shopId: product.shop_id,
-            imageUrl: product.image_url || `https://webstore-ryo9.onrender.com/api/products/${id}/image`, // Fallback to direct image route if needed
-            shopDescription: shop ? shop.shop_description : 'No description available.',
+            imageUrl: getProductImage(product), // Real image_url, or the design's placeholder if a product has none
+            shopDescription: (shop && shop.shop_description) || 'No description available.',
             shopName: shop ? shop.shop_name : 'Unknown Shop',
             shopLogo: shop ? shop.logo_url : null
           };
