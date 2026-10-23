@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Fonts are loaded in index.html: GFS Didot (logo only), Bodoni Moda (headings,
-   size numerals), Albert Sans (everything else). */
+/* Fonts are imported in main.jsx from the @fontsource packages: GFS Didot (logo
+   only), Bodoni Moda (headings, size numerals), Albert Sans (everything else). */
 
 @theme {
   /* Black, white and greys only. Product photos supply the colour. */
@@ -12,8 +12,8 @@
   --color-graphite: #4d4d4d; /* secondary text, 8.6:1 on white */
   --color-stone: #767676;    /* field borders, tertiary text, 4.5:1 on white (not on mist) */
 
-  --font-sans: 'Albert Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Bodoni Moda', 'GFS Didot', Didot, serif;
+  --font-sans: 'Albert Sans Variable', 'Albert Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bodoni Moda Variable', 'Bodoni Moda', 'GFS Didot', Didot, serif;
   --font-didot: 'GFS Didot', Didot, serif;
 
   /* Type scale */
