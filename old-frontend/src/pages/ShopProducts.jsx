@@ -65,7 +65,7 @@ const ShopProducts = () => {
         )}
       </PageHeader>
       {products.length > 0 ? (
-        <ProductBrowser products={products} headingAs="h2" showShop={false} />
+        <ProductBrowser products={products} headingAs="h2" showShop={false} defaultSortLabel="Default order" />
       ) : (
         <EmptyState
           message={`Nothing from ${shop.shop_name} to show right now.`}
