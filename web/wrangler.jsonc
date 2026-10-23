@@ -1,12 +1,30 @@
-// The Yxra website Worker, built with OpenNext. Deployed by
-// .github/workflows/deploy.yml after the API Worker.
+// The Yxra website Worker: the Vite build in dist/, served as static files,
+// with worker.js in front of the addresses listed in run_worker_first.
+// Deployed by .github/workflows/deploy.yml after the API Worker.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "yxra-web",
-  "main": ".open-next/worker.js",
+  "main": "worker.js",
   "compatibility_date": "2026-10-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "assets": {
+    "directory": "dist",
+    "binding": "ASSETS",
+    // /privacy serves privacy.html; unknown addresses get 404.html with a 404.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": [
+      "/api/*",
+      "/admin",
+      "/admin/*",
+      "/go/*",
+      "/products",
+      "/products/*",
+      "/shops",
+      "/shops/*",
+      "/login",
+      "/signup"
+    ]
+  },
   // Calls to the API go straight to the yxra-api Worker, not over the internet.
   "services": [{ "binding": "API", "service": "yxra-api" }],
   "observability": { "enabled": true }
