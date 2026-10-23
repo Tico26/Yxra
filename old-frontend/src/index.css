@@ -1,63 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=GFS+Didot&family=Outfit:wght@300;400;500;600;700&display=swap');
-
 @import "tailwindcss";
 
+/* Fonts are loaded in index.html: GFS Didot (logo only), Bodoni Moda (headings,
+   size numerals), Albert Sans (everything else). */
+
 @theme {
+  /* Black, white and greys only. Product photos supply the colour. */
+  --color-ink: #000000;
+  --color-paper: #ffffff;
+  --color-mist: #f2f2f2;     /* photo frames, newsletter band */
+  --color-rule: #d9d9d9;     /* decorative edges only */
+  --color-graphite: #4d4d4d; /* secondary text, 8.6:1 on white */
+  --color-stone: #767676;    /* field borders, tertiary text, 4.5:1 on white (not on mist) */
+
+  /* TEMPORARY aliases for pages not yet rebuilt; removed at the end. */
   --color-primary: #000000;
-  --color-primary-dark: #374151;
-  
-  --color-secondary: #FF6B6B;
-  --color-accent: #4ECDC4;
+  --color-background-body: #ffffff;
+  --color-background-card: #ffffff;
+  --color-text-main: #000000;
+  --color-text-muted: #4d4d4d;
+  --color-border: #d9d9d9;
+  --color-secondary: #4d4d4d;
 
-  --color-background-body: #F9FAFB;
-  --color-background-card: #FFFFFF;
+  --font-sans: 'Albert Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bodoni Moda', 'GFS Didot', Didot, serif;
+  --font-didot: 'GFS Didot', Didot, serif;
 
-  --color-text-main: #1F2937;
-  --color-text-muted: #6B7280;
-
-  --color-border: #E5E7EB;
-
-  --font-sans: 'Outfit', sans-serif;
-  --font-didot: 'GFS Didot', serif;
-
-  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  /* Type scale */
+  --text-display-xl: clamp(2.5rem, 1.83rem + 2.96vw, 5.25rem);
+  --text-display-xl--line-height: 1;
+  --text-display-l: clamp(2.25rem, 1.88rem + 1.67vw, 3.75rem);
+  --text-display-l--line-height: 1.05;
+  --text-h2: clamp(1.625rem, 1.47rem + 0.69vw, 2.25rem);
+  --text-h2--line-height: 1.1;
+  --text-size-l: 1.5rem;
+  --text-size-l--line-height: 1;
+  --text-size: 1.125rem;
+  --text-size--line-height: 1;
+  --text-body-l: 1.125rem;
+  --text-body-l--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.45;
+  --text-micro: 0.8125rem;
+  --text-micro--line-height: 1.3;
 }
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    @apply bg-background-body text-text-main font-sans antialiased;
+    @apply bg-paper text-ink font-sans text-body antialiased;
+  }
+
+  /* One focus style everywhere: a black ring with a white gap. */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  .on-ink :focus-visible {
+    outline-color: var(--color-paper);
   }
 }
 
 @layer components {
-  .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold transition-all duration-300;
-  }
-  
-  .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-dark hover:-translate-y-px hover:shadow-md;
-  }
-
-  .btn-outline {
-    @apply border border-border bg-transparent hover:border-primary hover:text-primary;
-  }
-
   .container-custom {
-    @apply w-full max-w-[1200px] mx-auto px-4;
+    @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6;
+  }
+
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center px-6 font-medium text-body no-underline transition-colors duration-150 motion-reduce:transition-none;
+  }
+
+  .btn-primary {
+    @apply bg-ink text-paper hover:bg-graphite;
+  }
+
+  .btn-secondary {
+    @apply border border-ink bg-paper text-ink hover:bg-mist;
+  }
+
+  .btn-outline { @apply border border-ink bg-paper text-ink hover:bg-mist; } /* TEMPORARY alias */
+
+  .link {
+    @apply text-ink underline-offset-4 hover:underline;
+  }
+
+  .field {
+    @apply block w-full min-h-12 border border-stone bg-paper px-4 text-body text-ink placeholder:text-stone focus:border-ink focus:outline-2 focus:outline-offset-0 focus:outline-ink;
+  }
+
+  .field-label {
+    @apply mb-2 block text-small font-medium text-ink;
   }
 }
 
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+/* The single orchestrated moment: hero photos fade in one after another. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-fade {
+    opacity: 0;
+    animation: hero-fade 300ms ease-out forwards;
+  }
 }
 
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 40s linear infinite;
-}
-
-.pause-on-hover:hover .animate-marquee {
-  animation-play-state: paused;
+@keyframes hero-fade {
+  to { opacity: 1; }
 }

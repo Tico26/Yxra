@@ -13,10 +13,11 @@ const getJson = async (path) => {
   return response.json();
 };
 
-// Yxra has no shop description, logo or location: the design's fallbacks show.
+// Yxra has no shop description, logo or location; it does have the shop's website.
 export const mapRetailer = (retailer) => ({
   shop_id: retailer.retailer_id,
   shop_name: retailer.retailer_name,
+  site_url: retailer.site_url || null,
   shop_description: null,
   logo_url: null,
   location: null,
@@ -81,6 +82,8 @@ export const mapListProduct = (product, shopIdByName) => ({
   product_description: null,
   price_in_pence: product.price_in_pence,
   size: (product.in_stock_sizes || []).join(', '),
+  sizes_in_stock: product.in_stock_sizes || [],
+  category: product.category || null,
   colour: product.colour,
   product_url: product.product_url,
   image_url: product.image_url,
@@ -95,6 +98,8 @@ export const mapDetailProduct = (product) => ({
   product_description: product.description,
   price_in_pence: product.price_in_pence,
   size: plusInStockLabels(product.sizes).join(', '),
+  sizes_in_stock: plusInStockLabels(product.sizes),
+  category: product.category || null,
   colour: product.colour,
   product_url: product.product_url,
   image_url: product.image_url,
@@ -151,7 +156,10 @@ export const api = {
       // The list names each product's retailer but not its id, so match by name.
       const [productData, shops] = await Promise.all([getJson('/products'), this.getShops()]);
       const shopIdByName = Object.fromEntries(shops.map((s) => [s.shop_name, s.shop_id]));
-      return (productData.products || []).map((p) => mapListProduct(p, shopIdByName));
+      // Products without a photo are not shown anywhere on the site.
+      return (productData.products || [])
+        .filter((p) => p.image_url)
+        .map((p) => mapListProduct(p, shopIdByName));
     } catch (error) {
       console.error("Error fetching products:", error.message);
       return [];

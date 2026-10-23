@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import Wordmark from './Wordmark';
 
 // Header layout follows the live site: links left, YX|RA centred, boxed Login right.
 // The outer <nav> keeps a fixed height so the page never jumps; only the inner
@@ -9,8 +10,9 @@ const GROW_AT = 8; // px from the top before it grows back (hysteresis)
 
 const MENU_ID = 'site-menu';
 
+// The current page's link carries a 2px underline; others underline on hover.
 const linkClass = ({ isActive }) =>
-  `font-medium no-underline transition-colors duration-150 hover:underline ${isActive ? 'text-primary' : 'text-text-main hover:text-primary'}`;
+  `font-medium text-ink decoration-2 underline-offset-[6px] hover:underline ${isActive ? 'underline' : ''}`;
 
 const MAIN_LINKS = [
   ['/', 'Home'],
@@ -75,15 +77,15 @@ const Navbar = () => {
     <nav className="sticky top-0 z-[1000] h-[88px] pointer-events-none">
       <div
         ref={cardRef}
-        className={`pointer-events-auto relative bg-background-card border-b border-border transition-[height] duration-300 ease-out motion-reduce:transition-none ${isShrunk ? 'h-[64px]' : 'h-[88px]'}`}
+        className={`pointer-events-auto relative bg-paper border-b border-rule transition-[height] duration-300 ease-out motion-reduce:transition-none ${isShrunk ? 'h-[64px]' : 'h-[88px]'}`}
       >
-        <div className="max-w-[1200px] mx-auto px-4 h-full grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+        <div className="container-custom h-full grid grid-cols-[1fr_auto_1fr] items-center gap-4">
           {/* Left: menu button on phones, text links from sm (640px) up */}
           <div className="flex items-center justify-self-start">
             <button
               ref={buttonRef}
               type="button"
-              className="sm:hidden -ml-2 flex h-10 w-10 items-center justify-center text-primary"
+              className="sm:hidden -ml-2 flex h-11 w-11 items-center justify-center text-ink"
               aria-label="Menu"
               aria-expanded={menuOpen}
               aria-controls={MENU_ID}
@@ -110,17 +112,17 @@ const Navbar = () => {
           <Link
             to="/"
             aria-label="YXRA home"
-            className={`inline-flex items-center text-[52px] leading-none font-didot font-normal text-primary tracking-[-0.04em] no-underline origin-center transition-[scale] duration-300 ease-out motion-reduce:transition-none ${isShrunk ? 'scale-70' : 'scale-100'}`}
+            className={`inline-flex items-center text-[52px] text-ink no-underline origin-center transition-[scale] duration-300 ease-out motion-reduce:transition-none ${isShrunk ? 'scale-70' : 'scale-100'}`}
           >
-            YX<span aria-hidden="true" className="inline-block w-[3px] h-[1.15em] mx-3 bg-current translate-y-[0.08em]"></span>RA
+            <Wordmark />
           </Link>
 
           {/* Right: boxed Login (moves into the menu on phones) */}
           <NavLink
             to="/login"
-            className="hidden sm:inline-block justify-self-end border border-primary px-4 py-2 font-medium text-primary no-underline whitespace-nowrap"
+            className="hidden sm:inline-block justify-self-end border border-ink px-4 py-2 font-medium text-ink no-underline whitespace-nowrap transition-colors duration-150 hover:bg-mist motion-reduce:transition-none"
           >
-            Login
+            Log in
           </NavLink>
         </div>
 
@@ -128,10 +130,10 @@ const Navbar = () => {
         <div
           id={MENU_ID}
           hidden={!menuOpen}
-          className="sm:hidden absolute left-0 right-0 top-full bg-background-card border-b border-border"
+          className="sm:hidden absolute left-0 right-0 top-full bg-paper border-b border-rule"
         >
-          <div className="max-w-[1200px] mx-auto px-4 py-2 flex flex-col">
-            {[...MAIN_LINKS, ['/login', 'Login']].map(([to, label]) => (
+          <div className="container-custom py-2 flex flex-col">
+            {[...MAIN_LINKS, ['/login', 'Log in']].map(([to, label]) => (
               <NavLink key={to} to={to} className={(s) => `${linkClass(s)} py-3`} onClick={closeMenu}>
                 {label}
               </NavLink>

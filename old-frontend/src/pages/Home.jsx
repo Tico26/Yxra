@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import FeaturedProducts from '../components/FeaturedProducts';
 import BrandsCarousel from '../components/BrandsCarousel';
 import ShopShowcase from '../components/ShopShowcase';
-import Newsletter from '../components/Newsletter';
 import ProductGridShowcase from '../components/ProductGridShowcase';
-import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { getProductImage } from '../utils/imageUtils';
@@ -242,10 +240,8 @@ const Home = () => {
       <ShopShowcase />
       <BrandsCarousel />
       <FeaturedProducts />
-      <Newsletter />
       <ProductGridShowcase />
       
-      <Footer />
     </div>
   );
 };
