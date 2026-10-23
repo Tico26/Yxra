@@ -7,6 +7,7 @@ name: Deploy
 #   secret   CLOUDFLARE_API_TOKEN   token from the "Edit Cloudflare Workers" template
 #   secret   CLOUDFLARE_ACCOUNT_ID  Cloudflare account id
 #   secret   ADMIN_TOKEN            any long random string; unlocks /admin on the API
+#   secret   DATABASE_URL           Supabase connection string (Session pooler URI)
 #   variable HYPERDRIVE_ID          id of the Hyperdrive config pointing at Supabase
 #   variable YXRA_CONTACT           contact address Retailers see in our User-Agent
 #   variable YXRA_DOMAIN            optional, e.g. yxra.co.uk once it is on Cloudflare
@@ -62,6 +63,18 @@ jobs:
             web/package-lock.json
 
       - run: npm ci --no-audit --no-fund
+      # Bring the database schema up to date before the new API goes live, the
+      # same way stock-check.yml and add-retailer.yml do.
+      - name: Update the database schema
+        env:
+          NODE_ENV: production
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Not deployed. Add the DATABASE_URL repository secret first."
+            exit 1
+          fi
+          npm run migrate
       - name: Deploy the API Worker
         id: api
         run: |
@@ -83,7 +96,9 @@ jobs:
           YXRA_CONTACT_EMAIL: ${{ vars.YXRA_CONTACT_EMAIL }}
           YXRA_TRADER_NAME: ${{ vars.YXRA_TRADER_NAME }}
           YXRA_TRADER_ADDRESS: ${{ vars.YXRA_TRADER_ADDRESS }}
-        run: npx opennextjs-cloudflare build
+        # Vite build, then the fixed pages pre-built to HTML (scripts/prerender.mjs).
+        # The four YXRA_* settings above are the only ones the pages can read.
+        run: npm run build
       - name: Deploy the website Worker
         id: web
         working-directory: web
@@ -103,8 +118,10 @@ jobs:
           # Save the page first: with pipefail, grep -q stopping at the first
           # match makes curl fail (exit 23) even when the text is there.
           curl -fsS "$SITE_URL/" -o home.html
-          grep -q "Plus-size shops in one search" home.html
-          curl -fsS "$SITE_URL/privacy" > /dev/null
+          grep -q "Plus sizes, in stock." home.html
+          # Privacy is pre-built, so its own heading is in the HTML.
+          curl -fsS "$SITE_URL/privacy" -o privacy.html
+          grep -q ">Privacy</h1>" privacy.html
           echo "### Live" >> "$GITHUB_STEP_SUMMARY"
           echo "- Website: $SITE_URL ${YXRA_DOMAIN:+(and https://$YXRA_DOMAIN)}" >> "$GITHUB_STEP_SUMMARY"
           echo "- API and Review list: $API_URL/admin" >> "$GITHUB_STEP_SUMMARY"
