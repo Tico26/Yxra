@@ -76,8 +76,8 @@ const Home = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative text-primary h-[22vh] flex items-center justify-center overflow-hidden">
-        <div className="w-full flex flex-col items-center justify-center h-full -translate-y-4">
+      <section className="relative text-primary py-4 flex items-center justify-center overflow-hidden">
+        <div className="w-full flex flex-col items-center justify-center">
 
             
             {shops.length > 0 ? (
@@ -126,7 +126,7 @@ const Home = () => {
       </section>
 
       {/* Hero Section Replica */}
-      <section className="relative bg-white text-primary min-h-[110vh] flex items-center justify-center px-4 pb-12 -mt-12">
+      <section className="relative bg-white text-primary min-h-[110vh] flex items-center justify-center px-4 pb-12">
         <div className="container-custom flex flex-col items-center justify-center h-full">
             <div className="flex flex-col items-center mb-12 w-full">
                 <span className="text-primary text-[8vh] font-didot font-normal tracking-tighter">Standouts</span>
