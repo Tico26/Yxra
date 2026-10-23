@@ -135,9 +135,14 @@ describe("GET /api/products?uk_size=&category= (search)", () => {
     ]);
   });
 
-  test("400: uk_size missing or not a UK size", async () => {
-    await request(app).get("/api/products").expect(400);
+  test("400: uk_size is not a UK size", async () => {
     await request(app).get("/api/products?uk_size=big").expect(400);
+    await request(app).get("/api/products?uk_size=19").expect(400);
+  });
+
+  test("each result lists the Product's in-stock plus Size labels", async () => {
+    const [dress] = await search({ uk_size: 22, category: "clothes" });
+    expect(dress).toMatchObject({ title: "Wrap Midi Dress", in_stock_sizes: ["18", "22"] });
   });
 
   test("400: a bra search with a band that is not a band size, or a cup with no band", async () => {
@@ -152,4 +157,135 @@ describe("GET /api/products?uk_size=&category= (search)", () => {
 
   test("400: unknown category", () =>
     request(app).get("/api/products?uk_size=20&category=shoes").expect(400));
+
+  test("Retailers take turns, so one Retailer's Products are not all together", async () => {
+    await db.query(`DELETE FROM products`);
+    const { rows: shops } = await db.query(`SELECT retailer_id FROM retailers LIMIT 2`);
+    for (const { retailer_id } of shops) {
+      for (let n = 1; n <= 3; n++) {
+        const {
+          rows: [{ product_id }],
+        } = await db.query(
+          `INSERT INTO products (retailer_id, external_id, title, product_url, category, sort_status)
+           VALUES ($1, $2, 'Dress', 'https://shop.example/dress', 'clothes', 'shown')
+           RETURNING product_id`,
+          [retailer_id, `turns-${n}`]
+        );
+        await db.query(
+          `INSERT INTO product_sizes (product_id, size_label, uk_sizes, size_status, in_stock)
+           VALUES ($1, '20', '{20}', 'translated', TRUE)`,
+          [product_id]
+        );
+      }
+    }
+    const {
+      body: { products },
+    } = await request(app).get("/api/products?uk_size=20").expect(200);
+    const names = products.map((p) => p.retailer_name);
+    expect(names).toHaveLength(6);
+    names.slice(1).forEach((name, i) => expect(name).not.toBe(names[i]));
+  });
+});
+
+describe("GET /api/products with no size (browse before she picks a size)", () => {
+  const browse = async (query = {}) => {
+    const {
+      body: { products },
+    } = await request(app).get("/api/products").query(query).expect(200);
+    return products;
+  };
+
+  const addProduct = async (title, category, sizes) => {
+    const {
+      rows: [{ retailer_id }],
+    } = await db.query(`SELECT retailer_id FROM retailers WHERE removed_at IS NULL LIMIT 1`);
+    const {
+      rows: [{ product_id }],
+    } = await db.query(
+      `INSERT INTO products (retailer_id, external_id, title, product_url, category, sort_status)
+       VALUES ($1, $2, $2, 'https://shop.example/p', $3, 'shown') RETURNING product_id`,
+      [retailer_id, title, category]
+    );
+    for (const s of sizes) {
+      await db.query(
+        `INSERT INTO product_sizes (product_id, size_label, uk_sizes, size_status, in_stock, bra_band, bra_cup)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          product_id,
+          s.size_label,
+          s.uk_sizes || [],
+          s.size_status || "translated",
+          s.in_stock,
+          s.bra_band || null,
+          s.bra_cup || null,
+        ]
+      );
+    }
+    return product_id;
+  };
+
+  test("200: shoppable Products in stock in at least one plus size, from every launch category", async () => {
+    const products = await browse();
+    expect(products.map((p) => `${p.title} (${p.colour})`).sort()).toEqual([
+      "High Waist Leggings (Black)",
+      "Jersey Tee (White)",
+      "Tankini Set (Navy)",
+      "Wrap Midi Dress (Black)",
+      "Wrap Midi Dress (Red)",
+    ]);
+    const tankini = products.find((p) => p.title === "Tankini Set");
+    expect(tankini).toMatchObject({ size_label: null, fits: null, in_stock_sizes: ["18/20"] });
+  });
+
+  test("a Product in stock only below plus size is left out; a Size label reaching 18 counts", async () => {
+    await addProduct("Only 16 In Stock", "clothes", [
+      { size_label: "16", uk_sizes: [16], in_stock: true },
+      { size_label: "18", uk_sizes: [18], in_stock: false },
+    ]);
+    await addProduct("Covers 16 To 18", "clothes", [
+      { size_label: "16/18", uk_sizes: [16, 18], in_stock: true },
+    ]);
+    const titles = (await browse()).map((p) => p.title);
+    expect(titles).not.toContain("Only 16 In Stock");
+    expect(titles).toContain("Covers 16 To 18");
+  });
+
+  test("a bra counts when a band of 38 or above is in stock", async () => {
+    await addProduct("Band 36 Bra", "lingerie", [
+      { size_label: "36C", bra_band: 36, bra_cup: "C", in_stock: true },
+      { size_label: "38C", bra_band: 38, bra_cup: "C", in_stock: false },
+    ]);
+    await addProduct("Band 38 Bra", "lingerie", [
+      { size_label: "38DD", bra_band: 38, bra_cup: "DD", in_stock: true },
+    ]);
+    expect((await browse({ category: "lingerie" })).map((p) => p.title)).toEqual(["Band 38 Bra"]);
+  });
+
+  test("a Size label not yet translated never counts", async () => {
+    await addProduct("Only 3X", "clothes", [
+      { size_label: "3X", size_status: "unsettled", in_stock: true },
+    ]);
+    expect((await browse()).map((p) => p.title)).not.toContain("Only 3X");
+  });
+
+  test("in_stock_sizes: in-stock translated plus Size labels, UK sizes ascending, then bands and cups", async () => {
+    const id = await addProduct("Many Sizes", "clothes", [
+      { size_label: "40DD", bra_band: 40, bra_cup: "DD", in_stock: true },
+      { size_label: "22", uk_sizes: [22], in_stock: true },
+      { size_label: "38E", bra_band: 38, bra_cup: "E", in_stock: true },
+      { size_label: "16", uk_sizes: [16], in_stock: true },
+      { size_label: "20", uk_sizes: [20], in_stock: false },
+      { size_label: "38DD", bra_band: 38, bra_cup: "DD", in_stock: true },
+      { size_label: "18/20", uk_sizes: [18, 20], in_stock: true },
+      { size_label: "4X", size_status: "unsettled", in_stock: true },
+      { size_label: "36B", bra_band: 36, bra_cup: "B", in_stock: true },
+    ]);
+    const expected = ["18/20", "22", "38DD", "38E", "40DD"];
+    const browsed = (await browse()).find((p) => p.product_id === id);
+    expect(browsed.in_stock_sizes).toEqual(expected);
+    const searched = (await browse({ uk_size: 22 })).find((p) => p.product_id === id);
+    expect(searched.in_stock_sizes).toEqual(expected);
+  });
+
+  test("400: unknown category", () => request(app).get("/api/products?category=shoes").expect(400));
 });

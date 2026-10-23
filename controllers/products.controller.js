@@ -1,11 +1,11 @@
 const { fetchProductById, searchProducts } = require("../models/products.models");
 const { notFound, parseId } = require("../lib/errors");
-const { parseSize, parseCategory } = require("../lib/query");
+const { parseSearchSize, parseCategory } = require("../lib/query");
 
 exports.getProducts = async (req, res, next) => {
   try {
     const products = await searchProducts({
-      ...parseSize(req.query),
+      ...parseSearchSize(req.query),
       category: parseCategory(req.query.category),
     });
     res.status(200).send({ products });
