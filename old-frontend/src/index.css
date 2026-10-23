@@ -87,6 +87,74 @@
   }
 }
 
+/* Sort menu: a plain field with a drawn chevron instead of the platform arrow. */
+.field-select {
+  appearance: none;
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+}
+
+/* Two-handle price slider: two range inputs share one track. The inputs ignore
+   pointers; only their thumbs take them, so either handle can be grabbed. */
+.price-range input[type='range'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.price-range input[type='range']:focus-visible {
+  outline: none;
+}
+
+.price-range input[type='range']::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.price-range input[type='range']::-moz-range-track {
+  background: transparent;
+}
+
+.price-range input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: calc((2.75rem - 1.25rem) / 2);
+  border: 0;
+  border-radius: 0;
+  background: var(--color-ink);
+  cursor: pointer;
+}
+
+.price-range input[type='range']::-moz-range-thumb {
+  pointer-events: auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-ink);
+  cursor: pointer;
+}
+
+/* Same focus look as the rest of the site: a black ring with a white gap. */
+.price-range input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--color-paper), 0 0 0 5px var(--color-ink);
+}
+
+.price-range input[type='range']:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--color-paper), 0 0 0 5px var(--color-ink);
+}
+
 /* The single orchestrated moment: hero photos fade in one after another. */
 @media (prefers-reduced-motion: no-preference) {
   .hero-fade {
