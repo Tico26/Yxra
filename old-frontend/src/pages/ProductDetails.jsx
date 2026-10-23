@@ -27,9 +27,9 @@ const ProductDetails = () => {
   if (loading) {
     return (
       <div className="container-custom pb-20 pt-8 md:pt-12">
-        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12" aria-hidden="true">
-          <div className="aspect-[3/4] bg-mist motion-safe:animate-pulse lg:col-span-7" />
-          <div className="space-y-4 lg:col-span-5">
+        <div className="grid gap-8 md:grid-cols-12 lg:gap-12" aria-hidden="true">
+          <div className="aspect-[3/4] bg-mist motion-safe:animate-pulse md:col-span-6 lg:col-span-7" />
+          <div className="space-y-4 md:col-span-6 lg:col-span-5">
             <div className="h-4 w-1/3 bg-mist" />
             <div className="h-10 w-full bg-mist" />
             <div className="h-6 w-1/4 bg-mist" />
@@ -61,9 +61,9 @@ const ProductDetails = () => {
           [`/shops/${product.shop_id}`, shopName],
         ]}
       />
-      <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
-        <div className="lg:col-span-7">
-          <div className="lg:sticky lg:top-24">
+      <div className="grid gap-8 md:grid-cols-12 lg:gap-12">
+        <div className="md:col-span-6 lg:col-span-7">
+          <div className="md:sticky md:top-24">
             <ProductImage
               src={product.image_url}
               alt={product.product_name}
@@ -73,7 +73,7 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-5">
+        <div className="md:col-span-6 lg:col-span-5">
           <p className="text-small text-graphite">
             <Link to={`/shops/${product.shop_id}`} className="text-graphite underline underline-offset-4 hover:text-ink">
               {shopName}

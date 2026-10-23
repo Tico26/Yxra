@@ -33,9 +33,12 @@ const ShopIndex = ({ shops, shopsWithProducts }) => {
                 className={`decoration-2 underline-offset-[0.12em] hover:underline ${hasProducts ? 'text-ink' : 'text-graphite'}`}
               >
                 {words.length > 0 && `${words.join(' ')} `}
-                <span className="whitespace-nowrap">{lastWord}</span>
-              </Link>
-              {!isLast && <Bar />}{' '}
+                {/* The bar stays on the same line as the name it follows. */}
+                <span className="whitespace-nowrap">
+                  {lastWord}
+                  {!isLast && <Bar />}
+                </span>
+              </Link>{' '}
             </li>
           );
         })}

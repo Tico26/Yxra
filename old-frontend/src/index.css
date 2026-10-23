@@ -12,15 +12,6 @@
   --color-graphite: #4d4d4d; /* secondary text, 8.6:1 on white */
   --color-stone: #767676;    /* field borders, tertiary text, 4.5:1 on white (not on mist) */
 
-  /* TEMPORARY aliases for pages not yet rebuilt; removed at the end. */
-  --color-primary: #000000;
-  --color-background-body: #ffffff;
-  --color-background-card: #ffffff;
-  --color-text-main: #000000;
-  --color-text-muted: #4d4d4d;
-  --color-border: #d9d9d9;
-  --color-secondary: #4d4d4d;
-
   --font-sans: 'Albert Sans', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Bodoni Moda', 'GFS Didot', Didot, serif;
   --font-didot: 'GFS Didot', Didot, serif;
@@ -82,8 +73,6 @@
   .btn-secondary {
     @apply border border-ink bg-paper text-ink hover:bg-mist;
   }
-
-  .btn-outline { @apply border border-ink bg-paper text-ink hover:bg-mist; } /* TEMPORARY alias */
 
   .link {
     @apply text-ink underline-offset-4 hover:underline;
