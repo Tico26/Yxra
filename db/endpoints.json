@@ -1,12 +1,13 @@
 {
   "GET /api/products": {
-    "description": "Products in stock in one UK size, optionally in one category (clothes, swimwear, activewear)",
-    "queries": ["uk_size (required)", "category"]
+    "description": "Products in stock in one UK size, or for bras one band (optionally one cup), optionally in one category (clothes, swimwear, activewear, lingerie)",
+    "queries": ["uk_size (or bra_band)", "bra_band", "bra_cup (needs bra_band)", "category"]
   },
   "GET /api/products/:product_id": { "description": "One Product with all its Size labels" },
   "POST /api/click-outs": {
     "description": "Live check, then { outcome: 'sent', url } or { outcome: 'sold_out', message, similar }",
-    "body": { "product_id": 1, "uk_size": 20 }
+    "body": { "product_id": 1, "uk_size": 20 },
+    "or": { "product_id": 1, "bra_band": 38, "bra_cup": "DD" }
   },
   "GET /api/retailers": { "description": "Current Retailers" },
   "POST /api/retailers": {

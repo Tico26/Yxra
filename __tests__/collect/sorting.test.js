@@ -12,6 +12,9 @@ describe("sortByRules (R7)", () => {
     ["Swim Shorts", "swimwear"],
     ["Sports Bra", "activewear"],
     ["Yoga Leggings", "activewear"],
+    ["Lace Balcony Bra", "lingerie"],
+    ["High Waist Briefs 3 Pack", "lingerie"],
+    ["Smoothing Shapewear Slip", "lingerie"],
     ["Gym Bag", null],
   ])("%s is %s", (title, category) => {
     const sorted = sortByRules(product({ title }), { womenOnly: true });
@@ -19,8 +22,7 @@ describe("sortByRules (R7)", () => {
   });
 
   test.each([
-    ["Lace Balcony Bra", "lingerie"],
-    ["High Waist Briefs 3 Pack", "lingerie"],
+    ["Lace Balcony Bra", null],
     ["Wide Fit Ankle Boots", "shoes"],
     ["Leather Sandals", "shoes"],
     ["Gym Bag", "accessories"],
@@ -29,6 +31,11 @@ describe("sortByRules (R7)", () => {
     ["Cap Sleeve Dress", null],
   ])("%s is excluded as %s", (title, excluded) => {
     expect(sortByRules(product({ title }), { womenOnly: true }).excluded_as).toBe(excluded);
+  });
+
+  test("a sports bra is activewear even when the Retailer files it under Bras", () => {
+    const sorted = sortByRules(product({ title: "High Impact Sports Bra", product_type: "Bras" }), {});
+    expect(sorted.category).toBe("activewear");
   });
 
   test("the Retailer's product type is trusted over the title", () => {
@@ -82,7 +89,7 @@ describe("decideStatus (R10)", () => {
   test("a garment made only below UK 18 is excluded", () => {
     expect(decideStatus(settled, [size([12], { in_stock: true }), size([16])])).toEqual({
       sort_status: "excluded",
-      sort_reason: "not made in UK 18 or above",
+      sort_reason: "not made in UK 18 or above (or bra band 38)",
     });
   });
 
@@ -90,7 +97,31 @@ describe("decideStatus (R10)", () => {
     expect(decideStatus(settled, [size([16, 18])]).sort_status).toBe("shown");
   });
 
-  test("lingerie, shoes and menswear are excluded", () => {
+  describe("bras", () => {
+    const lingerie = { ...settled, category: "lingerie" };
+    const bra = (bra_band, bra_cup = "DD") => size([], { size_status: "translated", bra_band, bra_cup });
+
+    test("a bra made in band 38 or above is Plus size and shown", () => {
+      expect(decideStatus(lingerie, [bra(34), bra(38)]).sort_status).toBe("shown");
+    });
+
+    test("a bra made only below band 38 is excluded", () => {
+      expect(decideStatus(lingerie, [bra(32), bra(36, "G")])).toEqual({
+        sort_status: "excluded",
+        sort_reason: "not made in UK 18 or above (or bra band 38)",
+      });
+    });
+
+    test("a bra with a size not yet translated stays unsettled", () => {
+      expect(decideStatus(lingerie, [bra(36), size([])]).sort_status).toBe("unsettled");
+    });
+  });
+
+  test("lingerie is shown like clothes when it is Plus size", () => {
+    expect(decideStatus({ ...settled, category: "lingerie" }, [size([20])]).sort_status).toBe("shown");
+  });
+
+  test("shoes and menswear are excluded", () => {
     expect(decideStatus({ ...settled, excluded_as: "shoes" }, [size([20])]).sort_status).toBe("excluded");
     expect(decideStatus({ ...settled, audience: "men" }, [size([20])]).sort_status).toBe("excluded");
   });

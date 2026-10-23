@@ -18,7 +18,7 @@ const linkForHerSize = (product, sizes) => {
   return url.toString();
 };
 
-exports.clickOut = async ({ productId, ukSize }) => {
+exports.clickOut = async ({ productId, ukSize = null, braBand = null, braCup = null }) => {
   const {
     rows: [product],
   } = await db.query(
@@ -29,13 +29,16 @@ exports.clickOut = async ({ productId, ukSize }) => {
   if (!product) throw notFound("Product");
   const { rows: sizes } = await db.query(
     `SELECT size_label, in_stock, variant_refs FROM product_sizes
-     WHERE product_id = $1 AND size_status = 'translated' AND $2 = ANY (uk_sizes)
+     WHERE product_id = $1 AND size_status = 'translated'
+       AND ($2::int = ANY (uk_sizes)
+            OR (bra_band = $3::int AND ($4::text IS NULL OR bra_cup = $4::text)))
      ORDER BY cardinality(uk_sizes)`,
-    [productId, ukSize]
+    [productId, ukSize, braBand, braCup]
   );
-  await db.query(`INSERT INTO click_outs (product_id, uk_size, outcome) VALUES ($1, $2, 'sent')`, [
-    productId,
-    ukSize,
-  ]);
+  await db.query(
+    `INSERT INTO click_outs (product_id, uk_size, bra_band, bra_cup, outcome)
+     VALUES ($1, $2, $3, $4, 'sent')`,
+    [productId, ukSize, braBand, braCup]
+  );
   return { outcome: "sent", url: linkForHerSize(product, sizes) };
 };
