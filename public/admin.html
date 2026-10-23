@@ -87,8 +87,8 @@
 
   const productItem = (p) => {
     const choice = el("select", {},
-      ...["clothes", "swimwear", "activewear"].map((c) => el("option", { value: `women:${c}`, textContent: `Women's ${c}` })),
-      ...["lingerie", "shoes", "accessories", "menswear", "not clothing"].map((x) => el("option", { value: `x:${x}`, textContent: `Not for Yxra: ${x}` })));
+      ...["clothes", "swimwear", "activewear", "lingerie"].map((c) => el("option", { value: `women:${c}`, textContent: `Women's ${c}` })),
+      ...["shoes", "accessories", "menswear", "not clothing"].map((x) => el("option", { value: `x:${x}`, textContent: `Not for Yxra: ${x}` })));
     const form = el("form", {}, choice, " ", el("button", { textContent: "Save" }));
     form.onsubmit = act(() => {
       const [kind, value] = choice.value.split(":");

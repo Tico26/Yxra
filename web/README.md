@@ -1,34 +1,42 @@
 # Yxra website
 
-Next.js site where a Shopper picks her UK size and a category and sees only
-Products in stock in that size at the nightly Stock check. Choosing one goes
-through `/go/<id>?size=<n>`, which records the Click-out and sends her to the
-Retailer's page in her size (no Live check, ADR 0006). The footer
-links to the pages spec 0002 rule 26 asks for; who runs Yxra and the contact
-email come from `lib/site.mjs`.
+Tico's design (Vite + React, from `old-frontend/` on the old-frontend-manchester
+branch), with the Privacy, Terms, Cookies, Contact, How Yxra makes money and
+For Retailers pages from the previous site, worded the same.
 
 ## Run locally
 
 ```sh
 # in the repo root: the API on port 9090
 npm start
-# here
-npm install
-YXRA_API_URL=http://localhost:9090 npm run dev
+# here: the site on http://localhost:5173, with /api sent to port 9090
+npm ci
+npm run dev
 ```
+
+`npm run build` writes `dist/`: the app, plus the home page, the fixed pages
+and the not-found page pre-built to HTML by `scripts/prerender.mjs` (so
+crawlers see the text), `sitemap.xml` and `robots.txt`. `npm run lint` and
+`npm test` (the Worker's routing) are what CI runs.
+
+## Settings
+
+Set at build time, under the names `.github/workflows/deploy.yml` uses. Only
+these four reach the browser (`envPrefix` in `vite.config.js`):
+
+- `YXRA_SITE_URL`: used in `sitemap.xml` and `robots.txt` (default https://yxra.co.uk)
+- `YXRA_CONTACT_EMAIL`: the contact address (default hello@yxra.co.uk)
+- `YXRA_TRADER_NAME`, `YXRA_TRADER_ADDRESS`: who runs Yxra, in the footer and legal pages
 
 ## On Cloudflare Workers
 
-The site runs as the `yxra-web` Worker, built with OpenNext, and reaches the
-`yxra-api` Worker (the Express API, `api-worker.mjs` in the repo root) through
-a service binding. `.github/workflows/deploy.yml` deploys both on every push
-to `main`; it lists the repository settings it needs.
+The site runs as the `yxra-web` Worker. `wrangler.jsonc` serves `dist/` as
+static files and sends these addresses to `worker.js` first:
 
-To try the Workers locally against a local Postgres:
+- `/api/*`, `/admin`: passed to the `yxra-api` Worker through the `API` binding
+- `/go/<id>?size=<n>`: records the Click-out and redirects to the shop, as before
+- `/products`, `/shops`, `/login`, `/signup` and their sub-pages: the app shell
 
-```sh
-# in the repo root
-npx wrangler dev --port 8787
-# here, in a second terminal
-npm run cf:build && npx wrangler dev --port 8788
-```
+Anything else is a static file, or the not-found page with a 404.
+`npm run cf:dev` builds and runs it locally with `wrangler dev`; the `API`
+binding only answers there if a `yxra-api` Worker is running locally too.

@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS products (
   tags TEXT[] NOT NULL DEFAULT '{}',
   -- Who it is for and what it is: set by the rules, or by the AI or Tico
   -- when the rules could not tell. excluded_as names a kind Yxra does not
-  -- show (lingerie, shoes, accessories).
+  -- show (shoes, accessories).
   audience VARCHAR(20) CHECK (audience IN ('women', 'men', 'other')),
   category VARCHAR(50) REFERENCES categories(category_name),
   excluded_as VARCHAR(50),
@@ -72,6 +72,10 @@ CREATE TABLE IF NOT EXISTS product_sizes (
   UNIQUE (product_id, size_label)
 );
 
+-- A Bra size label ("38DD") has no UK size; it is found by band and cup.
+ALTER TABLE product_sizes ADD COLUMN IF NOT EXISTS bra_band INT;
+ALTER TABLE product_sizes ADD COLUMN IF NOT EXISTS bra_cup VARCHAR(2);
+
 -- Known translations of a Brand's Size label: from the Brand's size chart,
 -- settled by Tico, or answered by the AI. uk_sizes is empty when the AI was
 -- not confident, which keeps the label on the Review list.
@@ -100,10 +104,16 @@ CREATE TABLE IF NOT EXISTS suggested_retailers (
 CREATE TABLE IF NOT EXISTS click_outs (
   click_out_id SERIAL PRIMARY KEY,
   product_id INT REFERENCES products(product_id) ON DELETE SET NULL,
-  uk_size INT NOT NULL,
+  uk_size INT,
   outcome VARCHAR(20) NOT NULL CHECK (outcome IN ('sent', 'sold_out', 'check_failed')),
   clicked_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- A Click-out names her UK size, or for a bra her band and cup.
+ALTER TABLE click_outs ALTER COLUMN uk_size DROP NOT NULL;
+ALTER TABLE click_outs ADD COLUMN IF NOT EXISTS bra_band INT;
+ALTER TABLE click_outs ADD COLUMN IF NOT EXISTS bra_cup VARCHAR(2);
+
 CREATE INDEX IF NOT EXISTS product_sizes_uk_sizes_idx ON product_sizes USING GIN (uk_sizes);
+CREATE INDEX IF NOT EXISTS product_sizes_bra_band_idx ON product_sizes (bra_band);
 CREATE INDEX IF NOT EXISTS products_retailer_idx ON products (retailer_id);

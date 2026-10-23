@@ -4,6 +4,7 @@ const db = require("../../db/connection");
 const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 const { collectRetailer } = require("../../lib/collect");
+const { reopenExcludedLingerie } = require("../../lib/catalogue");
 const page1 = require("../fixtures/shopify/products-page-1.json");
 const page2 = require("../fixtures/shopify/products-page-2.json");
 
@@ -78,6 +79,123 @@ describe("collecting a Shopify Retailer", () => {
       (p) => p.retailer_name === "Fixture Shop"
     );
     expect(blackIn20.map((p) => p.colour).sort()).toEqual(["Black", "Red"]);
+  });
+
+  describe("lingerie and Bra sizes", () => {
+    const bra = (id, title, sizes) => ({
+      id,
+      title,
+      handle: title.toLowerCase().replace(/ /g, "-"),
+      vendor: "Fixture Lingerie",
+      product_type: "Bras",
+      options: [
+        { name: "Band Size", position: 1 },
+        { name: "Cup Size", position: 2 },
+      ],
+      variants: sizes.map(([band, cup, available], i) => ({
+        id: id * 10 + i,
+        option1: band,
+        option2: cup,
+        available,
+        price: "30.00",
+      })),
+      images: [],
+    });
+    const briefs = {
+      id: 70,
+      title: "High Waist Briefs",
+      handle: "high-waist-briefs",
+      vendor: "Fixture Lingerie",
+      product_type: "Knickers",
+      options: [{ name: "Size", position: 1 }],
+      variants: [
+        { id: 701, option1: "20", available: true, price: "12.00" },
+        { id: 702, option1: "22", available: false, price: "12.00" },
+      ],
+      images: [],
+    };
+    const lingeriePage = {
+      products: [
+        bra(60, "Lace Balcony Bra", [["36", "DD", true], ["38", "DD", true], ["40", "E", false]]),
+        bra(61, "Petite Plunge Bra", [["32", "B", true], ["34", "C", true]]),
+        briefs,
+      ],
+    };
+    const titles = (products) =>
+      products.filter((p) => p.retailer_name === "Fixture Shop").map((p) => p.title);
+
+    beforeEach(() => collectRetailer(retailer, { fetcher: savedShopify({ 1: lingeriePage }) }));
+
+    test("a bra made in band 38 or above is shown and found by band", async () => {
+      expect(titles(await search({ bra_band: 38, category: "lingerie" }))).toEqual([
+        "Lace Balcony Bra",
+      ]);
+      const [found] = await search({ bra_band: 38, bra_cup: "dd" });
+      expect(found).toMatchObject({ title: "Lace Balcony Bra", size_label: "38DD", fits: null });
+      await request(app)
+        .post("/api/click-outs")
+        .send({ product_id: found.product_id, bra_band: 37 })
+        .expect(400);
+    });
+
+    test("a Plus-size bra is found in its smaller bands too", async () => {
+      expect(titles(await search({ bra_band: 36 }))).toEqual(["Lace Balcony Bra"]);
+    });
+
+    test("a bra made only below band 38 is excluded", async () => {
+      const petite = (await fixtureProducts()).find((p) => p.title === "Petite Plunge Bra");
+      expect(petite).toMatchObject({ category: "lingerie", sort_status: "excluded" });
+      expect(titles(await search({ bra_band: 34 }))).toEqual([]);
+    });
+
+    test("a sold-out Bra size is stored but not found", async () => {
+      expect(titles(await search({ bra_band: 40 }))).toEqual([]);
+      expect(titles(await search({ bra_band: 40, bra_cup: "E" }))).toEqual([]);
+      const lace = (await fixtureProducts()).find((p) => p.title === "Lace Balcony Bra");
+      const {
+        body: { product },
+      } = await request(app).get(`/api/products/${lace.product_id}`).expect(200);
+      expect(product.sizes.find((s) => s.size_label === "40E")).toMatchObject({
+        bra_band: 40,
+        bra_cup: "E",
+        in_stock: false,
+      });
+    });
+
+    test("lingerie in UK sizes is found by UK size, like clothes", async () => {
+      expect(titles(await search({ uk_size: 20, category: "lingerie" }))).toEqual([
+        "High Waist Briefs",
+      ]);
+      expect(titles(await search({ uk_size: 22, category: "lingerie" }))).toEqual([]);
+    });
+
+    test("lingerie excluded before ADR 0007 is sorted again and shown", async () => {
+      const lace = (await fixtureProducts()).find((p) => p.title === "Lace Balcony Bra");
+      await db.query(
+        `UPDATE products SET category = NULL, excluded_as = 'lingerie', sort_status = 'excluded'
+         WHERE product_id = $1`,
+        [lace.product_id]
+      );
+      expect(await reopenExcludedLingerie()).toBe(1);
+      const [after] = (
+        await db.query(`SELECT category, excluded_as, sort_status FROM products WHERE product_id = $1`, [
+          lace.product_id,
+        ])
+      ).rows;
+      expect(after).toEqual({ category: "lingerie", excluded_as: null, sort_status: "shown" });
+      expect(await reopenExcludedLingerie()).toBe(0);
+    });
+
+    test("a Click-out for a bra sends her to her band and cup, and records it", async () => {
+      const lace = (await fixtureProducts()).find((p) => p.title === "Lace Balcony Bra");
+      const { body } = await request(app)
+        .post("/api/click-outs")
+        .send({ product_id: lace.product_id, uk_size: null, bra_band: 38, bra_cup: "DD" })
+        .expect(200);
+      expect(new URL(body.url).searchParams.get("variant")).toBe("601");
+      const { rows } = await db.query(`SELECT uk_size, bra_band, bra_cup FROM click_outs`);
+      expect(rows).toEqual([{ uk_size: null, bra_band: 38, bra_cup: "DD" }]);
+    });
   });
 
   test("a removed Retailer is not collected", async () => {

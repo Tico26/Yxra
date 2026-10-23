@@ -45,11 +45,15 @@ The size exactly as a Retailer writes it ("3X", "EU 50", "22/24").
 _Avoid_: Retailer size, raw size
 
 **UK size**:
-Yxra's single standard size scale for clothing, swimwear and activewear, which every Size label is translated onto so one size can be searched across all Retailers. One Size label can translate to more than one UK size ("18/20" is both 18 and 20). Lingerie and shoes will need their own scales.
+Yxra's single standard size scale for clothing, swimwear, activewear and lingerie sold in dress sizes, which every Size label is translated onto so one size can be searched across all Retailers. One Size label can translate to more than one UK size ("18/20" is both 18 and 20). Bras use Bra sizes instead; shoes will need their own scale.
 _Avoid_: Normalised size, standard size, Yxra size
 
+**Bra size**:
+A bra's band in inches and UK cup, written together ("38DD"). A Shopper finds bras by band, and optionally cup, instead of by UK size.
+_Avoid_: Bra UK size, cup size (alone)
+
 **Plus size**:
-A product made in UK size 18 or above, whether or not that size is in stock today.
+A product made in UK size 18 or above (for a bra, band 38 or above), whether or not that size is in stock today.
 _Avoid_: Curve, extended size (except as Range names)
 
 **Review list**:
