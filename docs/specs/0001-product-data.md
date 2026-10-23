@@ -65,7 +65,7 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 ### Stock
 
 14. Every Product's stock in each size is refreshed once a night, and the Product shows when that happened.
-15. Search shows a Product only if it is in stock in the Shopper's chosen UK size (or for bras, her band and cup).
+15. Search shows a Product only if it is in stock in the Shopper's chosen UK size (or for bras, her band and cup). Before she picks a size, it shows Products in stock in at least one Plus size (UK 18 or above, or band 38 or above). Either way, each Product lists the Plus sizes it is in stock in.
 16. A Product sold out in every size is hidden but kept, and is shown again automatically when any size comes back.
 17. A Product missing from its Retailer's data for 30 days in a row is deleted.
 

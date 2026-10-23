@@ -1,7 +1,7 @@
 {
   "GET /api/products": {
-    "description": "Products in stock in one UK size, or for bras one band (optionally one cup), optionally in one category (clothes, swimwear, activewear, lingerie)",
-    "queries": ["uk_size (or bra_band)", "bra_band", "bra_cup (needs bra_band)", "category"]
+    "description": "Products in stock in one UK size, or for bras one band (optionally one cup), optionally in one category (clothes, swimwear, activewear, lingerie). With no size, Products in stock in at least one plus size (UK 18+ or band 38+), with size_label and fits null. Every result has in_stock_sizes: its in-stock plus Size labels, UK sizes ascending, then bands and cups",
+    "queries": ["uk_size (optional; not with bra_band)", "bra_band (optional)", "bra_cup (needs bra_band)", "category (optional)"]
   },
   "GET /api/products/:product_id": { "description": "One Product with all its Size labels" },
   "POST /api/click-outs": {
