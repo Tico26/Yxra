@@ -2,7 +2,12 @@ name: Nightly Stock check
 
 # Refreshes every Retailer's Products and stock in the Supabase database
 # each night (spec 0001, rules R6, R14, R16, R17). Run it by hand from the
-# Actions tab with "Run workflow".
+# Actions tab with "Run workflow"; leave "retailers" empty for all of them.
+#
+# Each Retailer is collected in its own job, so a big one can't use up the
+# time of the others. A Retailer's missing and deleted Products are worked
+# out from that Retailer's own data only, so the jobs don't depend on each
+# other. Schema and AI tagging run once, before and after.
 #
 # Needs these repository settings (Settings > Secrets and variables > Actions):
 #   secret   DATABASE_URL   Supabase connection string (Session pooler URI)
@@ -13,6 +18,11 @@ on:
   schedule:
     - cron: "0 2 * * *"
   workflow_dispatch:
+    inputs:
+      retailers:
+        description: "Only these Retailers: ids or names, comma-separated (empty = all)"
+        required: false
+        default: ""
 
 concurrency:
   group: stock-check
@@ -21,14 +31,17 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  NODE_ENV: production
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  YXRA_CONTACT: ${{ vars.YXRA_CONTACT }}
+
 jobs:
-  stock-check:
+  prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
-    env:
-      NODE_ENV: production
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      YXRA_CONTACT: ${{ vars.YXRA_CONTACT }}
+    timeout-minutes: 15
+    outputs:
+      retailers: ${{ steps.list.outputs.retailers }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,8 +51,52 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Apply schema
         run: npm run migrate
+      - name: List the Retailers to collect
+        id: list
+        env:
+          WANTED: ${{ inputs.retailers }}
+        run: |
+          retailers=$(node scripts/list-retailers.js "$WANTED")
+          echo "$retailers"
+          echo "retailers=$retailers" >> "$GITHUB_OUTPUT"
+
+  stock-check:
+    name: "Stock check: ${{ matrix.retailer.name }}"
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      # Each job holds at most 2 database connections; 3 at a time stays well
+      # inside Supabase's free connection limit.
+      max-parallel: 3
+      matrix:
+        retailer: ${{ fromJSON(needs.prepare.outputs.retailers) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
       - name: Stock check
-        run: npm run stock-check
+        env:
+          RETAILER_ID: ${{ matrix.retailer.id }}
+        run: npm run stock-check -- "$RETAILER_ID"
+
+  ai-tagging:
+    needs: [prepare, stock-check]
+    # Runs once after every Retailer's job, even if some failed or timed out.
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
       - name: AI tagging for what the rules could not settle
         run: npm run ai-tagging
         env:

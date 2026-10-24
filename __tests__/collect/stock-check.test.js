@@ -3,7 +3,7 @@ const { app } = require("../../app");
 const db = require("../../db/connection");
 const seed = require("../../db/seed");
 const data = require("../../db/data/index");
-const { runStockCheck } = require("../../lib/stock-check");
+const { runStockCheck, pickRetailers, parseRetailerList } = require("../../lib/stock-check");
 const page1 = require("../fixtures/shopify/products-page-1.json");
 const page2 = require("../fixtures/shopify/products-page-2.json");
 
@@ -100,6 +100,74 @@ describe("nightly Stock check", () => {
 
     await runStockCheck({ fetcher: empty, now: NIGHT(31), ...quiet });
     expect(await productByExternal("1001:black")).toBeUndefined();
+  });
+});
+
+describe("collecting only some Retailers (one per job in the nightly workflow)", () => {
+  const idOf = async (name) =>
+    (await db.query(`SELECT retailer_id FROM retailers WHERE retailer_name = $1`, [name])).rows[0]
+      .retailer_id;
+
+  test("a run given one retailer id collects that Retailer and no other", async () => {
+    const web = savedWeb({ [NORTHERN]: { 1: page1 }, [SEASIDE]: { 1: page2 } });
+    const summary = await runStockCheck({
+      fetcher: web,
+      now: NIGHT(0),
+      only: [String(await idOf("Seaside Plus"))],
+      ...quiet,
+    });
+    expect([...new Set(web.asked)]).toEqual([SEASIDE]);
+    expect(summary.collected.map((c) => c.retailer)).toEqual(["Seaside Plus"]);
+  });
+
+  test("R16: a one-Retailer run only hides that Retailer's missing Products", async () => {
+    await runStockCheck({ fetcher: savedWeb({ [NORTHERN]: { 1: page1 } }), now: NIGHT(0), ...quiet });
+    const seasideBefore = await productByExternal("202:navy");
+
+    // Seaside's data here no longer lists 202:navy: collecting it would hide it.
+    await runStockCheck({
+      fetcher: savedWeb({
+        [NORTHERN]: { 1: { products: page1.products.slice(1) } },
+        [SEASIDE]: { 1: page2 },
+      }),
+      now: NIGHT(1),
+      only: ["Northern Curve"],
+      ...quiet,
+    });
+    expect((await productByExternal("1001:red")).missing_since).toEqual(NIGHT(1));
+    const seasideAfter = await productByExternal("202:navy");
+    expect(seasideAfter.missing_since).toBeNull();
+    expect(seasideAfter.last_checked_at).toEqual(seasideBefore.last_checked_at);
+  });
+
+  test("Retailers can be picked by id or by name in any case, without repeats", async () => {
+    const seaside = await idOf("Seaside Plus");
+    const picked = await pickRetailers([String(seaside), "northern curve", "Seaside Plus"]);
+    expect(picked.map((r) => r.retailer_name)).toEqual(["Seaside Plus", "Northern Curve"]);
+  });
+
+  test("an empty list picks every current Retailer, never a removed one", async () => {
+    expect((await pickRetailers([])).map((r) => r.retailer_name)).toEqual([
+      "Northern Curve",
+      "Seaside Plus",
+    ]);
+  });
+
+  test("an unknown or removed Retailer is an error, so a typo never collects nothing", async () => {
+    await expect(pickRetailers(["Nothern Curve"])).rejects.toThrow(
+      "Nothern Curve is not a current Retailer"
+    );
+    await expect(pickRetailers(["Gone Retailer"])).rejects.toThrow("not a current Retailer");
+    await expect(pickRetailers(["999999"])).rejects.toThrow("not a current Retailer");
+  });
+
+  test("the workflow input is split on commas, so names may have spaces", () => {
+    expect(parseRetailerList(" 3, Rock Those Curves,,Thunder Egg ")).toEqual([
+      "3",
+      "Rock Those Curves",
+      "Thunder Egg",
+    ]);
+    expect(parseRetailerList("")).toEqual([]);
   });
 });
 
