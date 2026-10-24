@@ -72,9 +72,21 @@ CREATE TABLE IF NOT EXISTS product_sizes (
   UNIQUE (product_id, size_label)
 );
 
+-- Changes to existing tables below check first and only run when needed:
+-- even a no-op ALTER TABLE or CREATE INDEX waits for every open write on the
+-- table, and a Stock check holds one for as long as it saves a Retailer.
+
 -- A Bra size label ("38DD") has no UK size; it is found by band and cup.
-ALTER TABLE product_sizes ADD COLUMN IF NOT EXISTS bra_band INT;
-ALTER TABLE product_sizes ADD COLUMN IF NOT EXISTS bra_cup VARCHAR(2);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'product_sizes' AND column_name = 'bra_band') THEN
+    ALTER TABLE product_sizes ADD COLUMN bra_band INT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'product_sizes' AND column_name = 'bra_cup') THEN
+    ALTER TABLE product_sizes ADD COLUMN bra_cup VARCHAR(2);
+  END IF;
+END $$;
 
 -- Known translations of a Brand's Size label: from the Brand's size chart,
 -- settled by Tico, or answered by the AI. uk_sizes is empty when the AI was
@@ -110,10 +122,29 @@ CREATE TABLE IF NOT EXISTS click_outs (
 );
 
 -- A Click-out names her UK size, or for a bra her band and cup.
-ALTER TABLE click_outs ALTER COLUMN uk_size DROP NOT NULL;
-ALTER TABLE click_outs ADD COLUMN IF NOT EXISTS bra_band INT;
-ALTER TABLE click_outs ADD COLUMN IF NOT EXISTS bra_cup VARCHAR(2);
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'click_outs' AND column_name = 'uk_size' AND is_nullable = 'NO') THEN
+    ALTER TABLE click_outs ALTER COLUMN uk_size DROP NOT NULL;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'click_outs' AND column_name = 'bra_band') THEN
+    ALTER TABLE click_outs ADD COLUMN bra_band INT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'click_outs' AND column_name = 'bra_cup') THEN
+    ALTER TABLE click_outs ADD COLUMN bra_cup VARCHAR(2);
+  END IF;
+END $$;
 
-CREATE INDEX IF NOT EXISTS product_sizes_uk_sizes_idx ON product_sizes USING GIN (uk_sizes);
-CREATE INDEX IF NOT EXISTS product_sizes_bra_band_idx ON product_sizes (bra_band);
-CREATE INDEX IF NOT EXISTS products_retailer_idx ON products (retailer_id);
+DO $$ BEGIN
+  IF to_regclass('product_sizes_uk_sizes_idx') IS NULL THEN
+    CREATE INDEX product_sizes_uk_sizes_idx ON product_sizes USING GIN (uk_sizes);
+  END IF;
+  IF to_regclass('product_sizes_bra_band_idx') IS NULL THEN
+    CREATE INDEX product_sizes_bra_band_idx ON product_sizes (bra_band);
+  END IF;
+  IF to_regclass('products_retailer_idx') IS NULL THEN
+    CREATE INDEX products_retailer_idx ON products (retailer_id);
+  END IF;
+END $$;
