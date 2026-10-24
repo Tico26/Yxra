@@ -40,7 +40,7 @@ const HomeHero = ({ picks, loading }) => (
                   style={{ animationDelay: `${i * 80}ms` }}
                 >
                   <Link to={`/products/${product.product_id}`} className="group block text-ink no-underline">
-                    <ProductImage src={product.image_url} eager>
+                    <ProductImage src={product.image_url} eager sizes="(min-width: 768px) 33vw, 70vw">
                       <SizeTag sizes={product.sizes_in_stock} className="absolute bottom-3 left-0" />
                     </ProductImage>
                     <p className="mt-3 text-small text-graphite">{product.shop_name}</p>

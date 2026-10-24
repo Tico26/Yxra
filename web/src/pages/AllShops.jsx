@@ -63,7 +63,7 @@ const AllShops = () => {
                     {thumbs.length > 0 ? (
                       <div className="grid grid-cols-4 gap-2" aria-hidden="true">
                         {thumbs.map((p) => (
-                          <ProductImage key={p.product_id} src={p.image_url} />
+                          <ProductImage key={p.product_id} src={p.image_url} sizes="(min-width: 768px) 15vw, 25vw" />
                         ))}
                       </div>
                     ) : (
