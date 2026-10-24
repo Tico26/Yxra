@@ -1,8 +1,16 @@
+import { responsiveImage } from '../utils/image';
+
+// How wide a product-grid card is: 2 columns, 3 from md, 4 from lg.
+const GRID_SIZES = '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw';
+
 // A product photo in a 3:4 mist frame. Children (the size tag) overlay it.
-const ProductImage = ({ src, alt = '', onError, eager = false, className = '', children }) => (
+// `sizes` tells the browser how wide the frame is, so it fetches a sharp copy
+// of the right size rather than the shop's full-size original.
+const ProductImage = ({ src, alt = '', onError, eager = false, sizes = GRID_SIZES, className = '', children }) => (
   <div className={`relative aspect-[3/4] overflow-hidden bg-mist ${className}`}>
     <img
-      src={src}
+      {...responsiveImage(src)}
+      sizes={sizes}
       alt={alt}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
