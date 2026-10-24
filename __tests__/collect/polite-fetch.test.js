@@ -34,6 +34,12 @@ describe("polite fetching (R4)", () => {
     web.calls.forEach((c) => expect(c.headers["User-Agent"]).toMatch(/^Yxra\/.*hello@yxra\.example/));
   });
 
+  test("asks for the UK market, so stock and prices are what a UK shopper sees", async () => {
+    const web = fakeWeb({ "https://shop.example/a": "A" });
+    await make(web).getText("https://shop.example/a");
+    web.calls.forEach((c) => expect(c.headers.Cookie).toBe("localization=GB"));
+  });
+
   test("refuses to start without a contact address", () => {
     expect(() => make(fakeWeb({}), { contact: "" })).toThrow(/contact/);
   });
