@@ -47,7 +47,7 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 3. Each colour of a garment becomes its own Product with its own photo, link and sizes in stock.
 4. Collection respects the Retailer's robots.txt, fetches no faster than one request every few seconds per Retailer, and identifies itself as Yxra with a contact address.
 5. When Tico removes a Retailer, its Products disappear from search at once and none are collected again.
-6. When one Retailer fails to load, the others still complete, and that Retailer's existing Products keep their last known stock and check time.
+6. When one Retailer fails to load, the others still complete, and that Retailer's existing Products keep their last known stock and check time (its last successful collection).
 
 ### Sorting
 
@@ -64,7 +64,7 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 
 ### Stock
 
-14. Every Product's stock in each size is refreshed once a night, and the Product shows when that happened.
+14. Every Product's stock in each size is refreshed once a night, and the Product shows when that happened: the time its Retailer was last collected. Only Products and sizes whose data changed are rewritten ([ADR 0008](../adr/0008-check-time-is-the-retailers.md)).
 15. Search shows a Product only if it is in stock in the Shopper's chosen UK size (or for bras, her band and cup). Before she picks a size, it shows Products in stock in at least one Plus size (UK 18 or above, or band 38 or above). Either way, each Product lists the Plus sizes it is in stock in.
 16. A Product sold out in every size is hidden but kept, and is shown again automatically when any size comes back.
 17. A Product missing from its Retailer's data for 30 days in a row is deleted.

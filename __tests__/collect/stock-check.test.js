@@ -47,9 +47,14 @@ describe("nightly Stock check", () => {
   test("R14: every Product's stock per size is refreshed, with the check time stored", async () => {
     await runStockCheck({ fetcher: savedWeb({ [NORTHERN]: { 1: page1 } }), now: NIGHT(0), ...quiet });
     const black = await productByExternal("1001:black");
-    expect(black.last_checked_at).toEqual(NIGHT(0));
+    const { rows } = await db.query(`SELECT last_collected_at FROM retailers WHERE retailer_id = $1`, [
+      black.retailer_id,
+    ]);
+    expect(rows[0].last_collected_at).toEqual(NIGHT(0));
     const [result] = (await search(22)).filter((p) => p.product_id === black.product_id);
     expect(new Date(result.last_checked_at)).toEqual(NIGHT(0));
+    const { body } = await request(app).get(`/api/products/${black.product_id}`).expect(200);
+    expect(new Date(body.product.last_checked_at)).toEqual(NIGHT(0));
   });
 
   test("R6: one Retailer failing does not stop the others, and its Products keep their last stock", async () => {
@@ -62,6 +67,8 @@ describe("nightly Stock check", () => {
     expect(await productByExternal("1003:navy")).toBeDefined();
     const after = await productByExternal("101:black");
     expect(after.last_checked_at).toEqual(before.last_checked_at);
+    const { body } = await request(app).get(`/api/products/${after.product_id}`).expect(200);
+    expect(body.product.last_checked_at).toBe("2026-10-12T02:00:00.000Z");
     expect(after.missing_since).toBeNull();
     expect((await search(22)).map((p) => p.product_id)).toContain(after.product_id);
     expect(summary.failed).toEqual([{ retailer: "Northern Curve", error: "timed out" }]);
