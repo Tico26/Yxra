@@ -1,0 +1,33 @@
+name: Compact database
+
+# Run by hand from the Actions tab ("Run workflow") at a quiet time, not
+# during the nightly Stock check (02:00 UTC). Gives back the disk space left
+# behind by rewritten rows in products and product_sizes, and prints each
+# table's size before and after. Search pauses for a few seconds per table
+# while it runs; it gives up at once if a table is in use, so run it again
+# later if it does.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compact-database
+
+jobs:
+  compact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: production
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run compact
