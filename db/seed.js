@@ -29,7 +29,8 @@ const seed = async ({
 
   const { rows: insertedRetailers } = await db.query(
     format(
-      `INSERT INTO retailers (retailer_name, site_url, source, women_only, removed_at)
+      `INSERT INTO retailers (retailer_name, site_url, source, women_only, removed_at,
+         last_collected_at)
        VALUES %L RETURNING retailer_id, site_url`,
       retailers.map((r) => [
         r.retailer_name,
@@ -37,6 +38,7 @@ const seed = async ({
         r.source,
         r.women_only || false,
         r.removed_at || null,
+        r.last_collected_at || null,
       ])
     )
   );

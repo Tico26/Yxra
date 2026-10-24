@@ -3,6 +3,7 @@ const db = require("../../db/connection");
 const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 const { saveRetailerProducts } = require("../../lib/catalogue");
+const { fetchProductById, searchProducts } = require("../../models/products.models");
 
 let retailer;
 beforeEach(async () => {
@@ -158,5 +159,58 @@ describe("saving a Retailer's products", () => {
       retailer.retailer_id,
     ]);
     expect(rows[0].last_collected_at).toEqual(now);
+  });
+
+  // xmin is the transaction that last wrote a row: unchanged means not rewritten.
+  const rowVersions = async () =>
+    (
+      await db.query(
+        `SELECT p.external_id, p.xmin::text AS product, s.size_label, s.xmin::text AS size
+         FROM products p JOIN product_sizes s USING (product_id)
+         WHERE p.retailer_id = $1 ORDER BY p.external_id, s.size_label`,
+        [retailer.retailer_id]
+      )
+    ).rows;
+
+  test("ADR 0008: an unchanged re-save rewrites no product or size rows", async () => {
+    await saveRetailerProducts(retailer, [found(1), found(2)], new Date("2026-10-23T02:00:00Z"));
+    const before = await rowVersions();
+    await saveRetailerProducts(retailer, [found(1), found(2)], new Date("2026-10-24T02:00:00Z"));
+    expect(await rowVersions()).toEqual(before);
+  });
+
+  test("ADR 0008: a changed price, stock flag or size is still saved, and only that row is rewritten", async () => {
+    await saveRetailerProducts(retailer, [found(1), found(2), found(3)]);
+    const before = await rowVersions();
+    const sizes = found(2).sizes.map((s) => (s.size_label === "20" ? { ...s, in_stock: true } : s));
+    await saveRetailerProducts(retailer, [
+      found(1, { price_in_pence: 3900 }),
+      found(2, { sizes }),
+      found(3, { sizes: [...found(3).sizes, { size_label: "22", in_stock: true, variant_refs: ["34"] }] }),
+    ]);
+    expect((await product("1:black")).price_in_pence).toBe(3900);
+    expect((await sizesOf("2:black")).find((s) => s.size_label === "20").in_stock).toBe(true);
+    expect((await sizesOf("3:black")).map((s) => s.size_label)).toEqual(["16", "18", "20", "22"]);
+
+    const after = await rowVersions();
+    const changed = (key) =>
+      after
+        .filter((row) => before.some((b) => b.external_id === row.external_id && b.size_label === row.size_label && b[key] !== row[key]))
+        .map((row) => (key === "product" ? row.external_id : `${row.external_id} ${row.size_label}`));
+    // A new Size label changes the text hash the rules and AI go by, so 3:black is rewritten too.
+    expect([...new Set(changed("product"))]).toEqual(["1:black", "3:black"]);
+    expect(changed("size")).toEqual(["2:black 20"]);
+  });
+
+  test("ADR 0008: a Product and its sizes show when the Retailer was last collected", async () => {
+    await saveRetailerProducts(retailer, [found(1)], new Date("2026-10-23T02:00:00Z"));
+    const night = new Date("2026-10-24T02:00:00Z");
+    await saveRetailerProducts(retailer, [found(1)], night);
+    const { product_id } = await product("1:black");
+    const shown = await fetchProductById(product_id);
+    expect(shown.last_checked_at).toEqual(night);
+    expect(shown.sizes.map((s) => new Date(s.last_checked_at))).toEqual([night, night, night]);
+    const [result] = (await searchProducts({ ukSize: 18 })).filter((p) => p.product_id === product_id);
+    expect(result.last_checked_at).toEqual(night);
   });
 });

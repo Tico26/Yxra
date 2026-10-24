@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS products (
   text_hash VARCHAR(64) NOT NULL DEFAULT '',
   ai_asked_hash VARCHAR(64),
   first_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- When this row was last written. When it was last checked is its
+  -- Retailer's last_collected_at (ADR 0008).
   last_checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   missing_since TIMESTAMPTZ,
   UNIQUE (retailer_id, external_id)
@@ -68,6 +70,7 @@ CREATE TABLE IF NOT EXISTS product_sizes (
     CHECK (size_status IN ('translated', 'unsettled')),
   in_stock BOOLEAN NOT NULL DEFAULT FALSE,
   variant_refs TEXT[] NOT NULL DEFAULT '{}',
+  -- When this row was last written; checked is the Retailer's last_collected_at.
   last_checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (product_id, size_label)
 );
@@ -137,14 +140,22 @@ DO $$ BEGIN
   END IF;
 END $$;
 
+-- Only Bra size labels have a band (under a tenth of all labels), so the
+-- index leaves the rest out. No query can use a GIN index on uk_sizes (they
+-- ask "= ANY"), and (retailer_id, external_id) already serves lookups by
+-- Retailer, so those two indexes only took space and slowed every save.
 DO $$ BEGIN
-  IF to_regclass('product_sizes_uk_sizes_idx') IS NULL THEN
-    CREATE INDEX product_sizes_uk_sizes_idx ON product_sizes USING GIN (uk_sizes);
+  IF to_regclass('product_sizes_uk_sizes_idx') IS NOT NULL THEN
+    DROP INDEX product_sizes_uk_sizes_idx;
+  END IF;
+  IF to_regclass('products_retailer_idx') IS NOT NULL THEN
+    DROP INDEX products_retailer_idx;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_index WHERE indexrelid = to_regclass('product_sizes_bra_band_idx')
+             AND indpred IS NULL) THEN
+    DROP INDEX product_sizes_bra_band_idx;
   END IF;
   IF to_regclass('product_sizes_bra_band_idx') IS NULL THEN
-    CREATE INDEX product_sizes_bra_band_idx ON product_sizes (bra_band);
-  END IF;
-  IF to_regclass('products_retailer_idx') IS NULL THEN
-    CREATE INDEX products_retailer_idx ON products (retailer_id);
+    CREATE INDEX product_sizes_bra_band_idx ON product_sizes (bra_band) WHERE bra_band IS NOT NULL;
   END IF;
 END $$;

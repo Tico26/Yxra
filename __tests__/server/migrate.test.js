@@ -32,10 +32,10 @@ describe("migrate", () => {
   });
 
   test("still adds what is missing", async () => {
-    await db.query("DROP INDEX products_retailer_idx");
+    await db.query("DROP INDEX product_sizes_bra_band_idx");
     await db.query("ALTER TABLE click_outs DROP COLUMN bra_cup");
     await migrate(noWaiting);
-    const { rows: index } = await db.query(`SELECT to_regclass('products_retailer_idx') AS found`);
+    const { rows: index } = await db.query(`SELECT to_regclass('product_sizes_bra_band_idx') AS found`);
     expect(index[0].found).not.toBeNull();
     const { rows: column } = await db.query(
       `SELECT 1 FROM information_schema.columns WHERE table_name = 'click_outs' AND column_name = 'bra_cup'`
@@ -44,7 +44,7 @@ describe("migrate", () => {
   });
 
   test("gives up quickly, with a clear reason, when a change it needs is blocked", async () => {
-    await db.query("DROP INDEX products_retailer_idx");
+    await db.query("DROP INDEX product_sizes_bra_band_idx");
     const release = await holdStockCheckLocks();
     try {
       await expect(migrate(noWaiting)).rejects.toThrow(/in use, most likely by a Stock check/);
@@ -54,7 +54,7 @@ describe("migrate", () => {
   });
 
   test("tries again until the table is free", async () => {
-    await db.query("DROP INDEX products_retailer_idx");
+    await db.query("DROP INDEX product_sizes_bra_band_idx");
     const release = await holdStockCheckLocks();
     let waits = 0;
     const sleep = async () => {
@@ -63,7 +63,7 @@ describe("migrate", () => {
     };
     await migrate({ lockTimeoutMs: 200, retryEveryMs: 0, giveUpAfterMs: 60000, sleep });
     expect(waits).toBe(2);
-    const { rows } = await db.query(`SELECT to_regclass('products_retailer_idx') AS found`);
+    const { rows } = await db.query(`SELECT to_regclass('product_sizes_bra_band_idx') AS found`);
     expect(rows[0].found).not.toBeNull();
   });
 });
