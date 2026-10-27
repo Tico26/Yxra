@@ -130,3 +130,32 @@ exports.searchProducts = async ({
     fits: browsing ? null : fitsRange(uk_sizes),
   }));
 };
+
+// The Products on a Saved page, in the order asked, whether or not they are
+// in stock (spec 0004). A Product gone from its Retailer's data has nothing
+// in stock until it is deleted; one a Shopper could no longer find (Retailer
+// removed, or taken out of Amara's Pick) is left out, like a deleted one.
+// in_stock_uk_sizes lets the page tell whether her size is in stock.
+exports.fetchProductsByIds = async (productIds) => {
+  const { rows } = await db.query(
+    `SELECT p.product_id, p.title, p.colour, p.brand, p.category, p.image_url, p.product_url,
+       p.price_in_pence, r.last_collected_at AS last_checked_at, p.retailer_id, r.retailer_name,
+       ARRAY(
+         SELECT i.size_label FROM product_sizes i
+         WHERE i.product_id = p.product_id AND p.missing_since IS NULL AND ${PLUS_IN_STOCK("i")}
+         ORDER BY cardinality(i.uk_sizes) = 0, i.uk_sizes, i.bra_band,
+                  array_position($2::text[], i.bra_cup), i.size_label) AS in_stock_sizes,
+       ARRAY(
+         SELECT DISTINCT n FROM product_sizes i, unnest(i.uk_sizes) n
+         WHERE i.product_id = p.product_id AND p.missing_since IS NULL
+           AND ${PLUS_IN_STOCK("i")} AND n >= ${SMALLEST_PLUS_UK_SIZE}
+         ORDER BY n) AS in_stock_uk_sizes
+     FROM unnest($1::int[]) WITH ORDINALITY AS asked(product_id, position)
+     JOIN products p USING (product_id)
+     JOIN retailers r USING (retailer_id)
+     WHERE r.removed_at IS NULL AND p.sort_status = 'shown'
+     ORDER BY asked.position`,
+    [productIds, CUPS]
+  );
+  return rows;
+};
