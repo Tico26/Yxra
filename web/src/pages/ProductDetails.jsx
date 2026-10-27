@@ -40,7 +40,7 @@ const ProductDetails = () => {
     );
   }
 
-  // Products without a photo are not shown on Yxra.
+  // Products without a photo are not shown on Amara's Pick.
   if (!product || !product.image_url || imageFailed) {
     return (
       <div className="container-custom pb-20 pt-10 md:pt-16">

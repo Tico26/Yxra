@@ -1,8 +1,8 @@
-# What UK law asks of Yxra's site at launch
+# What UK law asks of Amara's Pick's site at launch
 
 Research for GitHub issue #35. All sources read on **2026-10-18** unless marked otherwise. This is a research summary, **not legal advice**. Points marked **[Lawyer]** need a qualified UK solicitor before launch.
 
-Yxra as assumed here: a UK site run by a sole trader (Tico). Shoppers search Products collected from Retailers' public product data, then click out to the Retailer to buy, possibly through affiliate links. The site remembers the Shopper's size on her device, may run analytics, and collects waiting-list emails. Yxra sells nothing itself.
+Amara's Pick as assumed here: a UK site run by a sole trader (Tico). Shoppers search Products collected from Retailers' public product data, then click out to the Retailer to buy, possibly through affiliate links. The site remembers the Shopper's size on her device, may run analytics, and collects waiting-list emails. Amara's Pick sells nothing itself.
 
 ## Launch-day checklist (short version)
 
@@ -23,7 +23,7 @@ Yxra as assumed here: a UK site run by a sole trader (Tico). Shoppers search Pro
 
 ## 1. UK GDPR privacy notice
 
-**What applies.** Yxra is the controller for any personal data it holds. That includes waiting-list emails, analytics data (IP addresses and device identifiers are personal data), server logs and complaint messages. Where data is collected directly from people, UK GDPR Art 13 requires the notice to give ([ICO, "What privacy information should we provide?"](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/the-right-to-be-informed/what-privacy-information-should-we-provide/), page dated 15 Jan 2026):
+**What applies.** Amara's Pick is the controller for any personal data it holds. That includes waiting-list emails, analytics data (IP addresses and device identifiers are personal data), server logs and complaint messages. Where data is collected directly from people, UK GDPR Art 13 requires the notice to give ([ICO, "What privacy information should we provide?"](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/the-right-to-be-informed/what-privacy-information-should-we-provide/), page dated 15 Jan 2026):
 
 - the controller's name and contact details
 - each purpose of processing and its lawful basis, plus the legitimate interests relied on where Art 6(1)(f) is used
@@ -37,13 +37,13 @@ Yxra as assumed here: a UK site run by a sole trader (Tico). Shoppers search Pro
 
 The ICO page notes it is "under review" following DUAA changes.
 
-**Likely lawful bases for Yxra:** consent for the waiting list (it is tied to PECR consent, see §4) and legitimate interests for analytics and security logs. **[Lawyer]**: confirm the bases and write a short legitimate interests assessment.
+**Likely lawful bases for Amara's Pick:** consent for the waiting list (it is tied to PECR consent, see §4) and legitimate interests for analytics and security logs. **[Lawyer]**: confirm the bases and write a short legitimate interests assessment.
 
-**Size remembered on the device.** If the size choice stays in the browser and is never sent to Yxra's server, Yxra probably isn't processing it as personal data. PECR still applies to storing it, though (§3). If the size is ever sent with search requests or logged, put it in the notice. *(This is my inference, not an ICO statement.)*
+**Size remembered on the device.** If the size choice stays in the browser and is never sent to Amara's Pick's server, Amara's Pick probably isn't processing it as personal data. PECR still applies to storing it, though (§3). If the size is ever sent with search requests or logged, put it in the notice. *(This is my inference, not an ICO statement.)*
 
 **New complaints duty (DUAA 2025 s.103).** This commenced on **19 June 2026** ([S.I. 2026/82 reg 3](https://legislation.gov.uk/uksi/2026/82)). Organisations must "provide a clear way to raise a data protection complaint", "acknowledge it within 30 days" and "investigate appropriately and communicate the outcome" ([ICO news, 23 June 2026](https://ico.org.uk/about-the-ico/media-centre/news-and-blogs/2026/06/new-data-protection-complaints-law-now-in-force/)). The ICO suggests making complaints easier, for example with an electronic form, and responding "without undue delay" ([ICO, DUAA: what does it mean for organisations?](https://ico.org.uk/about-the-ico/what-we-do/legislation-we-cover/data-use-and-access-act-2025/the-data-use-and-access-act-2025-what-does-it-mean-for-organisations/), updated 19 June 2026). **Launch action:** put a complaints email address or form in the privacy notice.
 
-**Children.** The ICO says that if a service is likely to be used by children, its needs must be considered, and following the Age Appropriate Design Code should meet that duty (same ICO DUAA page). Yxra targets adult women, so this is probably low risk. Record the reasoning anyway.
+**Children.** The ICO says that if a service is likely to be used by children, its needs must be considered, and following the Age Appropriate Design Code should meet that duty (same ICO DUAA page). Amara's Pick targets adult women, so this is probably low risk. Record the reasoning anyway.
 
 ## 2. ICO data protection fee
 
@@ -63,7 +63,7 @@ The ICO page notes it is "under review" following DUAA changes.
 
 **The exceptions** ([DUAA 2025 Sch 12, inserting PECR Sch A1](https://www.legislation.gov.uk/ukpga/2025/18/schedule/12)):
 
-| Exception | Conditions | Yxra use |
+| Exception | Conditions | Amara's Pick use |
 |---|---|---|
 | Strictly necessary (para 4) | essential to provide the service the user requests, for example security, fraud prevention or authentication | session or security tokens, if any |
 | **Statistical purposes** (para 5) | sole purpose is collecting statistics on how the service is used, to improve it; data not shared except with someone helping make those improvements; "clear and comprehensive information"; "a simple means of objecting, free of charge", and the user does not object | first-party, aggregate analytics |
@@ -83,7 +83,7 @@ The ICO page notes it is "under review" following DUAA changes.
 - non-essential technologies are off by default
 - users can withdraw "with the same ease that they gave it"
 
-**Affiliate links.** Click-out tracking usually sets cookies on the **Retailer's or network's** domain, not Yxra's. Whether Yxra "instigates" that storage (reg 6(2)(a) now says storage includes instigating it) needs checking. **[Lawyer]**, and check with the research-affiliates thread.
+**Affiliate links.** Click-out tracking usually sets cookies on the **Retailer's or network's** domain, not Amara's Pick's. Whether Amara's Pick "instigates" that storage (reg 6(2)(a) now says storage includes instigating it) needs checking. **[Lawyer]**, and check with the research-affiliates thread.
 
 **Penalties.** The ICO says the DUAA lets it "issue fines of up to £17.5 million or 4% of global turnover" under PECR ([ICO statement on DUAA commencement, Feb 2026](https://ico.org.uk/about-the-ico/media-centre/news-and-blogs/2026/02/statement-on-the-commencement-of-the-data-use-and-access-act-duaa)). Sanctions apply to breaches on or after 5 Feb 2026 (S.I. 2026/82 regs 8 and 11).
 
@@ -93,7 +93,7 @@ The ICO page notes it is "under review" following DUAA changes.
 
 [PECR reg 22](https://www.legislation.gov.uk/uksi/2003/2426/regulation/22) prohibits unsolicited marketing email to individuals unless "the recipient … has previously notified the sender that he consents".
 
-- The **soft opt-in** (reg 22(3)) needs details obtained "in the course of the sale or negotiations for the sale". Yxra sells nothing, so it **cannot rely on it**. The DUAA extended the soft opt-in only to **charities** (reg 22(3A), from 5 Feb 2026).
+- The **soft opt-in** (reg 22(3)) needs details obtained "in the course of the sale or negotiations for the sale". Amara's Pick sells nothing, so it **cannot rely on it**. The DUAA extended the soft opt-in only to **charities** (reg 22(3A), from 5 Feb 2026).
 - **Launch action:**
   - an unticked opt-in on the sign-up form that says what emails Shoppers will get
   - a record of when and how each person consented
@@ -124,10 +124,10 @@ Under the DMCC Act ([CMA207](https://www.gov.uk/government/publications/unfair-c
 - a practice "involves a misleading omission if it fails to identify its commercial intent" (s.227)
 - banned practice 12 prohibits paid "editorial content … to promote a product" without making the payment clear ([DMCC Act 2024 Sch 20](https://www.legislation.gov.uk/ukpga/2024/13/schedule/20))
 
-**Launch action for Yxra:**
+**Launch action for Amara's Pick:**
 
 1. A short line on every results page and on each Product card or "Buy" button, such as "Ad · we may earn commission if you buy". **[Lawyer]** to sign off the exact wording; CAP prefers "Ad".
-2. A prominent "How Yxra makes money" page, linked from the header or footer, not only from Terms.
+2. A prominent "How Amara's Pick makes money" page, linked from the header or footer, not only from Terms.
 3. If affiliate status doesn't change ranking, say so.
 
 ## 6. Consumer law for a discovery/comparison site
@@ -158,7 +158,7 @@ Under the DMCC Act ([CMA207](https://www.gov.uk/government/publications/unfair-c
 
 - Art 5 requires online intermediation services to put "the main parameters determining ranking" in their terms. They must also describe any "possibility to influence ranking against any direct or indirect remuneration" ([Art 5](https://www.legislation.gov.uk/eur/2019/1150/article/5)).
 - A service is an online intermediation service only if it is provided to business users "on the basis of contractual relationships" ([Art 2(2)(c)](https://www.legislation.gov.uk/eur/2019/1150/article/2)).
-- Yxra probably falls outside this while it has no contracts with Retailers. Affiliate agreements, or a future Retailer onboarding flow, might bring it in. **[Lawyer]**. Separately, Yxra is not an "online search engine" (Art 2(5)) because it doesn't search "in principle, all websites".
+- Amara's Pick probably falls outside this while it has no contracts with Retailers. Affiliate agreements, or a future Retailer onboarding flow, might bring it in. **[Lawyer]**. Separately, Amara's Pick is not an "online search engine" (Art 2(5)) because it doesn't search "in principle, all websites".
 
 **Fake reviews (banned practice 13).**
 
@@ -212,9 +212,9 @@ Under the DMCC Act ([CMA207](https://www.gov.uk/government/publications/unfair-c
 ## Needs a lawyer (consolidated)
 
 1. Whether remembering size fits the "appearance" exception, or should rest on "strictly necessary".
-2. Whether affiliate click-out cookies are storage that Yxra "instigates".
+2. Whether affiliate click-out cookies are storage that Amara's Pick "instigates".
 3. Database right, copyright (especially **images**) and terms of use for crawled Retailer data. A feed-first strategy is the main mitigation.
-4. Whether the P2B Regulation applies once Yxra has affiliate or Retailer contracts.
+4. Whether the P2B Regulation applies once Amara's Pick has affiliate or Retailer contracts.
 5. The exact affiliate disclosure wording and placement.
 6. Lawful bases and a legitimate interests assessment for analytics.
 7. Sole trader address disclosure, and the timing of incorporation.

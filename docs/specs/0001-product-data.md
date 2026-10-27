@@ -4,7 +4,7 @@ Agreed with Tico on 12 Oct 2026. The first release aims to get as many Shoppers 
 
 ## Goal
 
-Yxra collects Products from UK online Retailers every night without needing their sign-off, works out which are Plus size clothes, swimwear, activewear or lingerie (see [ADR 0007](../adr/0007-lingerie-and-bra-sizes.md)), translates every Size label onto the UK size scale, and keeps stock current. A Shopper can then search by her UK size and category and see only Products that are in stock in that size. When she chooses one, Yxra checks it one last time before sending her to the Retailer.
+Amara's Pick collects Products from UK online Retailers every night without needing their sign-off, works out which are Plus size clothes, swimwear, activewear or lingerie (see [ADR 0007](../adr/0007-lingerie-and-bra-sizes.md)), translates every Size label onto the UK size scale, and keeps stock current. A Shopper can then search by her UK size and category and see only Products that are in stock in that size. When she chooses one, Amara's Pick checks it one last time before sending her to the Retailer.
 
 ## Out of scope
 
@@ -33,7 +33,7 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 | D7 | Size label covering two UK sizes | Shown under both, marked "fits 18–20" | The Retailer says it fits both |
 | D8 | Product sold out in every size, or gone from the Retailer | Hidden but kept; comes back on restock; deleted 30 days after it disappears from the Retailer's data | Search stays in-stock only; restocks and future alerts keep working |
 | D9 | Which AI tags Products | A small hosted model run as an overnight batch first; switch to a free open model if costs grow | Accuracy matters most while the catalogue is small |
-| D10 | Live check finds her size just sold out | Don't send her; mark that size sold out; offer similar in-stock Products. If the check fails, send her on | Landing on a sold-out page is the frustration Yxra exists to remove |
+| D10 | Live check finds her size just sold out | Don't send her; mark that size sold out; offer similar in-stock Products. If the check fails, send her on | Landing on a sold-out page is the frustration Amara's Pick exists to remove |
 | D11 | Where data and the nightly job run | Supabase Postgres; nightly Stock check as a scheduled GitHub Action | Free, and already half set up |
 | D12 | Website | Next.js on Vercel, calling the existing Express API (also on Vercel) | Fast, findable on Google; keeps existing code |
 | D13 | Spec format | Markdown in `docs/specs/`, sections as in [README](README.md) | Lives beside the code and glossary; rules become tests |
@@ -45,7 +45,7 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 1. A Retailer's Products are collected only once Tico has added the Retailer or approved it from Suggested Retailers.
 2. Each Retailer records which source its Products come from, and the nightly Stock check uses that source.
 3. Each colour of a garment becomes its own Product with its own photo, link and sizes in stock.
-4. Collection respects the Retailer's robots.txt, fetches no faster than one request every few seconds per Retailer, and identifies itself as Yxra with a contact address.
+4. Collection respects the Retailer's robots.txt, fetches no faster than one request every few seconds per Retailer, and identifies itself as Amara's Pick with a contact address.
 5. When Tico removes a Retailer, its Products disappear from search at once and none are collected again.
 6. When one Retailer fails to load, the others still complete, and that Retailer's existing Products keep their last known stock and check time (its last successful collection).
 
@@ -58,7 +58,7 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 
 ### Sizes
 
-11. Every Size label is translated onto the UK size scale (or for a bra, read as a Bra size), using the Brand's size chart where Yxra has one, then rules, then the AI.
+11. Every Size label is translated onto the UK size scale (or for a bra, read as a Bra size), using the Brand's size chart where Amara's Pick has one, then rules, then the AI.
 12. A Size label with no confident UK size is never shown to Shoppers and goes to the Review list until Tico settles it.
 13. A Size label that covers more than one UK size appears in searches for each of them, marked with the full range ("fits 18–20").
 
@@ -98,4 +98,4 @@ Adds: **Suggested Retailer** and **Review list** (see [CONTEXT.md](../../CONTEXT
 - **Review list**: does Tico review it on a simple admin page or in a spreadsheet? (Tico; needed by build step 4.)
 - **AI confidence bar**: what confidence counts as "confident"? Start at a strict bar and tune it using the weekly spot-check of 20 Products. (Claude proposes; Tico approves.)
 - **"Similar" Products at a failed Click-out**: same category, same UK size and closest price to start? (Tico; needed by build step 6.)
-- **Contact address** used to identify Yxra's fetching. (Tico.)
+- **Contact address** used to identify Amara's Pick's fetching. (Tico.)

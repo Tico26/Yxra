@@ -12,7 +12,7 @@ const SITE_LINKS = [
 // Company and Policy are the pages every page must reach (spec 0002 rule 26),
 // as on the previous site's footer.
 const COMPANY_LINKS = [
-  ['/how-yxra-makes-money', 'How Yxra makes money'],
+  ['/how-amaras-pick-makes-money', "How Amara's Pick makes money"],
   ['/for-retailers', 'Work with us'],
   ['/contact', 'Contact'],
 ];
@@ -50,7 +50,7 @@ const Footer = () => (
   <footer className="bg-paper">
     <div className="container-custom grid grid-cols-2 gap-x-6 gap-y-10 py-14 md:grid-cols-12 md:py-16">
       <div className="col-span-2 md:col-span-3">
-        <Link to="/" aria-label="YXRA home" className="inline-block text-[40px] text-ink no-underline">
+        <Link to="/" aria-label="Amara&apos;s Pick home" className="inline-block text-[28px] text-ink no-underline">
           <Wordmark />
         </Link>
         <p className="mt-4 max-w-[32ch] text-small text-graphite">
@@ -92,7 +92,7 @@ const Footer = () => (
           that never changes the order.
         </p>
         <p>
-          If Yxra shows it, it was in stock in your size at our last nightly check. Each item
+          If Amara&apos;s Pick shows it, it was in stock in your size at our last nightly check. Each item
           shows when that was.
         </p>
         <TraderLine />

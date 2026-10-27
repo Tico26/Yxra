@@ -4,7 +4,7 @@ import AuthLayout from '../components/AuthLayout';
 // Signing up isn't open yet: the page says so and the form is switched off.
 const Signup = () => (
   <AuthLayout
-    note="Coming soon. You don't need an account to use Yxra."
+    note="Coming soon. You don't need an account to use Amara&apos;s Pick."
     title="Create an account"
     footer={
       <>

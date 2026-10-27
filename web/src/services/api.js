@@ -1,8 +1,8 @@
-// Reads Yxra's API (proxied to http://localhost:9090 by the Vite dev server)
+// Reads Amara's Pick's API (proxied to http://localhost:9090 by the Vite dev server)
 // and hands pages data in the shape the design already expects.
 const BASE_URL = '/api';
 
-// Plus size line, as Yxra draws it: UK 18 or above, or bra band 38 or above.
+// Plus size line, as Amara's Pick draws it: UK 18 or above, or bra band 38 or above.
 const SMALLEST_PLUS_UK_SIZE = 18;
 const SMALLEST_PLUS_BRA_BAND = 38;
 const CUPS = ["AA", "A", "B", "C", "D", "DD", "E", "F", "FF", "G", "GG", "H", "HH", "J", "JJ", "K", "KK"];
@@ -13,7 +13,7 @@ const getJson = async (path) => {
   return response.json();
 };
 
-// Yxra has no shop description, logo or location; it does have the shop's website.
+// Amara's Pick has no shop description, logo or location; it does have the shop's website.
 export const mapRetailer = (retailer) => ({
   shop_id: retailer.retailer_id,
   shop_name: retailer.retailer_name,
@@ -38,7 +38,7 @@ const compareArrays = (a, b) => {
   return a.length - b.length;
 };
 
-// The in-stock plus Size labels of a product, in the order Yxra lists
+// The in-stock plus Size labels of a product, in the order Amara's Pick lists
 // in_stock_sizes: UK sizes ascending, then bands, then cups.
 export const plusInStockLabels = (sizes = []) =>
   sizes
@@ -176,7 +176,7 @@ export const api = {
     }
   },
 
-  // Yxra keeps one image per product, its image_url.
+  // Amara's Pick keeps one image per product, its image_url.
   async getProductImages(id) {
     try {
       const product = await this.getProductById(id);
@@ -204,9 +204,9 @@ export const api = {
   },
 
   // Record a Click-out for the product's smallest in-stock plus size, then
-  // open the URL Yxra replies with (or the product URL if it gives none).
+  // open the URL Amara's Pick replies with (or the product URL if it gives none).
   // The tab is opened straight away, inside the click, so pop-up blockers
-  // allow it, and pointed at the shop once Yxra replies.
+  // allow it, and pointed at the shop once Amara's Pick replies.
   async clickOut(product) {
     const tab = window.open('about:blank', '_blank');
     if (tab) tab.opener = null;

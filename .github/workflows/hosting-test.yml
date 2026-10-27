@@ -9,10 +9,10 @@ on:
   workflow_dispatch:
     inputs:
       site_url:
-        description: Website address, e.g. https://yxra-web.<you>.workers.dev
+        description: Website address, e.g. https://amaras-pick-web.<you>.workers.dev
         required: true
       api_url:
-        description: API address, e.g. https://yxra-api.<you>.workers.dev
+        description: API address, e.g. https://amaras-pick-api.<you>.workers.dev
         required: true
 
 permissions:

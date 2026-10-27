@@ -1,8 +1,9 @@
-// The yxra-web Worker. Static files from dist/ are served by Cloudflare's
+// The amaras-pick-web Worker. Static files from dist/ are served by Cloudflare's
 // asset handling; wrangler.jsonc sends only the addresses below here first.
-//   /api/*, /admin, /admin/*  -> the yxra-api Worker, through the API binding
+//   /api/*, /admin, /admin/*  -> the amaras-pick-api Worker, through the API binding
 //   /go/<id>?size=<n>         -> records the Click-out and redirects to the shop
 //   app pages (products, shops, Log in, Sign up) -> the app shell, app.html
+//   /how-yxra-makes-money     -> a permanent redirect to its new address
 // Anything else is a static file, or 404.html with a 404 status.
 
 const SIZES = [18, 20, 22, 24, 26, 28, 30, 32];
@@ -19,7 +20,7 @@ const asset = (env, request, path, status) =>
 
 const notFound = (env, request) => asset(env, request, '/404', 404);
 
-// The Click-out, as on the previous site: only a UK size Yxra offers, and a
+// The Click-out, as on the previous site: only a UK size Amara's Pick offers, and a
 // numeric product id. The API records it and replies with the shop's URL in
 // her size; a product that's gone gets the not-found page.
 const goToShop = async (env, request, productId, url) => {
@@ -27,7 +28,7 @@ const goToShop = async (env, request, productId, url) => {
   if (!SIZES.includes(size) || !/^\d+$/.test(productId)) return notFound(env, request);
   let result = null;
   try {
-    const res = await env.API.fetch('https://yxra-api/api/click-outs', {
+    const res = await env.API.fetch('https://amaras-pick-api/api/click-outs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ product_id: Number(productId), uk_size: size }),
@@ -46,6 +47,11 @@ export default {
     const path = url.pathname;
 
     if (isApi(path)) return env.API.fetch(request);
+
+    // The page's address before the rebrand from Yxra, kept working for old links.
+    if (/^\/how-yxra-makes-money\/?$/.test(path)) {
+      return Response.redirect(new URL('/how-amaras-pick-makes-money', request.url), 301);
+    }
 
     const go = path.match(/^\/go\/([^/]+)\/?$/);
     if (go) return goToShop(env, request, go[1], url);

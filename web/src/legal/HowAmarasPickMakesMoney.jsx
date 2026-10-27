@@ -2,15 +2,15 @@ import { Link } from 'react-router-dom';
 import { LAST_UPDATED } from '../site';
 import LegalPage from '../components/LegalPage';
 
-const HowYxraMakesMoney = () => (
-  <LegalPage title="How Yxra makes money" updated={LAST_UPDATED}>
+const HowAmarasPickMakesMoney = () => (
+  <LegalPage title="How Amara&apos;s Pick makes money" updated={LAST_UPDATED}>
     <p>
-      Yxra is free for you, and always will be. You never pay us anything, and you buy from the shop
+      Amara&apos;s Pick is free for you, and always will be. You never pay us anything, and you buy from the shop
       itself, at the shop&apos;s own price.
     </p>
     <h2>Today: we earn nothing</h2>
     <p>
-      Every link on Yxra today goes straight to the shop&apos;s own page. No shop pays us, and we
+      Every link on Amara&apos;s Pick today goes straight to the shop&apos;s own page. No shop pays us, and we
       earn nothing when you buy.
     </p>
     <h2>How results are ordered</h2>
@@ -35,4 +35,4 @@ const HowYxraMakesMoney = () => (
   </LegalPage>
 );
 
-export default HowYxraMakesMoney;
+export default HowAmarasPickMakesMoney;

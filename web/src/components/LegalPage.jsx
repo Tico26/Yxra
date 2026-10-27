@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 const LegalPage = ({ title, updated, children }) => {
   useEffect(() => {
     const before = document.title;
-    document.title = `${title} · Yxra`;
+    document.title = `${title} · Amara's Pick`;
     return () => {
       document.title = before;
     };

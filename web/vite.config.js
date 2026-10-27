@@ -11,7 +11,7 @@ export default defineConfig({
   // Only these public settings reach the browser, under the names
   // .github/workflows/deploy.yml already sets (see src/site.js). Never add a
   // secret here: everything listed ends up in the built pages.
-  envPrefix: ['VITE_', 'YXRA_SITE_URL', 'YXRA_CONTACT_EMAIL', 'YXRA_TRADER_NAME', 'YXRA_TRADER_ADDRESS'],
+  envPrefix: ['VITE_', 'AMARAS_PICK_SITE_URL', 'AMARAS_PICK_CONTACT_EMAIL', 'AMARAS_PICK_TRADER_NAME', 'AMARAS_PICK_TRADER_ADDRESS'],
   // `npm run dev` only. On Cloudflare, worker.js sends /api to the API Worker.
   server: {
     proxy: {

@@ -3,7 +3,7 @@
 // time windows, waits for Cloudflare's analytics to catch up, then prints the
 // CPU time each Worker used in each window. Exits 1 if any p99 is over 10 ms.
 //
-//   SITE_URL=https://yxra.co.uk API_URL=https://yxra-api.<you>.workers.dev \
+//   SITE_URL=https://amaraspick.com API_URL=https://amaras-pick-api.<you>.workers.dev \
 //   CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... node scripts/hosting-test.mjs
 //
 // The token needs Account Analytics: Read. Each Click-out here is a real one,

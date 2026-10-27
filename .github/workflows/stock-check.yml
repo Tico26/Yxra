@@ -11,7 +11,7 @@ name: Nightly Stock check
 #
 # Needs these repository settings (Settings > Secrets and variables > Actions):
 #   secret   DATABASE_URL   Supabase connection string (Session pooler URI)
-#   variable YXRA_CONTACT   contact address Retailers see in our User-Agent
+#   variable AMARAS_PICK_CONTACT   contact address Retailers see in our User-Agent
 #   secret   ANTHROPIC_API_KEY  for the AI tagging batch (skipped if unset)
 
 on:
@@ -34,7 +34,7 @@ permissions:
 env:
   NODE_ENV: production
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  YXRA_CONTACT: ${{ vars.YXRA_CONTACT }}
+  AMARAS_PICK_CONTACT: ${{ vars.AMARAS_PICK_CONTACT || vars.YXRA_CONTACT }}
 
 jobs:
   prepare:

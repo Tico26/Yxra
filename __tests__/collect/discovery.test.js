@@ -9,7 +9,7 @@ const page1 = require("../fixtures/shopify/products-page-1.json");
 
 const ADMIN = { Authorization: "Bearer test-admin-token" };
 
-// Found shops, and what their sites look like to Yxra's reader.
+// Found shops, and what their sites look like to Amara's Pick's reader.
 const finder = (shops) => ({ find: async () => shops });
 const web = (shopifySites) => ({
   getJson: async (url) => {
@@ -47,7 +47,7 @@ describe("discovery", () => {
     ]);
   });
 
-  test("skips shops Yxra cannot read", async () => {
+  test("skips shops Amara's Pick cannot read", async () => {
     await runDiscovery({ finder: finder([BIGGER]), fetcher: web([]), ...quiet });
     expect((await reviewList()).suggested_retailers).toEqual([]);
   });

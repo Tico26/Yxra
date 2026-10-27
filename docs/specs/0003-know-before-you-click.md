@@ -4,7 +4,7 @@ Agreed with Tico on 20 Oct 2026, one decision at a time. Comes from pipeline run
 
 ## Goal
 
-Every Product card in her size shows what the Retailer's own size guide says that size measures (bust, waist, hips) and what sending it back would cost, before she leaves Yxra. She can sort results by price, show only items the Retailer has marked down, show only items under £45, and show only Retailers with free returns. Running it costs £0 (spec 0002 rule 34).
+Every Product card in her size shows what the Retailer's own size guide says that size measures (bust, waist, hips) and what sending it back would cost, before she leaves Amara's Pick. She can sort results by price, show only items the Retailer has marked down, show only items under £45, and show only Retailers with free returns. Running it costs £0 (spec 0002 rule 34).
 
 ## Out of scope
 
@@ -12,7 +12,7 @@ Every Product card in her size shows what the Retailer's own size guide says tha
 - Size guides per Brand when a Retailer sells several Brands with different guides. At launch one guide per Retailer.
 - Comparing her size with a big Retailer's guide (Yours, Simply Be). See open questions.
 - Discount codes (they change daily and would be untrue when stale).
-- Free returns paid for by Yxra.
+- Free returns paid for by Amara's Pick.
 
 ## Terms
 
@@ -28,8 +28,8 @@ Adds:
 |---|---|---|---|
 | D1 | How Size guides are collected | A Claude Code routine on Tico's plan reads each Retailer's size guide page and drafts the rows; nothing shows until Tico approves them on the admin page. Tico can also type a guide in by hand (Tico, 20 Oct) | £0 like spec 0002 D7, keeps Tico's time to checking, and scales as discovery adds Retailers |
 | D2 | How Returns terms are collected | The same routine drafts them from the Retailer's returns page and Tico approves and re-checks them every 30 days (Tico, 20 Oct) | Terms change rarely; a date keeps them honest |
-| D3 | What a card shows when a guide or terms are missing or stale | The line is left off, and the card links to the Retailer's own size guide or returns page instead (Tico, 20 Oct) | Never shows a figure Yxra has not checked |
-| D4 | Where the Sale price comes from | Shopify's `compare_at_price` when it is above the price; Retailers read from structured data have no Sale price until their data gives one; Yxra's own price history never makes a Sale price (Tico, 20 Oct) | Only what the Retailer itself marks down |
+| D3 | What a card shows when a guide or terms are missing or stale | The line is left off, and the card links to the Retailer's own size guide or returns page instead (Tico, 20 Oct) | Never shows a figure Amara's Pick has not checked |
+| D4 | Where the Sale price comes from | Shopify's `compare_at_price` when it is above the price; Retailers read from structured data have no Sale price until their data gives one; Amara's Pick's own price history never makes a Sale price (Tico, 20 Oct) | Only what the Retailer itself marks down |
 | D5 | Default order | Newest first stays the default; price low to high and high to low are choices (Tico, 20 Oct) | Matches spec 0001; commission never changes the order (ADR 0005) |
 
 ## Rules

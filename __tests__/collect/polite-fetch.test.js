@@ -22,16 +22,16 @@ const make = (web, options = {}) =>
     fetch: web.fetch,
     sleep: web.sleep,
     now: web.now,
-    contact: "hello@yxra.example",
+    contact: "hello@amaraspick.example",
     minDelayMs: 5000,
     ...options,
   });
 
 describe("polite fetching (R4)", () => {
-  test("identifies itself as Yxra with a contact address", async () => {
+  test("identifies itself as AmarasPick with a contact address", async () => {
     const web = fakeWeb({ "https://shop.example/a": "A" });
     await make(web).getText("https://shop.example/a");
-    web.calls.forEach((c) => expect(c.headers["User-Agent"]).toMatch(/^Yxra\/.*hello@yxra\.example/));
+    web.calls.forEach((c) => expect(c.headers["User-Agent"]).toMatch(/^AmarasPick\/.*hello@amaraspick\.example/));
   });
 
   test("asks for the UK market, so stock and prices are what a UK shopper sees", async () => {

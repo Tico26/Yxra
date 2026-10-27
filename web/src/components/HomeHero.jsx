@@ -13,7 +13,7 @@ const HomeHero = ({ picks, loading }) => (
           Plus sizes, in stock.
         </h1>
         <p className="mt-5 max-w-[40ch] text-body-l text-graphite">
-          Every piece on Yxra is in stock in UK 18 and up, or bra band 38 and up, at independent and chain shops in the UK.
+          Amara checks every shop each night, so every piece here is in stock in UK 18 and up, or bra band 38 and up, at independent and chain shops in the UK.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link to="/products" className="btn btn-primary">
