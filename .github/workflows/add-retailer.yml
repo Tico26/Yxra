@@ -14,7 +14,7 @@ on:
         description: Home page, e.g. https://www.lovedrobe.co.uk
         required: true
       source:
-        description: How Yxra reads it
+        description: How Amara's Pick reads it
         type: choice
         options: [shopify, structured_data]
         default: shopify

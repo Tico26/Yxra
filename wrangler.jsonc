@@ -1,8 +1,8 @@
-// The Yxra API Worker. Deployed by .github/workflows/deploy.yml, which swaps
+// The Amara's Pick API Worker. Deployed by .github/workflows/deploy.yml, which swaps
 // in the Hyperdrive id from the HYPERDRIVE_ID repository variable.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "yxra-api",
+  "name": "amaras-pick-api",
   "main": "api-worker.mjs",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -12,7 +12,7 @@
     {
       "binding": "HYPERDRIVE",
       "id": "HYPERDRIVE_ID",
-      "localConnectionString": "postgres://postgres:postgres@localhost:5432/yxra_test"
+      "localConnectionString": "postgres://postgres:postgres@localhost:5432/amaras_pick_test"
     }
   ],
   "vars": { "NODE_ENV": "production" },

@@ -1,9 +1,9 @@
-// The Yxra website Worker: the Vite build in dist/, served as static files,
+// The Amara's Pick website Worker: the Vite build in dist/, served as static files,
 // with worker.js in front of the addresses listed in run_worker_first.
 // Deployed by .github/workflows/deploy.yml after the API Worker.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "yxra-web",
+  "name": "amaras-pick-web",
   "main": "worker.js",
   "compatibility_date": "2026-10-01",
   "assets": {
@@ -22,10 +22,12 @@
       "/shops",
       "/shops/*",
       "/login",
-      "/signup"
+      "/signup",
+      "/how-yxra-makes-money",
+      "/how-yxra-makes-money/"
     ]
   },
-  // Calls to the API go straight to the yxra-api Worker, not over the internet.
-  "services": [{ "binding": "API", "service": "yxra-api" }],
+  // Calls to the API go straight to the amaras-pick-api Worker, not over the internet.
+  "services": [{ "binding": "API", "service": "amaras-pick-api" }],
   "observability": { "enabled": true }
 }

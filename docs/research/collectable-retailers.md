@@ -1,4 +1,4 @@
-# Which Retailers can Yxra collect from today?
+# Which Retailers can Amara's Pick collect from today?
 
 Research for issue #31. Checked 18 Oct 2026 using WebFetch and WebSearch, about 5 fetches per site, with nothing fetched that robots.txt disallows.
 
@@ -10,7 +10,7 @@ From `lib/collect/`:
 
 - **`shopify.js`** reads `GET {site}/products.json?limit=250&page=N`, up to 200 pages. A product is kept only if it has an option whose name matches `/size/i`. Variants are grouped by an option named `colour`/`color`, and with no such option the whole product is one Product. Stock comes from `variant.available`. The Live check reads `/products/{handle}.js`.
 - **`structured-data.js`** starts from the robots.txt `Sitemap:` lines (else `/sitemap.xml`). It walks at most **50 sitemaps**, and reads only the child sitemaps whose URL matches `/product/i` when any do. On every page it parses `<script type="application/ld+json">` for `ProductGroup.hasVariant` or `Product`, taking per-size `offers.availability`. If the sitemaps list **more than 5,000 pages** it throws ("needs an affiliate feed"), and it also throws if more than half the pages fail.
-- **`polite-fetch.js`** obeys robots.txt and waits 5 s between requests to one site. It identifies itself as `Yxra/1.0 (+$YXRA_CONTACT)`.
+- **`polite-fetch.js`** obeys robots.txt and waits 5 s between requests to one site. It identifies itself as `AmarasPick/1.0 (+$AMARAS_PICK_CONTACT)`.
 
 ## Table
 
@@ -40,7 +40,7 @@ From `lib/collect/`:
 
 ## Update 2026-10-19: checked from a GitHub Actions runner (issue #44)
 
-`scripts/check-structured-data.js` ran Yxra's own polite fetcher (robots.txt honoured, `Yxra/1.0` User-Agent with the repo URL as contact) and `parseProductPage` from a GitHub-hosted runner, the same kind of machine the nightly Stock check uses.
+`scripts/check-structured-data.js` ran Amara's Pick's own polite fetcher (robots.txt honoured, `AmarasPick/1.0` User-Agent with the repo URL as contact) and `parseProductPage` from a GitHub-hosted runner, the same kind of machine the nightly Stock check uses.
 
 | Retailer | Result |
 | --- | --- |

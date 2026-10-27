@@ -9,11 +9,13 @@ name: Deploy
 #   secret   ADMIN_TOKEN            any long random string; unlocks /admin on the API
 #   secret   DATABASE_URL           Supabase connection string (Session pooler URI)
 #   variable HYPERDRIVE_ID          id of the Hyperdrive config pointing at Supabase
-#   variable YXRA_CONTACT           contact address Retailers see in our User-Agent
-#   variable YXRA_DOMAIN            optional, e.g. yxra.co.uk once it is on Cloudflare
-#   variable YXRA_CONTACT_EMAIL     optional, defaults to hello@yxra.co.uk
-#   variable YXRA_TRADER_NAME       name shown as who runs Yxra
-#   variable YXRA_TRADER_ADDRESS    geographic address shown with it
+#   variable AMARAS_PICK_CONTACT         contact address Retailers see in our User-Agent
+#   variable AMARAS_PICK_DOMAIN          optional, e.g. amaraspick.co.uk once it is on Cloudflare
+#   variable AMARAS_PICK_CONTACT_EMAIL   optional, defaults to hello@amaraspick.co.uk
+#   variable AMARAS_PICK_TRADER_NAME     name shown as who runs Amara's Pick
+#   variable AMARAS_PICK_TRADER_ADDRESS  geographic address shown with it
+# Until the AMARAS_PICK_* variables are added, CONTACT, TRADER_NAME and
+# TRADER_ADDRESS fall back to the old YXRA_* ones, so nothing breaks mid-rename.
 
 on:
   push:
@@ -40,7 +42,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       HYPERDRIVE_ID: ${{ vars.HYPERDRIVE_ID }}
-      YXRA_DOMAIN: ${{ vars.YXRA_DOMAIN }}
+      AMARAS_PICK_DOMAIN: ${{ vars.AMARAS_PICK_DOMAIN }}
       ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
     steps:
       - name: Check the Cloudflare settings are there
@@ -79,9 +81,9 @@ jobs:
         id: api
         run: |
           sed -i "s/\"HYPERDRIVE_ID\"/\"$HYPERDRIVE_ID\"/" wrangler.jsonc
-          site="${YXRA_DOMAIN:+https://$YXRA_DOMAIN}"
-          contact="${{ vars.YXRA_CONTACT }}"
-          npx wrangler deploy --var "YXRA_CONTACT:${contact:-${site:-https://yxra.co.uk}/for-retailers}" | tee deploy.log
+          site="${AMARAS_PICK_DOMAIN:+https://$AMARAS_PICK_DOMAIN}"
+          contact="${{ vars.AMARAS_PICK_CONTACT || vars.YXRA_CONTACT }}"
+          npx wrangler deploy --var "AMARAS_PICK_CONTACT:${contact:-${site:-https://amaraspick.co.uk}/for-retailers}" | tee deploy.log
           echo "url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -1)" >> "$GITHUB_OUTPUT"
       - name: Set the admin token
         if: env.ADMIN_TOKEN != ''
@@ -92,19 +94,19 @@ jobs:
       - name: Build the website
         working-directory: web
         env:
-          YXRA_SITE_URL: ${{ vars.YXRA_DOMAIN && format('https://{0}', vars.YXRA_DOMAIN) || '' }}
-          YXRA_CONTACT_EMAIL: ${{ vars.YXRA_CONTACT_EMAIL }}
-          YXRA_TRADER_NAME: ${{ vars.YXRA_TRADER_NAME }}
-          YXRA_TRADER_ADDRESS: ${{ vars.YXRA_TRADER_ADDRESS }}
+          AMARAS_PICK_SITE_URL: ${{ vars.AMARAS_PICK_DOMAIN && format('https://{0}', vars.AMARAS_PICK_DOMAIN) || '' }}
+          AMARAS_PICK_CONTACT_EMAIL: ${{ vars.AMARAS_PICK_CONTACT_EMAIL }}
+          AMARAS_PICK_TRADER_NAME: ${{ vars.AMARAS_PICK_TRADER_NAME || vars.YXRA_TRADER_NAME }}
+          AMARAS_PICK_TRADER_ADDRESS: ${{ vars.AMARAS_PICK_TRADER_ADDRESS || vars.YXRA_TRADER_ADDRESS }}
         # Vite build, then the fixed pages pre-built to HTML (scripts/prerender.mjs).
-        # The four YXRA_* settings above are the only ones the pages can read.
+        # The four AMARAS_PICK_* settings above are the only ones the pages can read.
         run: npm run build
       - name: Deploy the website Worker
         id: web
         working-directory: web
         run: |
           domains=""
-          [ -n "$YXRA_DOMAIN" ] && domains="--domain $YXRA_DOMAIN --domain www.$YXRA_DOMAIN"
+          [ -n "$AMARAS_PICK_DOMAIN" ] && domains="--domain $AMARAS_PICK_DOMAIN --domain www.$AMARAS_PICK_DOMAIN"
           npx wrangler deploy $domains | tee deploy.log
           echo "url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -1)" >> "$GITHUB_OUTPUT"
 
@@ -123,5 +125,5 @@ jobs:
           curl -fsS "$SITE_URL/privacy" -o privacy.html
           grep -q ">Privacy</h1>" privacy.html
           echo "### Live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Website: $SITE_URL ${YXRA_DOMAIN:+(and https://$YXRA_DOMAIN)}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Website: $SITE_URL ${AMARAS_PICK_DOMAIN:+(and https://$AMARAS_PICK_DOMAIN)}" >> "$GITHUB_STEP_SUMMARY"
           echo "- API and Review list: $API_URL/admin" >> "$GITHUB_STEP_SUMMARY"

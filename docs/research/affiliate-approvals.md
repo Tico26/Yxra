@@ -1,8 +1,8 @@
-# How affiliate programmes approve a new site like Yxra
+# How affiliate programmes approve a new site like Amara's Pick
 
 Research for GitHub issue #33. All sources were read on **2026-10-18** through the WebFetch and WebSearch tools; direct `curl` to the retailers' sites was blocked by the network proxy. Retailer homepages could not be loaded, so retailer facts come from network programme pages and one retailer page (Simply Be).
 
-Yxra context: a UK sole trader runs a search site for plus-size women's clothing that links out to Retailers and sells nothing itself.
+Amara's Pick context: a UK sole trader runs a search site for plus-size women's clothing that links out to Retailers and sells nothing itself.
 
 ## TL;DR
 
@@ -65,21 +65,21 @@ Takeaway: **one Awin account covers Yours, Evans, River Island, New Look and Ull
   https://junction.cj.com/article/get-accepted-more-programs-more-often ; https://www.awin.com/us/how-to-use-awin/five-steps-successful-awin-publisher
 - **Impact.** It recommends adding "at least one verified property" (ownership-verified website) to improve approval chances.
 
-**Advertiser-level conditions relevant to Yxra** (examples from the programme terms read)
+**Advertiser-level conditions relevant to Amara's Pick** (examples from the programme terms read)
 
 - New Look: the site must be "compatible with the New Look brand", "honest, factually correct"; creative and text links must not be altered.
 - JD Group programmes on Awin (example terms read: JD Sports IE 5945, Blacks 1520, Millets 1521): **no scraping**; CSS (comparison shopping) use needs prior written approval; JD may restrict links to certain pages; you must not present the site as official.
   These are JD Sports Fashion PLC programmes, **not** JD Williams, which belongs to N Brown. They show how strict a big UK fashion advertiser can be.
 - River Island: CSS affiliates need written permission; only network-supplied codes are allowed.
 
-**Unconfirmed:** none of the Yxra Retailers' Awin pages (Yours, Evans, River Island, Ulla Popken) states any website or content prerequisite. Their full programme terms tabs may contain more.
+**Unconfirmed:** none of the Amara's Pick Retailers' Awin pages (Yours, Evans, River Island, Ulla Popken) states any website or content prerequisite. Their full programme terms tabs may contain more.
 
 ## 5. Approval time
 
 - **Awin network:** "within 24 hours" (excluding weekends and bank holidays) on the compliance page and FAQ. The getting-started article says "about two working days".
 - **Rakuten:** "does not screen publishers when they join" but may review later. The Network Quality team "rigorously screens and monitors". No timeline.
 - **CJ, Impact, Partnerize:** no timeline found.
-- **Each advertiser:** a separate approval at the advertiser's "sole discretion" (Partnerize cl. 1.1). No retailer page gives a timeline. Some Awin advertisers offer "instant approval". **Unconfirmed** which of Yxra's retailers do.
+- **Each advertiser:** a separate approval at the advertiser's "sole discretion" (Partnerize cl. 1.1). No retailer page gives a timeline. Some Awin advertisers offer "instant approval". **Unconfirmed** which of Amara's Pick's retailers do.
 
 ## 6. Deep links, and Product data collected from the Retailer's site
 
@@ -97,7 +97,7 @@ Takeaway: **one Awin account covers Yours, Evans, River Island, New Look and Ull
 - Rakuten and Partnerize policies are silent on scraping. Both prohibit IP infringement (Partnerize cl. 3.1, 6.1(i)). Product images and descriptions are the retailer's IP.
 - Yours, Evans, River Island, New Look, Ulla Popken and Simply Be pages: **silent on scraping** in what was read. All except New Look and Ulla Popken (where the page didn't describe one) advertise a product feed. **Could not confirm** any retailer's position either way.
 
-**Practical reading:** a deep link to a Product page is fine whatever the data source. But building the catalogue by collecting data from Retailer sites without permission risks the network or programme terms and the Retailer's IP. Yxra should use the network product feeds where they exist, or get written permission from each Retailer before collecting data from its site.
+**Practical reading:** a deep link to a Product page is fine whatever the data source. But building the catalogue by collecting data from Retailer sites without permission risks the network or programme terms and the Retailer's IP. Amara's Pick should use the network product feeds where they exist, or get written permission from each Retailer before collecting data from its site.
 
 ## Open questions to settle by email
 

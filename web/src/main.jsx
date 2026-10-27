@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-// The site's fonts, served from Yxra itself (no Google Fonts): Albert Sans and
+// The site's fonts, served from Amara's Pick itself (no Google Fonts): Albert Sans and
 // Bodoni Moda as variable fonts (Bodoni with its optical-size axis), GFS Didot
 // for the logo.
 import '@fontsource-variable/albert-sans/wght.css'

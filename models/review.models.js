@@ -1,4 +1,4 @@
-// The Review list: what Yxra could not settle by itself, waiting for Tico.
+// The Review list: what Amara's Pick could not settle by itself, waiting for Tico.
 const db = require("../db/connection");
 const { badRequest, notFound } = require("../lib/errors");
 const { brandKey, sizeLabelKey, isUkSize } = require("../lib/sizes");
@@ -101,7 +101,7 @@ exports.saveSizeChart = async (brand, sizes) => {
 const AUDIENCES = ["women", "men", "other"];
 
 // Tico sorts a Product the rules could not: who it is for and what it is, or
-// that it is something Yxra does not show.
+// that it is something Amara's Pick does not show.
 exports.settleProduct = async (productId, { audience, category, excluded_as }) => {
   if (excluded_as !== undefined && (typeof excluded_as !== "string" || !excluded_as.trim())) {
     throw badRequest("excluded_as must name what the Product is, like shoes");

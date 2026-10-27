@@ -41,7 +41,7 @@ describe("POST /api/retailers", () => {
     expect(retailers.map((r) => r.retailer_name)).toContain("New Plus");
   });
 
-  test("400: source must be one Yxra can read", () =>
+  test("400: source must be one Amara's Pick can read", () =>
     request(app)
       .post("/api/retailers")
       .set(ADMIN)

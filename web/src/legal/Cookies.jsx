@@ -4,13 +4,13 @@ import LegalPage from '../components/LegalPage';
 const Cookies = () => (
   <LegalPage title="Cookies and storage" updated={LAST_UPDATED}>
     <p>
-      <strong>Yxra sets no cookies and stores nothing on your device.</strong> Your size stays in
+      <strong>Amara&apos;s Pick sets no cookies and stores nothing on your device.</strong> Your size stays in
       the page address (for example <code>?size=22</code>), so there is nothing to switch off and no
       cookie banner.
     </p>
     <h2>Our host</h2>
     <p>
-      Cloudflare, which hosts Yxra, may set a security cookie (such as <code>__cf_bm</code> or{' '}
+      Cloudflare, which hosts Amara&apos;s Pick, may set a security cookie (such as <code>__cf_bm</code> or{' '}
       <code>cf_clearance</code>) if it needs to check that a visitor is a person and not a bot. That
       cookie is strictly necessary to keep the site safe and is not used to track you. Our visit
       counts use Cloudflare Web Analytics, which sets no cookies.

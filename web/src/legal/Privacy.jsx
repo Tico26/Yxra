@@ -8,7 +8,7 @@ const Privacy = () => {
   return (
     <LegalPage title="Privacy" updated={LAST_UPDATED}>
       <p>
-        Yxra helps you find plus-size clothes in stock in your size at UK shops. You don&apos;t need an
+        Amara&apos;s Pick helps you find plus-size clothes in stock in your size at UK shops. You don&apos;t need an
         account, and we don&apos;t ask for your name or email to use it.
       </p>
       <h2>Who is responsible</h2>
@@ -18,7 +18,7 @@ const Privacy = () => {
       <h2>What we collect and why</h2>
       <ul>
         <li>
-          <strong>When you visit.</strong> Cloudflare, which hosts Yxra, receives your IP address,
+          <strong>When you visit.</strong> Cloudflare, which hosts Amara&apos;s Pick, receives your IP address,
           browser details and the page you asked for, so it can send you the page and protect the site
           from attacks. Our reason: our legitimate interest in running a working, secure site.
         </li>
@@ -43,7 +43,7 @@ const Privacy = () => {
       <p>
         Once you click through, you are on the shop&apos;s own site, and its privacy policy applies.
         When a shop pays us commission in future, the affiliate network (such as Awin) may also
-        record that the visit came from Yxra, under its own privacy policy.
+        record that the visit came from Amara&apos;s Pick, under its own privacy policy.
       </p>
 
       <h2>Who handles it for us</h2>

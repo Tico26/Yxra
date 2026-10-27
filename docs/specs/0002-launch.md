@@ -1,17 +1,17 @@
 # 0002: Launch
 
-Agreed with Tico between 18 and 19 Oct 2026, one decision at a time, on the launch map ([#27](https://github.com/Tico26/Yxra/issues/27)). Each decision links to the ticket that holds the reasoning. Research is in [`docs/research/`](../research/).
+Agreed with Tico between 18 and 19 Oct 2026, one decision at a time, on the launch map ([#27](https://github.com/Tico26/Amara's Pick/issues/27)). Each decision links to the ticket that holds the reasoning. Research is in [`docs/research/`](../research/).
 
 ## Goal
 
-From Mon 16 Nov 2026, any Shopper can use Yxra on the public internet. She opens a home page that looks like a normal online shop, picks her UK size once, and finds plus-size clothes, swimwear and activewear in stock in that size from at least 8 Retailers. When she chooses one, Yxra checks it again and sends her to the Retailer, or tells her it sold out. She can see how accurate Yxra was last week, report a wrong Product, and read plainly how Yxra is paid and what it stores. From Thu 12 Nov the same site is open, unannounced, to the waiting list.
+From Mon 16 Nov 2026, any Shopper can use Amara's Pick on the public internet. She opens a home page that looks like a normal online shop, picks her UK size once, and finds plus-size clothes, swimwear and activewear in stock in that size from at least 8 Retailers. When she chooses one, Amara's Pick checks it again and sends her to the Retailer, or tells her it sold out. She can see how accurate Amara's Pick was last week, report a wrong Product, and read plainly how Amara's Pick is paid and what it stores. From Thu 12 Nov the same site is open, unannounced, to the waiting list.
 
-Running Yxra costs £0 a month until there is real traffic (Tico, 19 Oct). Only legally required costs are paid.
+Running Amara's Pick costs £0 a month until there is real traffic (Tico, 19 Oct). Only legally required costs are paid.
 
 ## Out of scope
 
 - Placements, Standouts, Back-in-stock alerts, content per Region, Shopper accounts, the marketing campaign (Tico, 18 Oct). The home page keeps space for Standouts and the shop spotlight, which a Placement can later take.
-- The big Retailers that block collection (Yours, Ulla Popken, ASOS, Simply Be, JD Williams, River Island). They join by affiliate feed once they approve Yxra, after launch.
+- The big Retailers that block collection (Yours, Ulla Popken, ASOS, Simply Be, JD Williams, River Island). They join by affiliate feed once they approve Amara's Pick, after launch.
 - Any paid plan or paid API.
 - A lawyer's review of the legal pages (after traffic).
 
@@ -24,20 +24,20 @@ Adds: **Wrong-Product report** and **Accuracy number** (see [CONTEXT.md](../../C
 
 | # | Question | Decision | Why |
 |---|---|---|---|
-| D1 | Launch date and scope | Public launch Mon 16 Nov; soft open Thu 12 Nov ([#27](https://github.com/Tico26/Yxra/issues/27)) | Four days of real Shoppers before the public launch |
-| D2 | Where it runs | Site and API on Cloudflare Workers Free; database on Supabase Free; nightly jobs on GitHub Actions. If a Click-out goes over Workers' 10 ms CPU limit, only Click-outs move to a Supabase Edge Function ([#29](https://github.com/Tico26/Yxra/issues/29), [research](../research/free-hosting.md)) | £0, and allows affiliate sites; Vercel's free plan does not |
-| D3 | Domain | Not chosen yet; a placeholder until Tico decides ([#30](https://github.com/Tico26/Yxra/issues/30)) | The name may change |
-| D4 | Which Retailers at launch | Lovedrobe plus Shopify Retailers found by discovery and approved by Tico; big Retailers join by feed after approval ([#42](https://github.com/Tico26/Yxra/issues/42), [research](../research/collectable-retailers.md)) | The big Retailers block or time out Yxra's polite collector |
-| D5 | Smallest catalogue to open with | 1,000 in-stock Products, 8 or more Retailers, 48 or more in-stock Products per category in each UK size 18 to 28, no Retailer above 40% of in-stock Products; otherwise the soft open continues ([#32](https://github.com/Tico26/Yxra/issues/32)) | It must look like a normal online shop |
-| D6 | Finding new Retailers | Tavily's free plan is discovery's web search, replacing the paid Claude finder; never used to fetch Retailer pages, Stock checks or Live checks ([#46](https://github.com/Tico26/Yxra/issues/46), [research](../research/tavily.md)) | £0, and it respects Retailers that block Yxra |
-| D7 | AI tagging | A nightly Claude Code routine on Tico's Claude plan tags what the rules cannot settle (export, tag, import); same 0.9 confidence bar; not the paid API ([#45](https://github.com/Tico26/Yxra/issues/45)) | £0; replaces spec 0001 D9 for launch |
-| D8 | Click-out links | Plain Retailer links at launch; each Retailer switches to its commission link when it approves Yxra ([#34](https://github.com/Tico26/Yxra/issues/34), [research](../research/affiliate-approvals.md)) | Networks need a live site first |
-| D9 | Accuracy number | In stock = share of the week's Click-outs whose Live check found her UK size; right size = Tico's weekly spot-check of 20 random Products; updated weekly; a home page line links to a page explaining it; a Retailer below target that week is hidden ([#37](https://github.com/Tico26/Yxra/issues/37)) | Shows the 95% / 98% promise honestly |
-| D10 | Wrong-Product reports | "Something wrong?" on every card, and "Was it right?" when she returns after a Click-out; every report goes to the Review list; two from different Shoppers within 24 hours hide the Product ([#38](https://github.com/Tico26/Yxra/issues/38)) | Fast correction without an account |
-| D11 | Legal pages | Claude drafts from the research, Tico approves, lawyer later; Tico does the ICO self-assessment and pays the fee only if it says so ([#36](https://github.com/Tico26/Yxra/issues/36), [research](../research/launch-law.md)) | Covers what UK law asks at launch |
-| D12 | Counting and alerts | Cloudflare Web Analytics for visits (no cookies); searches, Click-outs and reports counted in Yxra's own database; GitHub emails Tico when a scheduled job fails; an hourly check of the home page, API and one Click-out ([#39](https://github.com/Tico26/Yxra/issues/39)) | £0, no consent banner |
-| D13 | Look | The size-first home page with ideas from the earlier frontend (shop-name row, Standouts block, shop spotlight, grid with shop badges, waiting list), in its black and white look with GFS Didot and Outfit; the green stock tick and amber Sponsored label stay ([#40](https://github.com/Tico26/Yxra/issues/40), prototype [`web/prototype/brand-look-ideas.html`](../../web/prototype/brand-look-ideas.html), variant 2) | Tico's pick; the two colours keep their meaning |
-| D14 | Waiting list and soft open | Emails with opt-in kept in the database; on 12 Nov the site is live but unannounced and the list gets one email with the link, sent through Brevo's free plan; the list is deleted after that email ([#41](https://github.com/Tico26/Yxra/issues/41)) | £0 and nothing extra to build |
+| D1 | Launch date and scope | Public launch Mon 16 Nov; soft open Thu 12 Nov ([#27](https://github.com/Tico26/Amara's Pick/issues/27)) | Four days of real Shoppers before the public launch |
+| D2 | Where it runs | Site and API on Cloudflare Workers Free; database on Supabase Free; nightly jobs on GitHub Actions. If a Click-out goes over Workers' 10 ms CPU limit, only Click-outs move to a Supabase Edge Function ([#29](https://github.com/Tico26/Amara's Pick/issues/29), [research](../research/free-hosting.md)) | £0, and allows affiliate sites; Vercel's free plan does not |
+| D3 | Domain | Not chosen yet; a placeholder until Tico decides ([#30](https://github.com/Tico26/Amara's Pick/issues/30)) | The name may change |
+| D4 | Which Retailers at launch | Lovedrobe plus Shopify Retailers found by discovery and approved by Tico; big Retailers join by feed after approval ([#42](https://github.com/Tico26/Amara's Pick/issues/42), [research](../research/collectable-retailers.md)) | The big Retailers block or time out Amara's Pick's polite collector |
+| D5 | Smallest catalogue to open with | 1,000 in-stock Products, 8 or more Retailers, 48 or more in-stock Products per category in each UK size 18 to 28, no Retailer above 40% of in-stock Products; otherwise the soft open continues ([#32](https://github.com/Tico26/Amara's Pick/issues/32)) | It must look like a normal online shop |
+| D6 | Finding new Retailers | Tavily's free plan is discovery's web search, replacing the paid Claude finder; never used to fetch Retailer pages, Stock checks or Live checks ([#46](https://github.com/Tico26/Amara's Pick/issues/46), [research](../research/tavily.md)) | £0, and it respects Retailers that block Amara's Pick |
+| D7 | AI tagging | A nightly Claude Code routine on Tico's Claude plan tags what the rules cannot settle (export, tag, import); same 0.9 confidence bar; not the paid API ([#45](https://github.com/Tico26/Amara's Pick/issues/45)) | £0; replaces spec 0001 D9 for launch |
+| D8 | Click-out links | Plain Retailer links at launch; each Retailer switches to its commission link when it approves Amara's Pick ([#34](https://github.com/Tico26/Amara's Pick/issues/34), [research](../research/affiliate-approvals.md)) | Networks need a live site first |
+| D9 | Accuracy number | In stock = share of the week's Click-outs whose Live check found her UK size; right size = Tico's weekly spot-check of 20 random Products; updated weekly; a home page line links to a page explaining it; a Retailer below target that week is hidden ([#37](https://github.com/Tico26/Amara's Pick/issues/37)) | Shows the 95% / 98% promise honestly |
+| D10 | Wrong-Product reports | "Something wrong?" on every card, and "Was it right?" when she returns after a Click-out; every report goes to the Review list; two from different Shoppers within 24 hours hide the Product ([#38](https://github.com/Tico26/Amara's Pick/issues/38)) | Fast correction without an account |
+| D11 | Legal pages | Claude drafts from the research, Tico approves, lawyer later; Tico does the ICO self-assessment and pays the fee only if it says so ([#36](https://github.com/Tico26/Amara's Pick/issues/36), [research](../research/launch-law.md)) | Covers what UK law asks at launch |
+| D12 | Counting and alerts | Cloudflare Web Analytics for visits (no cookies); searches, Click-outs and reports counted in Amara's Pick's own database; GitHub emails Tico when a scheduled job fails; an hourly check of the home page, API and one Click-out ([#39](https://github.com/Tico26/Amara's Pick/issues/39)) | £0, no consent banner |
+| D13 | Look | The size-first home page with ideas from the earlier frontend (shop-name row, Standouts block, shop spotlight, grid with shop badges, waiting list), in its black and white look with GFS Didot and Outfit; the green stock tick and amber Sponsored label stay ([#40](https://github.com/Tico26/Amara's Pick/issues/40), prototype [`web/prototype/brand-look-ideas.html`](../../web/prototype/brand-look-ideas.html), variant 2) | Tico's pick; the two colours keep their meaning |
+| D14 | Waiting list and soft open | Emails with opt-in kept in the database; on 12 Nov the site is live but unannounced and the list gets one email with the link, sent through Brevo's free plan; the list is deleted after that email ([#41](https://github.com/Tico26/Amara's Pick/issues/41)) | £0 and nothing extra to build |
 
 ## Rules
 
@@ -45,7 +45,7 @@ Adds: **Wrong-Product report** and **Accuracy number** (see [CONTEXT.md](../../C
 
 1. Search shows only Products from Retailers that are approved and not hidden by the Accuracy number.
 2. A Retailer found by discovery appears in search only after Tico approves it.
-3. Discovery's web search never fetches a Retailer's pages for Product data; Products always come from Yxra's own collector or an affiliate feed.
+3. Discovery's web search never fetches a Retailer's pages for Product data; Products always come from Amara's Pick's own collector or an affiliate feed.
 4. When the catalogue floor is not met (D5), the public launch does not happen and the soft open continues.
 
 ### Home page and look
@@ -59,10 +59,10 @@ Adds: **Wrong-Product report** and **Accuracy number** (see [CONTEXT.md](../../C
 
 ### Click-out
 
-11. ~~When she chooses a Product, a Live check runs before she leaves Yxra.~~ Removed by Tico on 21 Oct 2026 ([ADR 0006](../adr/0006-no-live-check-at-click-out.md)): she is sent straight to the Retailer, and stock is as of the nightly Stock check shown on each card.
+11. ~~When she chooses a Product, a Live check runs before she leaves Amara's Pick.~~ Removed by Tico on 21 Oct 2026 ([ADR 0006](../adr/0006-no-live-check-at-click-out.md)): she is sent straight to the Retailer, and stock is as of the nightly Stock check shown on each card.
 12. ~~Sold-out-at-click handling.~~ Removed with rule 11.
 13. ~~Live check timeout.~~ Removed with rule 11.
-14. When the Yxra API cannot be reached at all, the site still sends her to the Retailer's link.
+14. When the Amara's Pick API cannot be reached at all, the site still sends her to the Retailer's link.
 15. A Retailer with an approved commission link gets that link; every other Retailer gets its plain link.
 16. Every commission link carries an "Ad" label next to it.
 
@@ -83,8 +83,8 @@ Adds: **Wrong-Product report** and **Accuracy number** (see [CONTEXT.md](../../C
 
 ### Privacy and legal
 
-26. Every page's footer links to Privacy, Cookies and storage, How Yxra makes money, For Retailers, and Contact.
-27. Yxra stores on her device only her UK size and a random report ID, each with an off switch on the Cookies and storage page.
+26. Every page's footer links to Privacy, Cookies and storage, How Amara's Pick makes money, For Retailers, and Contact.
+27. Amara's Pick stores on her device only her UK size and a random report ID, each with an off switch on the Cookies and storage page.
 28. No consent banner is shown, because nothing stored goes beyond the storage exceptions.
 29. A search is counted with its words, filters and result count only; nothing that identifies her.
 

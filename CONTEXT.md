@@ -1,13 +1,17 @@
-# Yxra
+# Amara's Pick
 
-Yxra helps plus-size women in the UK find clothes in their size across many retailers, see what is still in stock, and go straight to where they can buy it. Yxra sells nothing itself.
+Amara's Pick helps plus-size women in the UK find clothes in their size across many retailers, see what is still in stock, and go straight to where they can buy it. Amara's Pick sells nothing itself. It was called Yxra until 27 Oct 2026 (ADR 0009).
 
 ## Language
 
 ### People
 
+**Amara**:
+The site's friendly guide, who speaks for Amara's Pick ("Amara checks every shop each night"). She says what the site found, never what she likes, and never hand-picks or endorses items.
+_Avoid_: Using "Amara" alone for the business
+
 **Shopper**:
-A plus-size woman browsing Yxra to find clothes in her size. Menswear is out of scope for now.
+A plus-size woman browsing Amara's Pick to find clothes in her size. Menswear is out of scope for now.
 _Avoid_: User, customer, visitor
 
 ### Who sells
@@ -17,7 +21,7 @@ A business a Shopper can buy from, online or in person (ASOS, Yours).
 _Avoid_: Shop, store, merchant
 
 **Suggested Retailer**:
-A shop Yxra found by itself that waits for Tico's approval before it becomes a Retailer. Tico can also add a Retailer directly.
+A shop Amara's Pick found by itself that waits for Tico's approval before it becomes a Retailer. Tico can also add a Retailer directly.
 _Avoid_: Candidate, lead, prospect
 
 **Range**:
@@ -45,8 +49,8 @@ The size exactly as a Retailer writes it ("3X", "EU 50", "22/24").
 _Avoid_: Retailer size, raw size
 
 **UK size**:
-Yxra's single standard size scale for clothing, swimwear, activewear and lingerie sold in dress sizes, which every Size label is translated onto so one size can be searched across all Retailers. One Size label can translate to more than one UK size ("18/20" is both 18 and 20). Bras use Bra sizes instead; shoes will need their own scale.
-_Avoid_: Normalised size, standard size, Yxra size
+Amara's Pick's single standard size scale for clothing, swimwear, activewear and lingerie sold in dress sizes, which every Size label is translated onto so one size can be searched across all Retailers. One Size label can translate to more than one UK size ("18/20" is both 18 and 20). Bras use Bra sizes instead; shoes will need their own scale.
+_Avoid_: Normalised size, standard size, Amara's Pick size
 
 **Bra size**:
 A bra's band in inches and UK cup, written together ("38DD"). A Shopper finds bras by band, and optionally cup, instead of by UK size.
@@ -57,7 +61,7 @@ A product made in UK size 18 or above (for a bra, band 38 or above), whether or 
 _Avoid_: Curve, extended size (except as Range names)
 
 **Review list**:
-Products, sizes and Suggested Retailers Yxra could not settle by itself, waiting for Tico to decide. A Size label with no confident UK size is never shown to Shoppers until it is settled here.
+Products, sizes and Suggested Retailers Amara's Pick could not settle by itself, waiting for Tico to decide. A Size label with no confident UK size is never shown to Shoppers until it is settled here.
 _Avoid_: Queue, inbox, moderation
 
 ### Stock
@@ -75,11 +79,11 @@ An email to a Shopper when a product she chose comes back in stock in her UK siz
 _Avoid_: Notification, restock alert
 
 **Click-out**:
-A Shopper leaving Yxra for a Retailer's site to look at or buy a product.
+A Shopper leaving Amara's Pick for a Retailer's site to look at or buy a product.
 _Avoid_: Redirect, referral, outbound click
 
 **Wrong-Product report**:
-A Shopper telling Yxra that a Product she saw was sold out, in the wrong size, not plus size, or had a broken link. It puts the Product on the Review list.
+A Shopper telling Amara's Pick that a Product she saw was sold out, in the wrong size, not plus size, or had a broken link. It puts the Product on the Review list.
 _Avoid_: Flag, complaint, feedback
 
 **Accuracy number**:
@@ -93,7 +97,7 @@ One area of the UK a Shopper is treated as shopping from, used to choose what a 
 _Avoid_: Area, location, zone
 
 **Slot**:
-A named space on a Yxra page whose content can change by Region or be sold (home-hero, category-top-row).
+A named space on a Amara's Pick page whose content can change by Region or be sold (home-hero, category-top-row).
 _Avoid_: Ad space, banner, position
 
 **Placement**:

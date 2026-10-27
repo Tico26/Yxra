@@ -1,12 +1,12 @@
-# Free hosting that allows Yxra
+# Free hosting that allows Amara's Pick
 
-Research for issue #43. Question: which free tiers allow a commercial site with affiliate links, can run Yxra, and keep the MVP at £0 until there is real traffic?
+Research for issue #43. Question: which free tiers allow a commercial site with affiliate links, can run Amara's Pick, and keep the MVP at £0 until there is real traffic?
 
 This builds on [launch-hosting.md](launch-hosting.md) (issue #28), which found that **Vercel Hobby bans commercial and affiliate sites**. I re-read that rule today and it is unchanged: "Hobby teams are restricted to non-commercial personal use only", and the examples include "Affiliate linking is the primary purpose of the site" ([Vercel fair use](https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage), page dated 2026-09-14). Facts already in that note (database size of 100–150 MB, Render's one-minute cold start, Neon's 100 compute-hours, Supabase pausing after a week, GitHub disabling schedules after 60 days without repository activity) are not repeated here.
 
 Every source was read on **2026-10-19**. Prices are in US dollars as published. Free tiers change often, so re-check the linked page before relying on it.
 
-## What Yxra asks of a host
+## What Amara's Pick asks of a host
 
 From the code on `main` today:
 
@@ -29,7 +29,7 @@ A cost outside hosting: the AI tagging step calls the Anthropic API, which is pa
 
 ### Cloudflare Workers (and Pages) Free
 
-- **Allowed?** Yes. I found no clause restricting commercial use. The self-serve [terms](https://www.cloudflare.com/terms/) say of free services only that "We may offer free or trial versions of the Services" and that Cloudflare has "no liability" for them. The free-plan restrictions that are relevant here: you may not "process or collect personal or business credit card information on any web property that is receiving Free Services" (Yxra takes no payments), and you may not "use the Services to provide a virtual private network or other similar proxy services". Nothing mentions affiliate links or advertising.
+- **Allowed?** Yes. I found no clause restricting commercial use. The self-serve [terms](https://www.cloudflare.com/terms/) say of free services only that "We may offer free or trial versions of the Services" and that Cloudflare has "no liability" for them. The free-plan restrictions that are relevant here: you may not "process or collect personal or business credit card information on any web property that is receiving Free Services" (Amara's Pick takes no payments), and you may not "use the Services to provide a virtual private network or other similar proxy services". Nothing mentions affiliate links or advertising.
 - **Limits** ([limits](https://developers.cloudflare.com/workers/platform/limits/), [pricing](https://developers.cloudflare.com/workers/platform/pricing/)):
   - 100,000 requests a day, resetting at midnight UTC.
   - **10 ms of CPU per request.** "Waiting on network requests (such as `fetch()` calls, KV reads, or database queries) does **not** count toward CPU time."
@@ -45,7 +45,7 @@ A cost outside hosting: the AI tagging step calls the Anthropic API, which is pa
   - **The 10 ms CPU limit.** Rendering a grid of Product cards with React on the server, plus building the `pg` result objects, has to fit in 10 ms. This is not documented either way and needs a test. The structured-data Live check, which parses a whole product page of HTML with regular expressions, is the most likely part to go over. When a request goes over, it fails, and so far that would show the Shopper Not Found (see the caveat in launch-hosting.md).
   - **Next.js support.** OpenNext supports "All minor and patch versions of Next.js 16". Cloudflare now says "Cloudflare recommends vinext instead of OpenNext for new Next.js applications" ([OpenNext guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/opennext/)).
 - **Code changes:**
-  - `web/`: add the OpenNext adapter and a `wrangler.jsonc` file. Set `YXRA_API_URL` to the API Worker.
+  - `web/`: add the OpenNext adapter and a `wrangler.jsonc` file. Set `AMARAS_PICK_API_URL` to the API Worker.
   - The API can stay on Express. Cloudflare documents running Express on Workers with the `nodejs_compat` flag and `export default httpServerHandler({ port: 3000 })` from `cloudflare:node` ([Express on Workers](https://developers.cloudflare.com/workers/tutorials/deploy-an-express-app/)). It cannot read `.env` files or `public/` from disk, so:
     - Rewrite `db/connection.js` to create a `pg` `Client` per request from `env.HYPERDRIVE.connectionString`. Cloudflare's [node-postgres guide](https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/node-postgres/) says "Create a new client instance for each request", requires `pg` newer than 8.16.3, and requires `nodejs_compat`.
     - Serve `admin.html` as a static asset.
@@ -89,7 +89,7 @@ A cost outside hosting: the AI tagging step calls the Anthropic API, which is pa
 - **Allowed?** No restriction found. The [terms of service](https://neon.com/terms-of-service) say nothing about free-plan or commercial use. The [plans page](https://neon.com/docs/introduction/plans) calls Free "for Prototypes, side projects, and small teams".
 - **Limits:** 1 GB storage per project and 100 CU-hours a month. The database sleeps after 5 minutes idle ("cannot disable"). Point-in-time restore keeps 6 hours of history (plans page).
 - **When a quota runs out: suspended, not billed.** "compute is suspended until the next billing period or until you upgrade". Over the storage cap, writes fail. "None of these limits delete your data."
-- **What would bite:** the CU-hour cap, covered in #28. It works as a drop-in replacement for Supabase's database (same `pg` driver, a new `DATABASE_URL`), but it does not fix anything that Supabase Free gets wrong for Yxra.
+- **What would bite:** the CU-hour cap, covered in #28. It works as a drop-in replacement for Supabase's database (same `pg` driver, a new `DATABASE_URL`), but it does not fix anything that Supabase Free gets wrong for Amara's Pick.
 
 ### Fly.io
 
@@ -113,7 +113,7 @@ A cost outside hosting: the AI tagging step calls the Anthropic API, which is pa
 ### Firebase / Google Cloud Run
 
 - **Allowed?** I found no restriction on commercial use.
-- **Firebase Spark (the no-card plan) cannot run Yxra.** Cloud Functions, App Hosting (Next.js on the server) and outbound networking are all "Not applicable" on Spark ([Firebase pricing](https://firebase.google.com/pricing)).
+- **Firebase Spark (the no-card plan) cannot run Amara's Pick.** Cloud Functions, App Hosting (Next.js on the server) and outbound networking are all "Not applicable" on Spark ([Firebase pricing](https://firebase.google.com/pricing)).
 - **Cloud Run free tier:**
   - 2 million requests, 180,000 vCPU-seconds and 360,000 GiB-seconds a month ([Cloud Run pricing](https://cloud.google.com/run/pricing)). That would comfortably run both the API and the site.
   - **London (europe-west2) is a Tier 2 region.** "The free tier is applied as a spending based discount using Tier 1 pricing", so use europe-west1 (Belgium).
@@ -139,9 +139,9 @@ A cost outside hosting: the AI tagging step calls the Anthropic API, which is pa
   - **There is no managed Postgres.** The free databases are Oracle Autonomous Database and MySQL HeatWave, so Postgres would run on the VM itself.
 - **Card required:** yes. Prepaid and virtual cards are refused.
 - **When a quota runs out:** "You will only be charged for services that you use that exceeds Always Free", and Always Free resources cannot be upgraded to paid ones on a free account. Two risks:
-  - **Idle reclamation.** Oracle may reclaim an instance if, over 7 days, the 95th-percentile CPU, network and (on Arm) memory are all "less than 20%". A quiet launch-stage Yxra would meet that test.
+  - **Idle reclamation.** Oracle may reclaim an instance if, over 7 days, the 95th-percentile CPU, network and (on Arm) memory are all "less than 20%". A quiet launch-stage Amara's Pick would meet that test.
   - "Accounts left idle for 30 days or more may be deemed abandoned."
-- **Code changes:** none. Express, `next start` and Postgres 16 run on one VM, as they do in CI. In exchange, Yxra takes on everything a managed host does for you: OS patching, TLS (or put Cloudflare's free proxy in front), backups, restarts and monitoring.
+- **Code changes:** none. Express, `next start` and Postgres 16 run on one VM, as they do in CI. In exchange, Amara's Pick takes on everything a managed host does for you: OS patching, TLS (or put Cloudflare's free proxy in front), backups, restarts and monitoring.
 
 ## Summary table
 
@@ -175,7 +175,7 @@ A cost outside hosting: the AI tagging step calls the Anthropic API, which is pa
 ### 2. Netlify Free (site and API) + Supabase Free + GitHub Actions
 
 - The least porting: Next.js 16 runs on Netlify's adapter, and the Express routes become route handlers. It is allowed, there is no card, and it never bills.
-- **It only suits a trickle of traffic.** The 300 credits run out at roughly a few thousand page views and Click-outs a day, or sooner with frequent deploys. Then *the whole site* goes dark until next month, unless Yxra upgrades.
+- **It only suits a trickle of traffic.** The 300 credits run out at roughly a few thousand page views and Click-outs a day, or sooner with frequent deploys. Then *the whole site* goes dark until next month, unless Amara's Pick upgrades.
 - Turn off automatic production deploys.
 
 ### 3. Oracle Cloud Always Free (one Arm VM running everything) + Cloudflare free DNS and proxy + GitHub Actions
@@ -184,7 +184,7 @@ A cost outside hosting: the AI tagging step calls the Anthropic API, which is pa
 - **Downsides:**
   - A card is needed for sign-up.
   - Arm capacity is not guaranteed.
-  - Yxra becomes the sysadmin: patches, backups and uptime.
+  - Amara's Pick becomes the sysadmin: patches, backups and uptime.
   - Oracle's idle-reclamation rule threatens exactly a low-traffic launch.
 - Choose this only if someone on the team is comfortable running a Linux server.
 

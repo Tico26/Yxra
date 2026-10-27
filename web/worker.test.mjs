@@ -28,7 +28,7 @@ const fakeEnv = ({ clickOut = { status: 200, body: { outcome: 'sent', url: 'http
   return { env, calls };
 };
 
-const get = (env, path) => worker.fetch(new Request(`https://yxra.example${path}`), env);
+const get = (env, path) => worker.fetch(new Request(`https://amaraspick.example${path}`), env);
 
 test('/api and /admin go to the API Worker unchanged', async () => {
   const { env, calls } = fakeEnv();
@@ -54,6 +54,15 @@ test('pre-built pages and unknown addresses come from the assets', async () => {
   const missing = await get(env, '/nothing-here');
   assert.equal(missing.status, 404);
   assert.equal(await missing.text(), 'not found');
+});
+
+test('the old How Yxra makes money address redirects to the new one', async () => {
+  const { env } = fakeEnv();
+  for (const path of ['/how-yxra-makes-money', '/how-yxra-makes-money/']) {
+    const res = await get(env, path);
+    assert.equal(res.status, 301, path);
+    assert.equal(res.headers.get('Location'), 'https://amaraspick.example/how-amaras-pick-makes-money');
+  }
 });
 
 test('a Click-out is recorded and redirects to the shop', async () => {

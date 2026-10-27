@@ -31,7 +31,7 @@ const AllShops = () => {
     <div className="container-custom pb-20 pt-10 md:pb-24 md:pt-16">
       <PageHeader
         title="Shops"
-        lede="The shops Yxra shows. Each page lists what that shop has in stock in plus sizes."
+        lede="The shops Amara&apos;s Pick shows. Each page lists what that shop has in stock in plus sizes."
       />
 
       {loading ? (

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 // The memorable element: every shop name set as one run of large type, split
-// by the bar from the YX|RA logo. The bars are decoration; the list is a list.
+// by the bar from the AMARA'S|PICK logo. The bars are decoration; the list is a list.
 const Bar = () => (
   <span
     aria-hidden="true"

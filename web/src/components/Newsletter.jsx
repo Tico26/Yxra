@@ -5,7 +5,7 @@ const Newsletter = () => (
   <section aria-labelledby="newsletter-heading" className="bg-mist">
     <div className="container-custom grid gap-6 py-12 md:grid-cols-12 md:items-end md:py-14">
       <h2 id="newsletter-heading" className="font-display text-h2 md:col-span-5">
-        Get the Yxra newsletter
+        Get the Amara&apos;s Pick newsletter
       </h2>
       <div className="md:col-span-7">
         <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 sm:flex-row sm:items-end">

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import Wordmark from './Wordmark';
 
-// Header layout follows the live site: links left, YX|RA centred, boxed Login right.
+// Header layout follows the live site: links left, AMARA'S|PICK centred, boxed Login right.
 // The outer <nav> keeps a fixed height so the page never jumps; only the inner
 // card animates between the tall (top of page) and compact (scrolled) states.
 const SHRINK_AT = 24; // px scrolled before the header shrinks
@@ -108,11 +108,11 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Centre: YX|RA wordmark */}
+          {/* Centre: AMARA'S|PICK wordmark */}
           <Link
             to="/"
-            aria-label="YXRA home"
-            className={`inline-flex items-center text-[52px] text-ink no-underline origin-center transition-[scale] duration-300 ease-out motion-reduce:transition-none ${isShrunk ? 'scale-70' : 'scale-100'}`}
+            aria-label="Amara&apos;s Pick home"
+            className={`inline-flex items-center text-[22px] sm:text-[30px] lg:text-[36px] text-ink no-underline origin-center transition-[scale] duration-300 ease-out motion-reduce:transition-none ${isShrunk ? 'scale-70' : 'scale-100'}`}
           >
             <Wordmark />
           </Link>

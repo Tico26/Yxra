@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Yxra Review list</title>
+<title>Amara's Pick Review list</title>
 <style>
   :root { --ink: #1f1a24; --muted: #6b6372; --line: #e4dfe8; --accent: #7a2e5c; --bg: #fbf9fc; }
   body { font: 16px/1.45 system-ui, sans-serif; color: var(--ink); background: var(--bg); margin: 0; padding: 16px; }
@@ -25,7 +25,7 @@
 <body>
 <main>
   <h1>Review list</h1>
-  <p class="muted">What Yxra could not settle by itself. Nothing here is shown to Shoppers until you decide.</p>
+  <p class="muted">What Amara's Pick could not settle by itself. Nothing here is shown to Shoppers until you decide.</p>
   <form id="login">
     <input id="token" type="password" placeholder="Admin token" autocomplete="current-password" aria-label="Admin token">
     <button>Open</button>
@@ -44,7 +44,7 @@
 <script>
   const $ = (id) => document.getElementById(id);
   let token = "";
-  try { token = sessionStorage.getItem("yxra-admin") || ""; } catch {}
+  try { token = sessionStorage.getItem("amaras-pick-admin") || ""; } catch {}
 
   const api = async (method, path, body) => {
     const res = await fetch(path, {
@@ -88,7 +88,7 @@
   const productItem = (p) => {
     const choice = el("select", {},
       ...["clothes", "swimwear", "activewear", "lingerie"].map((c) => el("option", { value: `women:${c}`, textContent: `Women's ${c}` })),
-      ...["shoes", "accessories", "menswear", "not clothing"].map((x) => el("option", { value: `x:${x}`, textContent: `Not for Yxra: ${x}` })));
+      ...["shoes", "accessories", "menswear", "not clothing"].map((x) => el("option", { value: `x:${x}`, textContent: `Not for Amara's Pick: ${x}` })));
     const form = el("form", {}, choice, " ", el("button", { textContent: "Save" }));
     form.onsubmit = act(() => {
       const [kind, value] = choice.value.split(":");
@@ -132,7 +132,7 @@
 
   $("login").onsubmit = act(async () => {
     token = $("token").value.trim();
-    try { sessionStorage.setItem("yxra-admin", token); } catch {}
+    try { sessionStorage.setItem("amaras-pick-admin", token); } catch {}
   });
   if (token) load().catch((err) => { $("status").textContent = err.message; });
 </script>

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" fill="#fff"/>
   <g fill="#000" font-family="Didot, 'GFS Didot', 'Bodoni 72', 'Bodoni Moda', 'Times New Roman', serif" font-size="22" text-anchor="middle">
-    <text x="16" y="40" textLength="26" lengthAdjust="spacingAndGlyphs">YX</text>
-    <text x="48" y="40" textLength="26" lengthAdjust="spacingAndGlyphs">RA</text>
+    <text x="17" y="40" textLength="18" lengthAdjust="spacingAndGlyphs">A</text>
+    <text x="47" y="40" textLength="18" lengthAdjust="spacingAndGlyphs">P</text>
   </g>
   <rect x="30.5" y="18" width="3" height="28" fill="#000"/>
 </svg>
