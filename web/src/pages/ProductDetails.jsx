@@ -5,6 +5,7 @@ import { Breadcrumb } from '../components/PageHeader';
 import ProductImage from '../components/ProductImage';
 import SizeTag from '../components/SizeTag';
 import EmptyState from '../components/EmptyState';
+import SaveButton from '../components/SaveButton';
 import { displayColour, formatPrice, possessive } from '../utils/format';
 
 const ProductDetails = () => {
@@ -101,18 +102,21 @@ const ProductDetails = () => {
 
           {product.product_url && (
             <div className="mt-8">
-              <a
-                href={product.product_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  api.clickOut(product);
-                }}
-                className="btn btn-primary w-full"
-              >
-                Buy at {shopName}
-              </a>
+              <div className="flex gap-3">
+                <a
+                  href={product.product_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    api.clickOut(product);
+                  }}
+                  className="btn btn-primary flex-1"
+                >
+                  Buy at {shopName}
+                </a>
+                <SaveButton productId={product.product_id} productName={product.product_name} variant="boxed" />
+              </div>
               <p className="mt-3 text-small text-graphite">Opens {possessive(shopName)} website in a new tab.</p>
             </div>
           )}

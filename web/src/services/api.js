@@ -106,6 +106,19 @@ export const mapDetailProduct = (product) => ({
   sizes: product.sizes,
 });
 
+// A product from GET /api/products?ids= (a Saved page): sold out ones too,
+// with in_stock_uk_sizes to tell whether her size is in stock.
+export const mapSavedProduct = (product) => ({
+  product_id: product.product_id,
+  shop_id: product.retailer_id,
+  shop_name: product.retailer_name,
+  product_name: product.title,
+  price_in_pence: product.price_in_pence,
+  sizes_in_stock: product.in_stock_sizes || [],
+  uk_sizes_in_stock: product.in_stock_uk_sizes || [],
+  image_url: product.image_url,
+});
+
 const shuffle = (list) => {
   const copy = [...list];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -172,6 +185,19 @@ export const api = {
       return data.product ? mapDetailProduct(data.product) : null;
     } catch (error) {
       console.error(`Error fetching product ${id}:`, error.message);
+      return null;
+    }
+  },
+
+  // The Products on a Saved page, in the order given. Null if they could not
+  // be loaded, so the page can say so rather than show nothing saved.
+  async getProductsByIds(ids) {
+    if (ids.length === 0) return [];
+    try {
+      const data = await getJson(`/products?ids=${ids.join(',')}`);
+      return (data.products || []).map(mapSavedProduct);
+    } catch (error) {
+      console.error('Error fetching saved products:', error.message);
       return null;
     }
   },

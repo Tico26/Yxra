@@ -2,13 +2,13 @@
 // asset handling; wrangler.jsonc sends only the addresses below here first.
 //   /api/*, /admin, /admin/*  -> the amaras-pick-api Worker, through the API binding
 //   /go/<id>?size=<n>         -> records the Click-out and redirects to the shop
-//   app pages (products, shops, Log in, Sign up) -> the app shell, app.html
+//   app pages (products, shops, Saved, Log in, Sign up) -> the app shell, app.html
 //   /how-yxra-makes-money     -> a permanent redirect to its new address
 // Anything else is a static file, or 404.html with a 404 status.
 
 const SIZES = [18, 20, 22, 24, 26, 28, 30, 32];
 
-const APP_PAGES = [/^\/products\/?$/, /^\/products\/[^/]+\/?$/, /^\/shops\/?$/, /^\/shops\/[^/]+\/?$/, /^\/login\/?$/, /^\/signup\/?$/];
+const APP_PAGES = [/^\/products\/?$/, /^\/products\/[^/]+\/?$/, /^\/shops\/?$/, /^\/shops\/[^/]+\/?$/, /^\/login\/?$/, /^\/signup\/?$/, /^\/saved\/?$/];
 
 const isApi = (path) => path.startsWith('/api/') || path === '/admin' || path.startsWith('/admin/');
 

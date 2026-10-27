@@ -190,7 +190,7 @@ finish() {
 # Supabase and never saved here. Public values go to web/.env.local (for
 # local dev) and to GitHub repository variables (for the deploy).
 
-TOTAL_STAGES=9
+TOTAL_STAGES=10
 ENV_FILE="web/.env.local"
 
 banner "Amara's Pick: Shopper accounts set-up"
@@ -287,6 +287,16 @@ set_var AMARAS_PICK_SUPABASE_PUBLISHABLE_KEY "$SUPABASE_PUBLISHABLE_KEY"
 note "If gh isn't set up, add both as repository variables at:"
 note "https://github.com/Tico26/Yxra/settings/variables/actions"
 pause
+
+stage "Supabase: let the browser reach Shopper accounts"
+say "Saved items and sizes live in the 'shoppers' schema, which the deploy creates"
+say "once the database ticket (#71) is merged. The browser key must be allowed to reach it."
+open_url "https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/settings/api"
+step "Data API → Exposed schemas: add 'shoppers'. Save."
+note "Not in the list yet? #71 isn't deployed. Skip this and come back to it later."
+if ! confirm "Is 'shoppers' now in Exposed schemas?"; then
+  SKIPPED+=("Add 'shoppers' to Supabase → Settings → Data API → Exposed schemas after #71 deploys")
+fi
 
 stage "Test: a sign-in email arrives"
 open_url "https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/auth/users"
