@@ -1,6 +1,7 @@
-// Applies db/schema.sql to the database without dropping anything, then adds
-// the launch categories, which every Product's category must be one of, and
-// re-sorts Products excluded as lingerie before lingerie was shown.
+// Applies db/schema.sql (and on Supabase, db/shoppers.sql) to the database
+// without dropping anything, then adds the launch categories, which every
+// Product's category must be one of, and re-sorts Products excluded as
+// lingerie before lingerie was shown.
 //
 // A Stock check saves each Retailer in one long transaction. A schema change
 // that has to wait for it would also hold up every live-site read queued
@@ -19,6 +20,11 @@ const applySchema = async (lockTimeoutMs) => {
   try {
     await client.query(`SET lock_timeout = ${Number(lockTimeoutMs)}`);
     await client.query(fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8"));
+    // Shopper accounts need Supabase Auth, so they are left out elsewhere.
+    const { rows } = await client.query(`SELECT to_regnamespace('auth') IS NOT NULL AS supabase`);
+    if (rows[0].supabase) {
+      await client.query(fs.readFileSync(path.join(__dirname, "shoppers.sql"), "utf8"));
+    }
   } finally {
     client.release();
   }
