@@ -98,8 +98,13 @@ jobs:
           AMARAS_PICK_CONTACT_EMAIL: ${{ vars.AMARAS_PICK_CONTACT_EMAIL }}
           AMARAS_PICK_TRADER_NAME: ${{ vars.AMARAS_PICK_TRADER_NAME || vars.YXRA_TRADER_NAME }}
           AMARAS_PICK_TRADER_ADDRESS: ${{ vars.AMARAS_PICK_TRADER_ADDRESS || vars.YXRA_TRADER_ADDRESS }}
+          # Shopper sign-in (spec 0004). Public by design; row-level security
+          # guards the data. Set by scripts/setup-accounts.sh; left empty,
+          # sign-in stays switched off.
+          VITE_SUPABASE_URL: ${{ vars.AMARAS_PICK_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.AMARAS_PICK_SUPABASE_PUBLISHABLE_KEY }}
         # Vite build, then the fixed pages pre-built to HTML (scripts/prerender.mjs).
-        # The four AMARAS_PICK_* settings above are the only ones the pages can read.
+        # The settings above are the only ones the pages can read.
         run: npm run build
       - name: Deploy the website Worker
         id: web

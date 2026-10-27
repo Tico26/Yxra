@@ -8,7 +8,7 @@
 
 const SIZES = [18, 20, 22, 24, 26, 28, 30, 32];
 
-const APP_PAGES = [/^\/products\/?$/, /^\/products\/[^/]+\/?$/, /^\/shops\/?$/, /^\/shops\/[^/]+\/?$/, /^\/login\/?$/, /^\/signup\/?$/, /^\/saved\/?$/];
+const APP_PAGES = [/^\/products\/?$/, /^\/products\/[^/]+\/?$/, /^\/shops\/?$/, /^\/shops\/[^/]+\/?$/, /^\/login\/?$/, /^\/signup\/?$/, /^\/saved\/?$/, /^\/auth\/?$/, /^\/account\/?$/];
 
 const isApi = (path) => path.startsWith('/api/') || path === '/admin' || path.startsWith('/admin/');
 

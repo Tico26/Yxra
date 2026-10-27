@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
@@ -8,9 +8,11 @@ import AllShops from './pages/AllShops';
 import AllProducts from './pages/AllProducts';
 import ProductDetails from './pages/ProductDetails';
 import Login from './pages/Login';
-import Signup from './pages/Signup';
 import ShopProducts from './pages/ShopProducts';
 import Saved from './pages/Saved';
+import Account from './pages/Account';
+import AuthCallback from './pages/AuthCallback';
+import AuthProvider from './components/AuthProvider';
 import SavedNote from './components/SavedNote';
 import NotFound from './legal/NotFound';
 import { LEGAL_PAGES } from './legal';
@@ -28,7 +30,7 @@ const ScrollToTop = () => {
 // src/entry-server.jsx (when pages are pre-built to HTML).
 function App() {
   return (
-    <>
+    <AuthProvider>
       <ScrollToTop />
       <a
         href="#main"
@@ -46,7 +48,9 @@ function App() {
             <Route path="/products" element={<AllProducts />} />
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
+            <Route path="/auth" element={<AuthCallback />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/saved" element={<Saved />} />
             {LEGAL_PAGES.map((page) => (
               <Route key={page.path} path={page.path} element={<page.Page />} />
@@ -58,7 +62,7 @@ function App() {
         <Footer />
       </div>
       <SavedNote />
-    </>
+    </AuthProvider>
   );
 }
 

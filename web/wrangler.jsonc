@@ -24,6 +24,8 @@
       "/login",
       "/signup",
       "/saved",
+      "/auth",
+      "/account",
       "/how-yxra-makes-money",
       "/how-yxra-makes-money/"
     ]
