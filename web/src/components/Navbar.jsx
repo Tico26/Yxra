@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import Wordmark from './Wordmark';
+import { HeartIcon } from './SaveButton';
+import { useSavedItems } from '../utils/saved';
 
 // Header layout follows the live site: links left, AMARA'S|PICK centred, boxed Login right.
 // The outer <nav> keeps a fixed height so the page never jumps; only the inner
@@ -72,6 +74,7 @@ const Navbar = () => {
   }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
+  const savedCount = useSavedItems().length;
 
   return (
     <nav className="sticky top-0 z-[1000] h-[88px] pointer-events-none">
@@ -117,13 +120,34 @@ const Navbar = () => {
             <Wordmark />
           </Link>
 
-          {/* Right: boxed Login (moves into the menu on phones) */}
-          <NavLink
-            to="/login"
-            className="hidden sm:inline-block justify-self-end border border-ink px-4 py-2 font-medium text-ink no-underline whitespace-nowrap transition-colors duration-150 hover:bg-mist motion-reduce:transition-none"
-          >
-            Log in (soon)
-          </NavLink>
+          {/* Right: Saved, with how many, then boxed Login (moves into the menu on phones) */}
+          <div className="flex items-center justify-self-end gap-2 sm:gap-4">
+            <NavLink
+              to="/saved"
+              aria-label={savedCount ? `Saved, ${savedCount} ${savedCount === 1 ? 'item' : 'items'}` : 'Saved'}
+              className="relative -mr-2 flex h-11 w-11 items-center justify-center text-ink sm:mr-0"
+            >
+              {({ isActive }) => (
+                <>
+                  <HeartIcon filled={isActive} />
+                  {savedCount > 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute right-0.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink px-1 text-[11px] font-semibold leading-none text-paper tabular-nums"
+                    >
+                      {savedCount}
+                    </span>
+                  )}
+                </>
+              )}
+            </NavLink>
+            <NavLink
+              to="/login"
+              className="hidden sm:inline-block border border-ink px-4 py-2 font-medium text-ink no-underline whitespace-nowrap transition-colors duration-150 hover:bg-mist motion-reduce:transition-none"
+            >
+              Log in (soon)
+            </NavLink>
+          </div>
         </div>
 
         {/* Phone drop-down panel */}

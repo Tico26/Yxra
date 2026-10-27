@@ -10,6 +10,8 @@ import ProductDetails from './pages/ProductDetails';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ShopProducts from './pages/ShopProducts';
+import Saved from './pages/Saved';
+import SavedNote from './components/SavedNote';
 import NotFound from './legal/NotFound';
 import { LEGAL_PAGES } from './legal';
 
@@ -45,6 +47,7 @@ function App() {
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/saved" element={<Saved />} />
             {LEGAL_PAGES.map((page) => (
               <Route key={page.path} path={page.path} element={<page.Page />} />
             ))}
@@ -54,6 +57,7 @@ function App() {
         <Newsletter />
         <Footer />
       </div>
+      <SavedNote />
     </>
   );
 }
