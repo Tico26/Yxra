@@ -10,8 +10,8 @@ name: Deploy
 #   secret   DATABASE_URL           Supabase connection string (Session pooler URI)
 #   variable HYPERDRIVE_ID          id of the Hyperdrive config pointing at Supabase
 #   variable AMARAS_PICK_CONTACT         contact address Retailers see in our User-Agent
-#   variable AMARAS_PICK_DOMAIN          optional, e.g. amaraspick.co.uk once it is on Cloudflare
-#   variable AMARAS_PICK_CONTACT_EMAIL   optional, defaults to hello@amaraspick.co.uk
+#   variable AMARAS_PICK_DOMAIN          optional, e.g. amaraspick.com once it is on Cloudflare
+#   variable AMARAS_PICK_CONTACT_EMAIL   optional, defaults to hello@amaraspick.com
 #   variable AMARAS_PICK_TRADER_NAME     name shown as who runs Amara's Pick
 #   variable AMARAS_PICK_TRADER_ADDRESS  geographic address shown with it
 # Until the AMARAS_PICK_* variables are added, CONTACT, TRADER_NAME and
@@ -83,7 +83,7 @@ jobs:
           sed -i "s/\"HYPERDRIVE_ID\"/\"$HYPERDRIVE_ID\"/" wrangler.jsonc
           site="${AMARAS_PICK_DOMAIN:+https://$AMARAS_PICK_DOMAIN}"
           contact="${{ vars.AMARAS_PICK_CONTACT || vars.YXRA_CONTACT }}"
-          npx wrangler deploy --var "AMARAS_PICK_CONTACT:${contact:-${site:-https://amaraspick.co.uk}/for-retailers}" | tee deploy.log
+          npx wrangler deploy --var "AMARAS_PICK_CONTACT:${contact:-${site:-https://amaraspick.com}/for-retailers}" | tee deploy.log
           echo "url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -1)" >> "$GITHUB_OUTPUT"
       - name: Set the admin token
         if: env.ADMIN_TOKEN != ''
