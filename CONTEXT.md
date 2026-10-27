@@ -14,6 +14,10 @@ _Avoid_: Using "Amara" alone for the business
 A plus-size woman browsing Amara's Pick to find clothes in her size. Menswear is out of scope for now.
 _Avoid_: User, customer, visitor
 
+**Shopper account**:
+What a Shopper gets by signing in with an email link or Google. It keeps her Saved items and her UK size on any device. Everything else on Amara's Pick works without one (ADR 0010).
+_Avoid_: User account, profile, membership, login (as a noun)
+
 ### Who sells
 
 **Retailer**:
@@ -73,6 +77,10 @@ _Avoid_: Sync, update, crawl
 **Live check** (removed at launch, see ADR 0006):
 A one-off Stock check of a single product made at the moment a Shopper chooses to go to the Retailer.
 _Avoid_: Real-time stock, refresh
+
+**Saved item**:
+A Product a Shopper has kept with the heart on its card, listed on her Saved page. A Saved item stays listed, marked sold out, while it is out of stock in her UK size, and goes when the Product is deleted.
+_Avoid_: Favourite, wishlist, like, bookmark
 
 **Back-in-stock alert**:
 An email to a Shopper when a product she chose comes back in stock in her UK size.
