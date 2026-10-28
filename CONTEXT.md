@@ -40,6 +40,10 @@ _Avoid_: Designer, maker
 One physical shop belonging to a Retailer, at a real address (Yours Leeds).
 _Avoid_: Store, outlet, location
 
+**Photo category**:
+How a Retailer's photos are judged as a whole, once a week: **Studio catalogue** when they pass every check (one shape, 800px or wider, 3 or more photos per Product, half or more on a plain background), **Mixed photos** when they fail at least one. Studio catalogue Retailers' Products come first. A Retailer not checked yet counts as Mixed photos.
+_Avoid_: Photo quality score, professional shop
+
 ### What is sold
 
 **Product**:

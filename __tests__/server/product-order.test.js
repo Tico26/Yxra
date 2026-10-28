@@ -120,6 +120,40 @@ describe("the saved product order (worked out once a night, not per visitor)", (
   });
 });
 
+describe("studio catalogue shops first (Tico, 28 Oct 2026)", () => {
+  const setCategory = (retailerId, category) =>
+    db.query(`UPDATE retailers SET photo_category = $2 WHERE retailer_id = $1`, [retailerId, category]);
+
+  test("a studio shop's Products all come before a mixed shop's", async () => {
+    const [studio, mixed] = await twoShopsOfSix();
+    await setCategory(studio, "studio");
+    await setCategory(mixed, "mixed");
+    await rebuildProductOrder();
+    const names = (await browse()).map((p) => p.retailer_id);
+    expect(names).toEqual([...Array(6).fill(studio), ...Array(6).fill(mixed)]);
+  });
+
+  test("a shop not checked yet comes with the mixed ones, and shops still take turns there", async () => {
+    const [studio] = await twoShopsOfSix();
+    await rebuildProductOrder();
+    const ids = (await browse()).map((p) => p.retailer_id);
+    ids.slice(1).forEach((id, i) => expect(id).not.toBe(ids[i]));
+    await setCategory(studio, "studio");
+    await rebuildProductOrder();
+    expect((await browse()).slice(0, 6).every((p) => p.retailer_id === studio)).toBe(true);
+  });
+
+  test("a Product a studio shop shows during the day joins the studio ones", async () => {
+    const [studio, mixed] = await twoShopsOfSix();
+    await setCategory(studio, "studio");
+    await rebuildProductOrder();
+    const added = await addProduct(studio, "added-later");
+    const ids = (await browse()).map((p) => p.product_id);
+    expect(ids.indexOf(added)).toBe(6);
+    expect((await browse()).slice(7).every((p) => p.retailer_id === mixed)).toBe(true);
+  });
+});
+
 describe("GET /api/products?retailer_id= (one shop's page)", () => {
   test("lists only that Retailer's Products", async () => {
     const [shop, other] = await twoShopsOfSix();
