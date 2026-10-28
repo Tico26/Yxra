@@ -4,7 +4,7 @@ const db = require("../../db/connection");
 const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 const { collectRetailer } = require("../../lib/collect");
-const { reopenExcludedLingerie } = require("../../lib/catalogue");
+const { reopenExcludedLingerie, excludeMenswear } = require("../../lib/catalogue");
 const page1 = require("../fixtures/shopify/products-page-1.json");
 const page2 = require("../fixtures/shopify/products-page-2.json");
 
@@ -184,6 +184,21 @@ describe("collecting a Shopify Retailer", () => {
       ).rows;
       expect(after).toEqual({ category: "lingerie", excluded_as: null, sort_status: "shown" });
       expect(await reopenExcludedLingerie()).toBe(0);
+    });
+
+    test("menswear the older rules missed is taken off the site", async () => {
+      const [shown] = (await fixtureProducts()).filter((p) => p.sort_status === "shown");
+      await db.query(`UPDATE products SET tags = ARRAY['Gender_Mens'] WHERE product_id = $1`, [
+        shown.product_id,
+      ]);
+      expect(await excludeMenswear()).toBe(1);
+      const [after] = (
+        await db.query(`SELECT audience, sort_status, sort_reason FROM products WHERE product_id = $1`, [
+          shown.product_id,
+        ])
+      ).rows;
+      expect(after).toEqual({ audience: "men", sort_status: "excluded", sort_reason: "not for women (men)" });
+      expect(await excludeMenswear()).toBe(0);
     });
 
     test("a Click-out for a bra sends her to her band and cup, and records it", async () => {
