@@ -61,10 +61,24 @@ describe("POST /api/retailers", () => {
     } = await request(app)
       .post("/api/retailers")
       .set(ADMIN)
-      .send({ retailer_name: "Gone Retailer", site_url: "https://gone-retailer.example", source: "shopify" })
+      .send({ retailer_name: "Gone Retailer", site_url: "https://gone-retailer.example", source: "shopify", women_only: true })
       .expect(201);
     expect(retailer.removed_at).toBeNull();
     expect(await searchTitles()).toContain("Gone Retailer");
+  });
+
+  test("clearing women-only sends Products that were for women only by default back to Review", async () => {
+    await request(app)
+      .post("/api/retailers")
+      .set(ADMIN)
+      .send({ retailer_name: "Northern Curve", site_url: "https://northern-curve.example", source: "shopify", women_only: false })
+      .expect(201);
+    expect(await searchTitles()).not.toContain("Northern Curve");
+    const { rows } = await db.query(
+      `SELECT DISTINCT audience, sort_status, ai_asked_hash FROM products WHERE retailer_id = $1`,
+      [await retailerId("https://northern-curve.example")]
+    );
+    expect(rows).toEqual([{ audience: null, sort_status: "unsettled", ai_asked_hash: null }]);
   });
 
   test("401: only Tico can add Retailers", () =>
