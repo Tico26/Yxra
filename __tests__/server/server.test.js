@@ -53,6 +53,16 @@ describe("GET /api/products/:product_id", () => {
 
   test("404: no such Product", () => request(app).get("/api/products/99999").expect(404));
 
+  test("404: a Product taken off the site, such as menswear, is not found by a direct link", async () => {
+    const id = await productId("101:black");
+    await db.query(
+      `UPDATE products SET audience = 'men', sort_status = 'excluded', sort_reason = 'not for women (men)'
+       WHERE product_id = $1`,
+      [id]
+    );
+    await request(app).get(`/api/products/${id}`).expect(404);
+  });
+
   test("400: id is not a number", () => request(app).get("/api/products/abc").expect(400));
 });
 

@@ -4,6 +4,7 @@ const db = require("../../db/connection");
 const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 const { collectRetailer } = require("../../lib/collect");
+const { fetchProductById } = require("../../models/products.models");
 const { reopenExcludedLingerie, excludeMenswear } = require("../../lib/catalogue");
 const page1 = require("../fixtures/shopify/products-page-1.json");
 const page2 = require("../fixtures/shopify/products-page-2.json");
@@ -55,9 +56,8 @@ describe("collecting a Shopify Retailer", () => {
   test("labels it cannot translate are stored but not shown", async () => {
     await collectRetailer(retailer, { fetcher: savedShopify({ 1: page1 }) });
     const vest = (await fixtureProducts()).find((p) => p.title === "Ribbed Vest Top");
-    const {
-      body: { product },
-    } = await request(app).get(`/api/products/${vest.product_id}`).expect(200);
+    await request(app).get(`/api/products/${vest.product_id}`).expect(404);
+    const product = await fetchProductById(vest.product_id);
     expect(product.sizes.map((s) => [s.size_label, s.size_status])).toEqual([
       ["3X", "unsettled"],
       ["4X", "unsettled"],
