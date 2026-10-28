@@ -94,10 +94,23 @@ describe("the saved product order (worked out once a night, not per visitor)", (
     expect((await browse()).map((p) => p.product_id)).toContain(waiting);
   });
 
-  test("the nightly Stock check rebuilds the order", async () => {
-    await db.query(`DELETE FROM product_order`);
+  test("a Stock check of one shop leaves the order to the night's last step, after every shop and the AI", async () => {
+    await rebuildProductOrder();
+    const before = (await db.query(`SELECT product_id, turn, shop_order FROM product_order ORDER BY product_id`)).rows;
     await runStockCheck({ fetcher: { getJson: async () => ({ products: [] }) }, log: () => {}, only: ["1"] });
-    expect(await orderCount()).toBe(await shownCount());
+    const after = (await db.query(`SELECT product_id, turn, shop_order FROM product_order ORDER BY product_id`)).rows;
+    expect(after).toEqual(before);
+  });
+
+  test("a Product already in the order keeps its place when it is saved again", async () => {
+    const [shop] = await twoShopsOfSix();
+    await rebuildProductOrder();
+    const place = async () =>
+      (await db.query(`SELECT turn, shop_order FROM product_order o JOIN products p USING (product_id)
+                       WHERE p.retailer_id = $1 AND p.external_id = 'order-1'`, [shop])).rows[0];
+    const before = await place();
+    await db.query(`UPDATE products SET sort_status = 'shown', title = 'Dress again' WHERE external_id = 'order-1'`);
+    expect(await place()).toEqual(before);
   });
 
   test("a deploy (migrate) fills the order", async () => {
