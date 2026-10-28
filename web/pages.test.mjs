@@ -42,3 +42,16 @@ test('/about ends by asking for shops, linking to Contact', () => {
   assert.match(text(html), /Know a shop we should search\? Tell us/);
   assert.match(html, /<a[^>]*href="\/contact"[^>]*>Tell us<\/a>/);
 });
+
+test('the sitemap lists /about', () => {
+  assert.match(built('sitemap.xml'), /<loc>[^<]*\/about<\/loc>/);
+});
+
+test('every pre-built page links to /about in the footer', () => {
+  const pages = readdirSync(new URL('./dist/', import.meta.url)).filter((f) => f.endsWith('.html') && f !== 'app.html');
+  assert.ok(pages.length > 5);
+  for (const file of pages) {
+    const footer = built(file).split('<footer')[1] || '';
+    assert.match(footer, /<a[^>]*href="\/about"[^>]*>About us<\/a>/, file);
+  }
+});
