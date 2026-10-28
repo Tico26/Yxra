@@ -1,6 +1,8 @@
 // The amaras-pick-web Worker. Static files from dist/ are served by Cloudflare's
 // asset handling; wrangler.jsonc sends only the addresses below here first.
-//   /api/*, /admin, /admin/*  -> the amaras-pick-api Worker, through the API binding
+//   /api/*, /admin, /admin/*  -> the amaras-pick-api Worker, through the API binding;
+//                                the product list, shop list and categories are
+//                                kept at Cloudflare's edge for 10 minutes
 //   /go/<id>?size=<n>         -> records the Click-out and redirects to the shop
 //   app pages (products, shops, Saved, Log in, Sign up) -> the app shell, app.html
 //   /how-yxra-makes-money     -> a permanent redirect to its new address
@@ -9,6 +11,33 @@
 const SIZES = [18, 20, 22, 24, 26, 28, 30, 32];
 
 const APP_PAGES = [/^\/products\/?$/, /^\/products\/[^/]+\/?$/, /^\/shops\/?$/, /^\/shops\/[^/]+\/?$/, /^\/login\/?$/, /^\/signup\/?$/, /^\/saved\/?$/, /^\/auth\/?$/, /^\/account\/?$/];
+
+// Lists that only change at the nightly Stock check. Working out the product
+// list takes the database seconds when it is cold, so each answer (one per
+// search) is kept for 10 minutes and shoppers in that time get it at once.
+// Saved products (?ids=) and single products stay live.
+const CACHE_SECONDS = 600;
+const isCachedList = (request, url) =>
+  request.method === 'GET' &&
+  (url.pathname === '/api/retailers' ||
+    url.pathname === '/api/categories' ||
+    (url.pathname === '/api/products' && !url.searchParams.has('ids')));
+
+// caches.default is Cloudflare's edge cache; it is missing in local dev.
+const fromCache = async (request, ctx, fetchFresh) => {
+  const cache = globalThis.caches?.default;
+  if (!cache) return fetchFresh();
+  const kept = await cache.match(request);
+  if (kept) return kept;
+  const fresh = await fetchFresh();
+  if (fresh.status !== 200) return fresh;
+  const res = new Response(fresh.body, fresh);
+  res.headers.set('Cache-Control', `public, max-age=${CACHE_SECONDS}`);
+  const put = cache.put(request, res.clone());
+  if (ctx?.waitUntil) ctx.waitUntil(put);
+  else await put;
+  return res;
+};
 
 const isApi = (path) => path.startsWith('/api/') || path === '/admin' || path.startsWith('/admin/');
 
@@ -42,10 +71,11 @@ const goToShop = async (env, request, productId, url) => {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    if (isCachedList(request, url)) return fromCache(request, ctx, () => env.API.fetch(request));
     if (isApi(path)) return env.API.fetch(request);
 
     // The page's address before the rebrand from Yxra, kept working for old links.
