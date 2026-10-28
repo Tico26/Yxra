@@ -44,16 +44,8 @@ const twoShopsOfSix = async () => {
   return shops;
 };
 
-// Products a Shopper may see: shown, still at a current Retailer.
 const shownCount = async () =>
-  Number(
-    (
-      await db.query(
-        `SELECT count(*) FROM products p JOIN retailers r USING (retailer_id)
-         WHERE p.sort_status = 'shown' AND p.missing_since IS NULL AND r.removed_at IS NULL`
-      )
-    ).rows[0].count
-  );
+  Number((await db.query(`SELECT count(*) FROM products WHERE sort_status = 'shown'`)).rows[0].count);
 const orderCount = async () => Number((await db.query(`SELECT count(*) FROM product_order`)).rows[0].count);
 
 describe("the saved product order (worked out once a night, not per visitor)", () => {

@@ -74,9 +74,9 @@ export const smallestPlusSize = (sizes = []) => {
 };
 
 // A product from GET /api/products (the list has no description).
-export const mapListProduct = (product, shopIdByName) => ({
+export const mapListProduct = (product) => ({
   product_id: product.product_id,
-  shop_id: shopIdByName[product.retailer_name],
+  shop_id: product.retailer_id,
   shop_name: product.retailer_name,
   product_name: product.title,
   product_description: null,
@@ -118,6 +118,9 @@ export const mapSavedProduct = (product) => ({
   uk_sizes_in_stock: product.in_stock_uk_sizes || [],
   image_url: product.image_url,
 });
+
+// Products without a photo are not shown anywhere on the site.
+const listedProducts = (data) => (data.products || []).filter((p) => p.image_url).map(mapListProduct);
 
 const shuffle = (list) => {
   const copy = [...list];
@@ -166,15 +169,19 @@ export const api = {
 
   async getProducts() {
     try {
-      // The list names each product's retailer but not its id, so match by name.
-      const [productData, shops] = await Promise.all([getJson('/products'), this.getShops()]);
-      const shopIdByName = Object.fromEntries(shops.map((s) => [s.shop_name, s.shop_id]));
-      // Products without a photo are not shown anywhere on the site.
-      return (productData.products || [])
-        .filter((p) => p.image_url)
-        .map((p) => mapListProduct(p, shopIdByName));
+      return listedProducts(await getJson('/products'));
     } catch (error) {
       console.error("Error fetching products:", error.message);
+      return [];
+    }
+  },
+
+  // One shop's products, for its page.
+  async getShopProducts(shopId) {
+    try {
+      return listedProducts(await getJson(`/products?retailer_id=${shopId}`));
+    } catch (error) {
+      console.error(`Error fetching products of shop ${shopId}:`, error.message);
       return [];
     }
   },
