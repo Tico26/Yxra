@@ -6,7 +6,7 @@ const SITE_LINKS = [
   ['/', 'Home'],
   ['/shops', 'Shops'],
   ['/products', 'Products'],
-  ['/login', 'Log in (coming soon)'],
+  ['/login', 'Log in'],
 ];
 
 // Company and Policy are the pages every page must reach (spec 0002 rule 26),

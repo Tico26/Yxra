@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SAVED_ADDED } from '../utils/saved';
+import { SIGN_IN_OPEN, useAuth } from '../services/auth';
 
 const DISMISSED_KEY = 'amaras-pick:saved-note-dismissed';
-
-// Off until sign-in opens (#74): until then a save simply stays on this device.
-export const SIGN_IN_OPEN = false;
 
 const wasDismissed = () => {
   try {
@@ -19,14 +17,16 @@ const wasDismissed = () => {
 // signing in keeps it everywhere. "Not now" hides it until the browser closes.
 const SavedNote = () => {
   const [open, setOpen] = useState(false);
+  const signedOut = useAuth().status === 'signed-out';
 
   useEffect(() => {
+    if (!SIGN_IN_OPEN || !signedOut) return undefined;
     const onAdded = () => {
-      if (SIGN_IN_OPEN && !wasDismissed()) setOpen(true);
+      if (!wasDismissed()) setOpen(true);
     };
     window.addEventListener(SAVED_ADDED, onAdded);
     return () => window.removeEventListener(SAVED_ADDED, onAdded);
-  }, []);
+  }, [signedOut]);
 
   const dismiss = () => {
     try {
@@ -46,7 +46,7 @@ const SavedNote = () => {
           </p>
           <div className="flex gap-3">
             <Link
-              to="/login"
+              to={`/login?next=${encodeURIComponent(window.location.pathname)}`}
               onClick={() => setOpen(false)}
               className="inline-flex min-h-11 flex-1 items-center justify-center bg-paper px-5 font-medium text-ink no-underline hover:bg-mist sm:flex-none"
             >

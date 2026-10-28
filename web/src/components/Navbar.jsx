@@ -3,8 +3,10 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import Wordmark from './Wordmark';
 import { HeartIcon } from './SaveButton';
 import { useSavedItems } from '../utils/saved';
+import { useAuth } from '../services/auth';
 
-// Header layout follows the live site: links left, AMARA'S|PICK centred, boxed Login right.
+// Header layout follows the live site: links left, AMARA'S|PICK centred, Saved
+// and boxed Log in (or her account, once signed in) right.
 // The outer <nav> keeps a fixed height so the page never jumps; only the inner
 // card animates between the tall (top of page) and compact (scrolled) states.
 const SHRINK_AT = 24; // px scrolled before the header shrinks
@@ -75,6 +77,8 @@ const Navbar = () => {
 
   const closeMenu = () => setMenuOpen(false);
   const savedCount = useSavedItems().length;
+  const signedIn = useAuth().status === 'signed-in';
+  const accountLink = signedIn ? ['/account', 'Your account'] : ['/login', 'Log in'];
 
   return (
     <nav className="sticky top-0 z-[1000] h-[88px] pointer-events-none">
@@ -120,12 +124,12 @@ const Navbar = () => {
             <Wordmark />
           </Link>
 
-          {/* Right: Saved, with how many, then boxed Login (moves into the menu on phones) */}
+          {/* Right: Saved, with how many, then boxed Log in (in the menu on phones) or her account */}
           <div className="flex items-center justify-self-end gap-2 sm:gap-4">
             <NavLink
               to="/saved"
               aria-label={savedCount ? `Saved, ${savedCount} ${savedCount === 1 ? 'item' : 'items'}` : 'Saved'}
-              className="relative -mr-2 flex h-11 w-11 items-center justify-center text-ink sm:mr-0"
+              className={`relative flex h-11 w-11 items-center justify-center text-ink sm:mr-0 ${signedIn ? '' : '-mr-2'}`}
             >
               {({ isActive }) => (
                 <>
@@ -141,12 +145,25 @@ const Navbar = () => {
                 </>
               )}
             </NavLink>
-            <NavLink
-              to="/login"
-              className="hidden sm:inline-block border border-ink px-4 py-2 font-medium text-ink no-underline whitespace-nowrap transition-colors duration-150 hover:bg-mist motion-reduce:transition-none"
-            >
-              Log in (soon)
-            </NavLink>
+            {signedIn ? (
+              <NavLink
+                to="/account"
+                aria-label="Your account"
+                className="-mr-2 flex h-11 w-11 items-center justify-center text-ink"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+                </svg>
+              </NavLink>
+            ) : (
+              <NavLink
+                to="/login"
+                className="hidden sm:inline-block border border-ink px-4 py-2 font-medium text-ink no-underline whitespace-nowrap transition-colors duration-150 hover:bg-mist motion-reduce:transition-none"
+              >
+                Log in
+              </NavLink>
+            )}
           </div>
         </div>
 
@@ -157,7 +174,7 @@ const Navbar = () => {
           className="sm:hidden absolute left-0 right-0 top-full bg-paper border-b border-rule"
         >
           <div className="container-custom py-2 flex flex-col">
-            {[...MAIN_LINKS, ['/login', 'Log in (coming soon)']].map(([to, label]) => (
+            {[...MAIN_LINKS, accountLink].map(([to, label]) => (
               <NavLink key={to} to={to} className={(s) => `${linkClass(s)} py-3`} onClick={closeMenu}>
                 {label}
               </NavLink>

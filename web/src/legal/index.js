@@ -20,7 +20,7 @@ export const LEGAL_PAGES = [
     path: '/cookies',
     Page: Cookies,
     title: 'Cookies and storage',
-    description: 'Amara\'s Pick sets no cookies and stores nothing on your device.',
+    description: 'Amara\'s Pick sets no cookies of its own, and what it keeps on your device.',
   },
   { path: '/contact', Page: Contact, title: 'Contact', description: 'How to reach Amara\'s Pick.' },
   {

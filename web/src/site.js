@@ -1,7 +1,8 @@
 // Who runs Amara's Pick and how to reach them, shown in the footer and the legal
 // pages. Set at build time by .github/workflows/deploy.yml from repository
 // variables, so changing the domain or address needs no code change. Only
-// these four AMARAS_PICK_* names reach the browser (envPrefix in vite.config.js).
+// these four AMARAS_PICK_* names (and VITE_*, for sign-in) reach the browser
+// (envPrefix in vite.config.js).
 const env = import.meta.env;
 
 export const SITE = {
@@ -12,4 +13,4 @@ export const SITE = {
   traderAddress: env.AMARAS_PICK_TRADER_ADDRESS || '',
 };
 
-export const LAST_UPDATED = '21 October 2026';
+export const LAST_UPDATED = '27 October 2026';

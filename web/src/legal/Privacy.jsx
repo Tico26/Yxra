@@ -9,7 +9,8 @@ const Privacy = () => {
     <LegalPage title="Privacy" updated={LAST_UPDATED}>
       <p>
         Amara&apos;s Pick helps you find plus-size clothes in stock in your size at UK shops. You don&apos;t need an
-        account, and we don&apos;t ask for your name or email to use it.
+        account to search or shop. If you make one, to keep your Saved pieces and size on any device,
+        it holds only what is listed below.
       </p>
       <h2>Who is responsible</h2>
       <TraderLine />
@@ -32,6 +33,17 @@ const Privacy = () => {
           through to a shop, and when. Nothing in that record identifies you.
         </li>
         <li>
+          <strong>If you make an account.</strong> Your email address, the pieces you save and when, your
+          UK size, and whether you ticked &ldquo;Send me new finds and offers&rdquo; (and when). If you
+          continue with Google, Google tells us your email address and name; we don&apos;t keep your name.
+          Our reason: you asked for an account, so we need these to provide it. We keep them until you
+          delete your account on the Your account page, which removes them straight away.
+        </li>
+        <li>
+          <strong>News emails.</strong> Only if you tick the box, which starts unticked. You can stop
+          them any time on the Your account page. Our reason: your consent.
+        </li>
+        <li>
           <strong>When you email us.</strong> We keep your email address and message so we can reply,
           and delete them 12 months after we last hear from you. Our reason: our legitimate interest
           in answering you.
@@ -49,8 +61,9 @@ const Privacy = () => {
       <h2>Who handles it for us</h2>
       <ul>
         <li>Cloudflare, Inc.: hosting, visit counts and forwarding email sent to us.</li>
-        <li>Supabase, Inc.: our database, which holds the click records above.</li>
-        <li>Google LLC: the mailbox our email arrives in.</li>
+        <li>Supabase, Inc.: our database and sign-in, which hold the click records and accounts above.</li>
+        <li>Resend, Inc.: sending sign-in links and news emails.</li>
+        <li>Google LLC: the mailbox our email arrives in, and Continue with Google if you choose it.</li>
       </ul>
       <p>
         Some of these process data in the USA. Where data leaves the UK, it is protected by the UK
@@ -75,8 +88,7 @@ const Privacy = () => {
 
       <h2>Changes</h2>
       <p>
-        We will update this page before we collect anything new, for example before we open an email
-        list. See also <Link to="/cookies">Cookies and storage</Link>.
+        We will update this page before we collect anything new. See also <Link to="/cookies">Cookies and storage</Link>.
       </p>
     </LegalPage>
   );

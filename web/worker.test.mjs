@@ -41,7 +41,7 @@ test('/api and /admin go to the API Worker unchanged', async () => {
 
 test('app pages get the app shell', async () => {
   const { env } = fakeEnv();
-  for (const path of ['/products', '/products/12', '/shops', '/shops/3', '/login', '/signup', '/saved']) {
+  for (const path of ['/products', '/products/12', '/shops', '/shops/3', '/login', '/signup', '/saved', '/auth', '/account']) {
     const res = await get(env, path);
     assert.equal(res.status, 200, path);
     assert.equal(await res.text(), 'shell', path);
