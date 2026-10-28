@@ -160,31 +160,44 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- Whether a Product's photo looks professional: worn by a model, on a plain
--- background, the whole garment in view and sharp (Tico, 28 Oct 2026).
--- Judged by the AI once per photo (lib/photo-check.js); photo_checked_url is
--- the photo that answer is for, so a new photo is judged again and counts as
--- not professional until it is.
+-- How many photos the Retailer shows for a Product (NULL: not counted yet).
+-- The weekly shop photo check (lib/shop-photos.js) reads it.
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                 WHERE table_name = 'products' AND column_name = 'photo_professional') THEN
-    ALTER TABLE products ADD COLUMN photo_professional BOOLEAN;
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                 WHERE table_name = 'products' AND column_name = 'photo_checked_url') THEN
-    ALTER TABLE products ADD COLUMN photo_checked_url VARCHAR(1000);
+                 WHERE table_name = 'products' AND column_name = 'photo_count') THEN
+    ALTER TABLE products ADD COLUMN photo_count INT;
   END IF;
 END $$;
 
--- 0: a professional photo (shown first); 1: any other or not judged yet.
-CREATE OR REPLACE FUNCTION photo_rank(professional BOOLEAN, checked_url TEXT, image_url TEXT)
-RETURNS SMALLINT AS $$
-  SELECT CASE WHEN professional AND checked_url = image_url THEN 0 ELSE 1 END::SMALLINT
+-- Each Retailer's photos, judged as a whole once a week (lib/shop-photos.js,
+-- Tico 28 Oct 2026): studio when its photos pass every check, mixed when
+-- they fail at least one. NULL: not checked yet, ordered with mixed.
+-- photo_check_note says what the last check found.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'retailers' AND column_name = 'photo_category') THEN
+    ALTER TABLE retailers ADD COLUMN photo_category VARCHAR(10)
+      CHECK (photo_category IN ('studio', 'mixed'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'retailers' AND column_name = 'photo_checked_at') THEN
+    ALTER TABLE retailers ADD COLUMN photo_checked_at TIMESTAMPTZ;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'retailers' AND column_name = 'photo_check_note') THEN
+    ALTER TABLE retailers ADD COLUMN photo_check_note TEXT;
+  END IF;
+END $$;
+
+-- 0: a studio catalogue Retailer (shown first); 1: mixed or not checked yet.
+CREATE OR REPLACE FUNCTION photo_rank(photo_category TEXT) RETURNS SMALLINT AS $$
+  SELECT CASE WHEN photo_category = 'studio' THEN 0 ELSE 1 END::SMALLINT
 $$ LANGUAGE sql IMMUTABLE;
+DROP FUNCTION IF EXISTS photo_rank(BOOLEAN, TEXT, TEXT);
 
 -- The order the product list shows shown Products in, worked out once a
 -- night after the Stock check (lib/product-order.js) rather than for every
--- visitor: Products with professional photos first (photo_rank), and within
+-- visitor: studio catalogue Retailers' Products first (photo_rank), and within
 -- that Retailers take turns (turn), in an order picked at random each night
 -- (shop_order). A search walks this order and stops once it has enough.
 CREATE TABLE IF NOT EXISTS product_order (
@@ -218,10 +231,11 @@ CREATE INDEX IF NOT EXISTS product_order_photo_retailer_idx
 -- so a Stock check saving thousands of Products stays fast.
 CREATE OR REPLACE FUNCTION add_to_product_order() RETURNS trigger AS $$
 DECLARE
-  new_rank SMALLINT := photo_rank(NEW.photo_professional, NEW.photo_checked_url, NEW.image_url);
+  new_rank SMALLINT;
   last product_order%ROWTYPE;
   shop INT;
 BEGIN
+  SELECT photo_rank(r.photo_category) INTO new_rank FROM retailers r WHERE r.retailer_id = NEW.retailer_id;
   SELECT * INTO last FROM product_order WHERE retailer_id = NEW.retailer_id AND photo_rank = new_rank
   ORDER BY turn DESC LIMIT 1;
   SELECT shop_order INTO shop FROM product_order WHERE retailer_id = NEW.retailer_id LIMIT 1;

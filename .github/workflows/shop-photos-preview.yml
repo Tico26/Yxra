@@ -1,0 +1,27 @@
+name: Shop photos preview (temporary, PR #86)
+
+# Shows which photo category each live Retailer would get. Reads the live
+# site's public API and the Retailers' sites only; writes nothing. Remove
+# before merging.
+
+on:
+  pull_request:
+    paths: ["scripts/preview-shop-photos.js", "lib/shop-photos.js", ".github/workflows/shop-photos-preview.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AMARAS_PICK_CONTACT: ${{ vars.AMARAS_PICK_CONTACT || vars.YXRA_CONTACT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/preview-shop-photos.js https://amaraspick.com

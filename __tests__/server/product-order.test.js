@@ -120,51 +120,37 @@ describe("the saved product order (worked out once a night, not per visitor)", (
   });
 });
 
-describe("professional photos first (Tico, 28 Oct 2026)", () => {
-  const judge = (productIds, professional, imageUrl = null) =>
-    db.query(
-      `UPDATE products SET photo_professional = $2, photo_checked_url = COALESCE($3, image_url),
-         image_url = COALESCE($3, image_url)
-       WHERE product_id = ANY ($1::int[])`,
-      [productIds, professional, imageUrl]
-    );
+describe("studio catalogue shops first (Tico, 28 Oct 2026)", () => {
+  const setCategory = (retailerId, category) =>
+    db.query(`UPDATE retailers SET photo_category = $2 WHERE retailer_id = $1`, [retailerId, category]);
 
-  test("Products with a professional photo come before the rest, while Retailers still take turns", async () => {
-    await twoShopsOfSix();
-    const { rows } = await db.query(`SELECT product_id FROM products ORDER BY product_id`);
-    const ids = rows.map((r) => r.product_id);
-    const pro = [ids[1], ids[4], ids[7], ids[10]];
-    await db.query(`UPDATE products SET image_url = 'https://img.example/' || product_id || '.jpg'`);
-    await judge(pro, true);
-    await judge(ids.filter((id) => !pro.includes(id)).slice(0, 3), false);
+  test("a studio shop's Products all come before a mixed shop's", async () => {
+    const [studio, mixed] = await twoShopsOfSix();
+    await setCategory(studio, "studio");
+    await setCategory(mixed, "mixed");
     await rebuildProductOrder();
-    const products = await browse();
-    expect(products.slice(0, 4).map((p) => p.product_id).sort((a, b) => a - b)).toEqual(pro);
-    const firstNames = products.slice(0, 4).map((p) => p.retailer_name);
-    firstNames.slice(1).forEach((name, i) => expect(name).not.toBe(firstNames[i]));
+    const names = (await browse()).map((p) => p.retailer_id);
+    expect(names).toEqual([...Array(6).fill(studio), ...Array(6).fill(mixed)]);
   });
 
-  test("a photo judged professional no longer counts once the Product's photo changes", async () => {
-    await twoShopsOfSix();
-    const { rows } = await db.query(`SELECT product_id FROM products ORDER BY product_id DESC LIMIT 1`);
-    const id = rows[0].product_id;
-    await judge([id], true, "https://img.example/old.jpg");
-    await db.query(`UPDATE products SET image_url = 'https://img.example/new.jpg' WHERE product_id = $1`, [id]);
+  test("a shop not checked yet comes with the mixed ones, and shops still take turns there", async () => {
+    const [studio] = await twoShopsOfSix();
     await rebuildProductOrder();
-    const placed = await db.query(`SELECT photo_rank FROM product_order WHERE product_id = $1`, [id]);
-    expect(placed.rows[0].photo_rank).toBe(1);
+    const ids = (await browse()).map((p) => p.retailer_id);
+    ids.slice(1).forEach((id, i) => expect(id).not.toBe(ids[i]));
+    await setCategory(studio, "studio");
+    await rebuildProductOrder();
+    expect((await browse()).slice(0, 6).every((p) => p.retailer_id === studio)).toBe(true);
   });
 
-  test("a Product shown during the day with a professional photo joins the professional ones", async () => {
-    const [shop] = await twoShopsOfSix();
-    const { rows } = await db.query(`SELECT product_id FROM products WHERE retailer_id = $1 LIMIT 1`, [shop]);
-    await judge([rows[0].product_id], true, "https://img.example/pro.jpg");
+  test("a Product a studio shop shows during the day joins the studio ones", async () => {
+    const [studio, mixed] = await twoShopsOfSix();
+    await setCategory(studio, "studio");
     await rebuildProductOrder();
-    const waiting = await addProduct(shop, "waiting-pro", "unsettled");
-    await judge([waiting], true, "https://img.example/pro-2.jpg");
-    await db.query(`UPDATE products SET sort_status = 'shown' WHERE product_id = $1`, [waiting]);
+    const added = await addProduct(studio, "added-later");
     const ids = (await browse()).map((p) => p.product_id);
-    expect(ids.slice(0, 2)).toEqual([rows[0].product_id, waiting]);
+    expect(ids.indexOf(added)).toBe(6);
+    expect((await browse()).slice(7).every((p) => p.retailer_id === mixed)).toBe(true);
   });
 });
 

@@ -7,12 +7,13 @@ name: Nightly Stock check
 # Each Retailer is collected in its own job, so a big one can't use up the
 # time of the others. A Retailer's missing and deleted Products are worked
 # out from that Retailer's own data only, so the jobs don't depend on each
-# other. Schema runs once before; AI tagging and the product order once after.
+# other. Schema runs once before; AI tagging, the weekly shop photo check and
+# the product order once after.
 #
 # Needs these repository settings (Settings > Secrets and variables > Actions):
 #   secret   DATABASE_URL   Supabase connection string (Session pooler URI)
 #   variable AMARAS_PICK_CONTACT   contact address Retailers see in our User-Agent
-#   secret   ANTHROPIC_API_KEY  for the AI tagging and photo check batches (skipped if unset)
+#   secret   ANTHROPIC_API_KEY  for the AI tagging batch (skipped if unset)
 
 on:
   schedule:
@@ -97,13 +98,29 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: AI tagging for what the rules could not settle, and new photos
+      - name: AI tagging for what the rules could not settle
         run: npm run ai-tagging
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
+  shop-photos:
+    needs: [prepare, stock-check]
+    # Each Retailer's photos, judged as a whole once a week (lib/shop-photos.js).
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Put each Retailer due a check in a photo category
+        run: npm run check-shop-photos
+
   order-products:
-    needs: [prepare, stock-check, ai-tagging]
+    needs: [prepare, stock-check, ai-tagging, shop-photos]
     # Once a night, after every Retailer and the AI tagging, so the order is
     # mixed once with all of the night's changes. A hand-run for some
     # Retailers leaves the order as it is (their new Products already show).

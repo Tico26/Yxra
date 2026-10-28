@@ -56,8 +56,8 @@ const IN_STOCK_SIZES = `ARRAY(
 // size, with no size_label or fits. Every result lists its in_stock_sizes.
 // With priceNear, the closest prices come first (used for "similar").
 // Otherwise they come in the saved product order (lib/product-order.js):
-// professional photos first, and Retailers take turns, so one Retailer's
-// Products are not all together.
+// studio catalogue Retailers first, and Retailers take turns, so one
+// Retailer's Products are not all together.
 exports.searchProducts = async ({
   ukSize = null,
   braBand = null,
