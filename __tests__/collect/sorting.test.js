@@ -71,6 +71,22 @@ describe("sortByRules (R7)", () => {
     expect(sortByRules(product({ title: "Wrap Dress" }), { womenOnly: false }).audience).toBe(null);
     expect(sortByRules(product({ title: "Men's Shirt" }), { womenOnly: true }).audience).toBe("men");
   });
+
+  test("a shop's Gender_Mens tag makes it menswear, even at a women-only Retailer", () => {
+    const pant = product({ title: "Carhartt WIP Module Pant", product_type: "TROUSERS", tags: ["Gender_Mens"] });
+    expect(sortByRules(pant, { womenOnly: true }).audience).toBe("men");
+    const jacket = product({ title: "Barbour Beaufort Wax Jacket", tags: ["Gender_Womens"] });
+    expect(sortByRules(jacket, { womenOnly: false }).audience).toBe("women");
+    const cap = product({ title: "Logo Cap", tags: ["Gender_Mens", "Gender_Womens"] });
+    expect(sortByRules(cap, { womenOnly: false }).audience).toBe("women");
+  });
+
+  test("the title wins over the shop's tags", () => {
+    const kaftan = product({ title: "Damask Boubou & Kaftan Two Piece Set for Men", tags: ["female", "women"] });
+    expect(sortByRules(kaftan, { womenOnly: true }).audience).toBe("men");
+    const jumper = product({ title: "Ladies Button Stripe Crew Jumper", tags: ["mens t-shirt"] });
+    expect(sortByRules(jumper, { womenOnly: false }).audience).toBe("women");
+  });
 });
 
 describe("decideStatus (R10)", () => {

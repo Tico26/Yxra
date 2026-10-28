@@ -1,7 +1,7 @@
 // Applies db/schema.sql (and on Supabase, db/shoppers.sql) to the database
 // without dropping anything, then adds the launch categories, which every
 // Product's category must be one of, and re-sorts Products excluded as
-// lingerie before lingerie was shown.
+// lingerie before lingerie was shown, and takes off menswear older rules missed.
 //
 // A Stock check saves each Retailer in one long transaction. A schema change
 // that has to wait for it would also hold up every live-site read queued
@@ -11,7 +11,7 @@ const path = require("path");
 const format = require("pg-format");
 const db = require("./connection");
 const categories = require("./data/categories");
-const { reopenExcludedLingerie } = require("../lib/catalogue");
+const { reopenExcludedLingerie, excludeMenswear } = require("../lib/catalogue");
 
 const LOCK_NOT_AVAILABLE = "55P03";
 
@@ -61,6 +61,8 @@ const migrate = async ({
   );
   const reopened = await reopenExcludedLingerie();
   if (reopened) console.log(`Sorted ${reopened} Products that were excluded as lingerie again`);
+  const menswear = await excludeMenswear();
+  if (menswear) console.log(`Took ${menswear} Products for men or children off the site`);
 };
 
 if (require.main === module) {
