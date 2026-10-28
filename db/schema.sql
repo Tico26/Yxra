@@ -175,20 +175,30 @@ CREATE INDEX IF NOT EXISTS product_order_retailer_idx ON product_order (retailer
 
 -- A Product shown during the day (collected, or passed by the AI or Tico)
 -- joins at once, after its Retailer's other Products, until the night's
--- rebuild mixes it in.
+-- rebuild mixes it in. Only a Product newly shown is added, and its
+-- Retailer's last place is read through the index, so a Stock check saving
+-- thousands of Products stays fast.
 CREATE OR REPLACE FUNCTION add_to_product_order() RETURNS trigger AS $$
+DECLARE
+  last product_order%ROWTYPE;
 BEGIN
+  SELECT * INTO last FROM product_order WHERE retailer_id = NEW.retailer_id
+  ORDER BY turn DESC LIMIT 1;
   INSERT INTO product_order (product_id, retailer_id, turn, shop_order)
-  SELECT NEW.product_id, NEW.retailer_id, COALESCE(MAX(o.turn), 0) + 1,
-    COALESCE(MAX(o.shop_order), NEW.retailer_id)
-  FROM product_order o WHERE o.retailer_id = NEW.retailer_id
+  VALUES (NEW.product_id, NEW.retailer_id, COALESCE(last.turn, 0) + 1,
+    COALESCE(last.shop_order, NEW.retailer_id))
   ON CONFLICT (product_id) DO NOTHING;
   RETURN NULL;
 END $$ LANGUAGE plpgsql;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'products_add_to_order') THEN
-    CREATE TRIGGER products_add_to_order AFTER INSERT OR UPDATE OF sort_status ON products
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'products_add_to_order_on_insert') THEN
+    CREATE TRIGGER products_add_to_order_on_insert AFTER INSERT ON products
       FOR EACH ROW WHEN (NEW.sort_status = 'shown') EXECUTE FUNCTION add_to_product_order();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'products_add_to_order_on_update') THEN
+    CREATE TRIGGER products_add_to_order_on_update AFTER UPDATE OF sort_status ON products
+      FOR EACH ROW WHEN (NEW.sort_status = 'shown' AND OLD.sort_status IS DISTINCT FROM 'shown')
+      EXECUTE FUNCTION add_to_product_order();
   END IF;
 END $$;

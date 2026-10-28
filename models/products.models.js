@@ -85,7 +85,7 @@ exports.searchProducts = async ({
   const distance = priceNear === null ? "0" : `ABS(p.price_in_pence - ${param(priceNear, "int")})`;
   const conditions = [SHOPPABLE];
   if (category) conditions.push(`p.category = ${param(category, "text")}`);
-  if (retailerId !== null) conditions.push(`p.retailer_id = ${param(retailerId, "int")}`);
+  if (retailerId !== null) conditions.push(`o.retailer_id = ${param(retailerId, "int")}`);
   if (excludeProductId !== null) conditions.push(`p.product_id <> ${param(excludeProductId, "int")}`);
   // Walking the saved order and stopping at the limit reads only the first
   // Products in it; sorting by price has to look at every match.
