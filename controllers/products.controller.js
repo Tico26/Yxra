@@ -21,7 +21,7 @@ exports.getProducts = async (req, res, next) => {
 
 exports.getProductById = async (req, res, next) => {
   try {
-    const product = await fetchProductById(parseId(req.params.product_id, "Product"));
+    const product = await fetchProductById(parseId(req.params.product_id, "Product"), { shoppableOnly: true });
     if (!product) throw notFound("Product");
     res.status(200).send({ product });
   } catch (err) {

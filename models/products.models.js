@@ -10,24 +10,26 @@ const SIZES_JSON = `COALESCE(
    ORDER BY s.product_size_id)
    FROM product_sizes s WHERE s.product_id = p.product_id), '[]')`;
 
+// A Product a Shopper may see: its Retailer is current, the rules (or Tico)
+// passed it, and it was in its Retailer's data at the last Stock check.
+const SHOPPABLE = `r.removed_at IS NULL AND p.sort_status = 'shown' AND p.missing_since IS NULL`;
+exports.SHOPPABLE = SHOPPABLE;
+
 // A Product and its sizes were checked when its Retailer was last collected
 // (ADR 0008); last_checked_at on the rows is only when they were last written.
-exports.fetchProductById = async (productId) => {
+// Shoppers only ever get a shoppable one: a Product excluded (menswear, say)
+// or not yet settled is not found, even by a direct link.
+exports.fetchProductById = async (productId, { shoppableOnly = false } = {}) => {
   const { rows } = await db.query(
     `SELECT p.*, r.retailer_name, r.last_collected_at, ${SIZES_JSON} AS sizes
      FROM products p JOIN retailers r USING (retailer_id)
-     WHERE p.product_id = $1`,
+     WHERE p.product_id = $1 ${shoppableOnly ? `AND ${SHOPPABLE}` : ""}`,
     [productId]
   );
   if (!rows[0]) return undefined;
   const { last_collected_at, ...product } = rows[0];
   return { ...product, last_checked_at: last_collected_at };
 };
-
-// A Product a Shopper may see: its Retailer is current, the rules (or Tico)
-// passed it, and it was in its Retailer's data at the last Stock check.
-const SHOPPABLE = `r.removed_at IS NULL AND p.sort_status = 'shown' AND p.missing_since IS NULL`;
-exports.SHOPPABLE = SHOPPABLE;
 
 const fitsRange = (ukSizes) =>
   ukSizes.length > 1 ? `fits ${Math.min(...ukSizes)}–${Math.max(...ukSizes)}` : null;
