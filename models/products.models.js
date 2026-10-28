@@ -50,18 +50,19 @@ const IN_STOCK_SIZES = `ARRAY(
            array_position($1::text[], i.bra_cup), i.size_label)`;
 
 // Products in stock in one UK size (or for bras, one band, optionally one
-// cup), optionally in one category. When several of a Product's Size labels
-// cover the size, the narrowest one is shown. With no size (she has not
-// picked one yet), Products in stock in at least one plus size, with no
-// size_label or fits. Every result lists its in_stock_sizes. With priceNear,
-// the closest prices come first (used for "similar"). Otherwise Retailers
-// take turns, in an order picked at random for each search, so one
-// Retailer's Products are not all together.
+// cup), optionally in one category or at one Retailer. When several of a
+// Product's Size labels cover the size, the narrowest one is shown. With no
+// size (she has not picked one yet), Products in stock in at least one plus
+// size, with no size_label or fits. Every result lists its in_stock_sizes.
+// With priceNear, the closest prices come first (used for "similar").
+// Otherwise they come in the saved product order (lib/product-order.js),
+// where Retailers take turns, so one Retailer's Products are not all together.
 exports.searchProducts = async ({
   ukSize = null,
   braBand = null,
   braCup = null,
   category,
+  retailerId = null,
   excludeProductId = null,
   priceNear = null,
   limit = 500,
@@ -84,28 +85,21 @@ exports.searchProducts = async ({
   const distance = priceNear === null ? "0" : `ABS(p.price_in_pence - ${param(priceNear, "int")})`;
   const conditions = [SHOPPABLE];
   if (category) conditions.push(`p.category = ${param(category, "text")}`);
+  if (retailerId !== null) conditions.push(`o.retailer_id = ${param(retailerId, "int")}`);
   if (excludeProductId !== null) conditions.push(`p.product_id <> ${param(excludeProductId, "int")}`);
+  // Walking the saved order and stopping at the limit reads only the first
+  // Products in it; sorting by price has to look at every match.
+  const order = priceNear === null ? "o.turn, o.shop_order, o.product_id" : "distance, o.turn, o.shop_order, o.product_id";
 
-  // The shuffle runs over narrow rows (ids and price) only; titles, links and
-  // the narrowest matching Size label are read for the Products picked. Every
-  // matching Product still takes part, so the results are the same as
-  // shuffling the full rows, but the work per search stays small.
   const { rows } = await db.query(
-    `WITH shops AS (
-       SELECT r.retailer_id, r.removed_at,
-         row_number() OVER (ORDER BY md5(r.retailer_id || ${param(String(Math.random()), "text")})) AS shop_order
-       FROM retailers r
-     ), matched AS (
-       SELECT p.product_id, r.shop_order, ${distance} AS distance,
-         row_number() OVER (PARTITION BY p.retailer_id ORDER BY random()) AS turn
-       FROM products p
-       JOIN shops r USING (retailer_id)
+    `WITH picked AS (
+       SELECT p.product_id, ${distance} AS distance, o.turn, o.shop_order
+       FROM product_order o
+       JOIN products p USING (product_id)
+       JOIN retailers r ON r.retailer_id = p.retailer_id
        WHERE ${conditions.join(" AND ")}
          AND EXISTS (SELECT 1 FROM product_sizes s WHERE s.product_id = p.product_id AND ${matches})
-     ), picked AS (
-       SELECT product_id, distance, turn, shop_order
-       FROM matched
-       ORDER BY distance, turn, shop_order
+       ORDER BY ${order}
        LIMIT ${param(limit, "int")}
      )
      SELECT found.*, ${IN_STOCK_SIZES} AS in_stock_sizes FROM (
@@ -123,7 +117,7 @@ exports.searchProducts = async ({
          LIMIT 1
        ) s
      ) found
-     ORDER BY found.distance, found.turn, found.shop_order`,
+     ORDER BY found.distance, found.turn, found.shop_order, found.product_id`,
     params
   );
   return rows.map(({ uk_sizes, bra_band, bra_cup, size_label, distance, turn, shop_order, ...row }) => ({

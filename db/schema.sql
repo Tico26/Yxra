@@ -159,3 +159,46 @@ DO $$ BEGIN
     CREATE INDEX product_sizes_bra_band_idx ON product_sizes (bra_band) WHERE bra_band IS NOT NULL;
   END IF;
 END $$;
+
+-- The order the product list shows shown Products in, worked out once a
+-- night after the Stock check (lib/product-order.js) rather than for every
+-- visitor: Retailers take turns (turn), in an order picked at random each
+-- night (shop_order). A search walks this order and stops once it has enough.
+CREATE TABLE IF NOT EXISTS product_order (
+  product_id INT PRIMARY KEY REFERENCES products(product_id) ON DELETE CASCADE,
+  retailer_id INT NOT NULL,
+  turn INT NOT NULL,
+  shop_order INT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS product_order_walk_idx ON product_order (turn, shop_order, product_id);
+CREATE INDEX IF NOT EXISTS product_order_retailer_idx ON product_order (retailer_id, turn);
+
+-- A Product shown during the day (collected, or passed by the AI or Tico)
+-- joins at once, after its Retailer's other Products, until the night's
+-- rebuild mixes it in. Only a Product newly shown is added, and its
+-- Retailer's last place is read through the index, so a Stock check saving
+-- thousands of Products stays fast.
+CREATE OR REPLACE FUNCTION add_to_product_order() RETURNS trigger AS $$
+DECLARE
+  last product_order%ROWTYPE;
+BEGIN
+  SELECT * INTO last FROM product_order WHERE retailer_id = NEW.retailer_id
+  ORDER BY turn DESC LIMIT 1;
+  INSERT INTO product_order (product_id, retailer_id, turn, shop_order)
+  VALUES (NEW.product_id, NEW.retailer_id, COALESCE(last.turn, 0) + 1,
+    COALESCE(last.shop_order, NEW.retailer_id))
+  ON CONFLICT (product_id) DO NOTHING;
+  RETURN NULL;
+END $$ LANGUAGE plpgsql;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'products_add_to_order_on_insert') THEN
+    CREATE TRIGGER products_add_to_order_on_insert AFTER INSERT ON products
+      FOR EACH ROW WHEN (NEW.sort_status = 'shown') EXECUTE FUNCTION add_to_product_order();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'products_add_to_order_on_update') THEN
+    CREATE TRIGGER products_add_to_order_on_update AFTER UPDATE OF sort_status ON products
+      FOR EACH ROW WHEN (NEW.sort_status = 'shown' AND OLD.sort_status IS DISTINCT FROM 'shown')
+      EXECUTE FUNCTION add_to_product_order();
+  END IF;
+END $$;

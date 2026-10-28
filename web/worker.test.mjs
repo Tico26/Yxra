@@ -127,7 +127,9 @@ test('the product list, shop list and categories are kept for 10 minutes, so the
     for (const path of ['/api/products', '/api/products?category=swimwear', '/api/retailers', '/api/categories']) {
       const first = await getWith(env, path);
       assert.equal(await first.text(), 'api', path);
-      assert.equal(first.headers.get('Cache-Control'), 'public, max-age=600', path);
+      // Cloudflare keeps it 10 minutes; a browser only 1, so the night's new
+      // order reaches her soon after the edge copy expires.
+      assert.equal(first.headers.get('Cache-Control'), 'public, max-age=60, s-maxage=600', path);
       const second = await getWith(env, path);
       assert.equal(await second.text(), 'api', path);
     }

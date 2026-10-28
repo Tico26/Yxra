@@ -12,6 +12,7 @@ exports.getProducts = async (req, res, next) => {
     const products = await searchProducts({
       ...parseSearchSize(req.query),
       category: parseCategory(req.query.category),
+      retailerId: req.query.retailer_id === undefined ? null : parseId(req.query.retailer_id, "Retailer"),
     });
     res.status(200).send({ products });
   } catch (err) {

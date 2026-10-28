@@ -12,6 +12,7 @@ const format = require("pg-format");
 const db = require("./connection");
 const categories = require("./data/categories");
 const { reopenExcludedLingerie, excludeMenswear } = require("../lib/catalogue");
+const { rebuildProductOrder } = require("../lib/product-order");
 
 const LOCK_NOT_AVAILABLE = "55P03";
 
@@ -63,6 +64,8 @@ const migrate = async ({
   if (reopened) console.log(`Sorted ${reopened} Products that were excluded as lingerie again`);
   const menswear = await excludeMenswear();
   if (menswear) console.log(`Took ${menswear} Products for men or children off the site`);
+  // The product list reads this order; a deploy mixes it afresh.
+  await rebuildProductOrder();
 };
 
 if (require.main === module) {

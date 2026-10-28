@@ -32,7 +32,9 @@ const fromCache = async (request, ctx, fetchFresh) => {
   const fresh = await fetchFresh();
   if (fresh.status !== 200) return fresh;
   const res = new Response(fresh.body, fresh);
-  res.headers.set('Cache-Control', `public, max-age=${CACHE_SECONDS}`);
+  // A browser keeps it only a minute, so the night's new order reaches her
+  // soon after the edge copy runs out.
+  res.headers.set('Cache-Control', `public, max-age=60, s-maxage=${CACHE_SECONDS}`);
   const put = cache.put(request, res.clone());
   if (ctx?.waitUntil) ctx.waitUntil(put);
   else await put;
