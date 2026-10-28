@@ -36,3 +36,9 @@ test('/about tells the shopper why the site exists and who Amara is', () => {
     ),
   );
 });
+
+test('/about ends by asking for shops, linking to Contact', () => {
+  const html = built('about.html');
+  assert.match(text(html), /Know a shop we should search\? Tell us/);
+  assert.match(html, /<a[^>]*href="\/contact"[^>]*>Tell us<\/a>/);
+});

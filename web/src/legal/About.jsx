@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const About = () => {
   useEffect(() => {
@@ -27,6 +28,12 @@ const About = () => {
             of hunting.
           </p>
         </blockquote>
+        <p className="mt-8 text-graphite">
+          Know a shop we should search?{' '}
+          <Link to="/contact" className="link font-medium">
+            Tell us
+          </Link>
+        </p>
       </article>
     </div>
   );
