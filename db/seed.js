@@ -8,7 +8,7 @@ const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
 
 const dropAll = () =>
   db.query(`DROP TABLE IF EXISTS click_outs, suggested_retailers, size_translations,
-    product_sizes, products, retailers, categories, shops CASCADE`);
+    product_order, product_sizes, products, retailers, categories, shops CASCADE`);
 
 const seed = async ({
   categories,
