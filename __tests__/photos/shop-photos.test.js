@@ -63,12 +63,17 @@ describe("categorise: two distinct categories", () => {
     expect(categorise(photos(20), Array(20).fill(4)).category).toBe("studio");
   });
 
+  test("half the photos on a plain background is enough", () => {
+    const measured = [...photos(10), ...photos(10, { ...STUDIO, plain: false })];
+    expect(categorise(measured, Array(20).fill(4)).category).toBe("studio");
+  });
+
   test.each([
     ["shapes differ", [...photos(14), ...photos(6, { ...STUDIO, height: 1000 })], Array(20).fill(4)],
     ["photos are small", photos(20, { ...STUDIO, width: 600, height: 900 }), Array(20).fill(4)],
     ["too few photos per item", photos(20), Array(20).fill(2)],
     ["photo counts not known", photos(20), Array(20).fill(null)],
-    ["busy backgrounds", [...photos(15), ...photos(5, { ...STUDIO, plain: false })], Array(20).fill(4)],
+    ["over half have busy backgrounds", [...photos(9), ...photos(11, { ...STUDIO, plain: false })], Array(20).fill(4)],
   ])("mixed when %s", (_, measured, counts) => {
     const result = categorise(measured, counts);
     expect(result.category).toBe("mixed");
