@@ -4,11 +4,18 @@ import Cookies from './Cookies';
 import Contact from './Contact';
 import HowAmarasPickMakesMoney from './HowAmarasPickMakesMoney';
 import ForRetailers from './ForRetailers';
+import About from './About';
 
 // The fixed pages carried over from the previous site, at the same addresses,
 // with the same tab titles and descriptions. scripts/prerender.mjs writes
 // each one to static HTML at build time.
 export const LEGAL_PAGES = [
+  {
+    path: '/about',
+    Page: About,
+    title: 'About us',
+    description: 'Amara\'s Pick checks UK shops every night and shows plus-size clothes in stock in UK 18 and up.',
+  },
   {
     path: '/privacy',
     Page: Privacy,

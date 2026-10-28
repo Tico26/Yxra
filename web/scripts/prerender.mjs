@@ -38,7 +38,7 @@ for (const { path, title, description } of LEGAL_PAGES) {
 await writeFile(`${dist}404.html`, page('/__not-found'));
 
 // Same addresses as the previous site's sitemap.js and robots.js.
-const SITEMAP = ['', '/shops', '/how-amaras-pick-makes-money', '/for-retailers', '/privacy', '/cookies', '/terms', '/contact'];
+const SITEMAP = ['', '/about', '/shops', '/how-amaras-pick-makes-money', '/for-retailers', '/privacy', '/cookies', '/terms', '/contact'];
 await writeFile(
   `${dist}sitemap.xml`,
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${SITEMAP.map(
