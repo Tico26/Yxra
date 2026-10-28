@@ -86,3 +86,89 @@ test('a Click-out with a bad size or id, or a product that is gone, is not found
   const { env } = fakeEnv({ clickOut: { status: 404, body: { error: 'gone' } } });
   assert.equal((await get(env, '/go/42?size=22')).status, 404);
 });
+
+// A stand-in for Cloudflare's edge cache (caches.default) that keeps what it is given.
+const fakeCache = () => {
+  const stored = new Map();
+  return {
+    stored,
+    match: async (request) => stored.get(new Request(request).url)?.clone(),
+    put: async (request, response) => {
+      stored.set(new Request(request).url, response.clone());
+    },
+  };
+};
+
+const withCache = async (fn) => {
+  const cache = fakeCache();
+  globalThis.caches = { default: cache };
+  try {
+    return await fn(cache);
+  } finally {
+    delete globalThis.caches;
+  }
+};
+
+// The work to finish after the reply, as the Workers runtime does.
+const fakeCtx = () => {
+  const pending = [];
+  return { pending, waitUntil: (promise) => pending.push(promise) };
+};
+
+const getWith = async (env, path, ctx = fakeCtx()) => {
+  const res = await worker.fetch(new Request(`https://amaraspick.example${path}`), env, ctx);
+  await Promise.all(ctx.pending);
+  return res;
+};
+
+test('the product list, shop list and categories are kept for 10 minutes, so the API is asked once', async () => {
+  await withCache(async () => {
+    const { env, calls } = fakeEnv();
+    for (const path of ['/api/products', '/api/products?category=swimwear', '/api/retailers', '/api/categories']) {
+      const first = await getWith(env, path);
+      assert.equal(await first.text(), 'api', path);
+      assert.equal(first.headers.get('Cache-Control'), 'public, max-age=600', path);
+      const second = await getWith(env, path);
+      assert.equal(await second.text(), 'api', path);
+    }
+    assert.deepEqual(calls.api.map((c) => c.path), ['/api/products', '/api/products', '/api/retailers', '/api/categories']);
+  });
+});
+
+test('each search is kept separately', async () => {
+  await withCache(async () => {
+    const { env, calls } = fakeEnv();
+    await getWith(env, '/api/products?uk_size=20');
+    await getWith(env, '/api/products?uk_size=22');
+    await getWith(env, '/api/products?uk_size=20');
+    assert.equal(calls.api.length, 2);
+  });
+});
+
+test('a failed answer is not kept', async () => {
+  await withCache(async (cache) => {
+    const { env } = fakeEnv();
+    env.API.fetch = async () => new Response('down', { status: 500 });
+    assert.equal((await getWith(env, '/api/products')).status, 500);
+    assert.equal(cache.stored.size, 0);
+  });
+});
+
+test('Saved products, single products, Click-outs and the admin are never kept', async () => {
+  await withCache(async (cache) => {
+    const { env, calls } = fakeEnv();
+    for (const path of ['/api/products?ids=1,2', '/api/products/12', '/admin', '/api/review']) {
+      await getWith(env, path);
+      await getWith(env, path);
+    }
+    await worker.fetch(new Request('https://amaraspick.example/api/retailers', { method: 'POST', body: '{}' }), env, fakeCtx());
+    assert.equal(cache.stored.size, 0);
+    assert.equal(calls.api.length, 9);
+  });
+});
+
+test('without an edge cache (local dev) the list still comes from the API', async () => {
+  const { env, calls } = fakeEnv();
+  assert.equal(await (await getWith(env, '/api/products')).text(), 'api');
+  assert.equal(calls.api.length, 1);
+});
