@@ -1,6 +1,7 @@
 const db = require("../db/connection");
 const { badRequest } = require("../lib/errors");
 const { normaliseSiteUrl, parseSource } = require("../lib/sites");
+const { reopenWomenOnlyDefaults } = require("../lib/catalogue");
 
 exports.fetchRetailers = async () => {
   const { rows } = await db.query(
@@ -14,6 +15,10 @@ exports.addRetailer = async ({ retailer_name, site_url, source, women_only = fal
   if (!retailer_name || typeof retailer_name !== "string") {
     throw badRequest("retailer_name is required");
   }
+  const siteUrl = normaliseSiteUrl(site_url);
+  const { rows: before } = await client.query(`SELECT women_only FROM retailers WHERE site_url = $1`, [
+    siteUrl,
+  ]);
   const { rows } = await client.query(
     `INSERT INTO retailers (retailer_name, site_url, source, women_only)
      VALUES ($1, $2, $3, $4)
@@ -21,8 +26,11 @@ exports.addRetailer = async ({ retailer_name, site_url, source, women_only = fal
      SET retailer_name = EXCLUDED.retailer_name, source = EXCLUDED.source,
          women_only = EXCLUDED.women_only, removed_at = NULL
      RETURNING *`,
-    [retailer_name.trim(), normaliseSiteUrl(site_url), parseSource(source), Boolean(women_only)]
+    [retailer_name.trim(), siteUrl, parseSource(source), Boolean(women_only)]
   );
+  if (before.length && before[0].women_only && !rows[0].women_only) {
+    await reopenWomenOnlyDefaults(rows[0].retailer_id);
+  }
   return rows[0];
 };
 
