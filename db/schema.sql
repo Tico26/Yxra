@@ -160,33 +160,74 @@ DO $$ BEGIN
   END IF;
 END $$;
 
+-- Whether a Product's photo looks professional: worn by a model, on a plain
+-- background, the whole garment in view and sharp (Tico, 28 Oct 2026).
+-- Judged by the AI once per photo (lib/photo-check.js); photo_checked_url is
+-- the photo that answer is for, so a new photo is judged again and counts as
+-- not professional until it is.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'products' AND column_name = 'photo_professional') THEN
+    ALTER TABLE products ADD COLUMN photo_professional BOOLEAN;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'products' AND column_name = 'photo_checked_url') THEN
+    ALTER TABLE products ADD COLUMN photo_checked_url VARCHAR(1000);
+  END IF;
+END $$;
+
+-- 0: a professional photo (shown first); 1: any other or not judged yet.
+CREATE OR REPLACE FUNCTION photo_rank(professional BOOLEAN, checked_url TEXT, image_url TEXT)
+RETURNS SMALLINT AS $$
+  SELECT CASE WHEN professional AND checked_url = image_url THEN 0 ELSE 1 END::SMALLINT
+$$ LANGUAGE sql IMMUTABLE;
+
 -- The order the product list shows shown Products in, worked out once a
 -- night after the Stock check (lib/product-order.js) rather than for every
--- visitor: Retailers take turns (turn), in an order picked at random each
--- night (shop_order). A search walks this order and stops once it has enough.
+-- visitor: Products with professional photos first (photo_rank), and within
+-- that Retailers take turns (turn), in an order picked at random each night
+-- (shop_order). A search walks this order and stops once it has enough.
 CREATE TABLE IF NOT EXISTS product_order (
   product_id INT PRIMARY KEY REFERENCES products(product_id) ON DELETE CASCADE,
   retailer_id INT NOT NULL,
+  photo_rank SMALLINT NOT NULL DEFAULT 1,
   turn INT NOT NULL,
   shop_order INT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS product_order_walk_idx ON product_order (turn, shop_order, product_id);
-CREATE INDEX IF NOT EXISTS product_order_retailer_idx ON product_order (retailer_id, turn);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'product_order' AND column_name = 'photo_rank') THEN
+    ALTER TABLE product_order ADD COLUMN photo_rank SMALLINT NOT NULL DEFAULT 1;
+  END IF;
+  IF to_regclass('product_order_walk_idx') IS NOT NULL THEN
+    DROP INDEX product_order_walk_idx;
+  END IF;
+  IF to_regclass('product_order_retailer_idx') IS NOT NULL THEN
+    DROP INDEX product_order_retailer_idx;
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS product_order_photo_walk_idx
+  ON product_order (photo_rank, turn, shop_order, product_id);
+CREATE INDEX IF NOT EXISTS product_order_photo_retailer_idx
+  ON product_order (retailer_id, photo_rank, turn);
 
 -- A Product shown during the day (collected, or passed by the AI or Tico)
--- joins at once, after its Retailer's other Products, until the night's
--- rebuild mixes it in. Only a Product newly shown is added, and its
--- Retailer's last place is read through the index, so a Stock check saving
--- thousands of Products stays fast.
+-- joins at once, after its Retailer's other Products with the same
+-- photo_rank, until the night's rebuild mixes it in. Only a Product newly
+-- shown is added, and its Retailer's last place is read through the index,
+-- so a Stock check saving thousands of Products stays fast.
 CREATE OR REPLACE FUNCTION add_to_product_order() RETURNS trigger AS $$
 DECLARE
+  new_rank SMALLINT := photo_rank(NEW.photo_professional, NEW.photo_checked_url, NEW.image_url);
   last product_order%ROWTYPE;
+  shop INT;
 BEGIN
-  SELECT * INTO last FROM product_order WHERE retailer_id = NEW.retailer_id
+  SELECT * INTO last FROM product_order WHERE retailer_id = NEW.retailer_id AND photo_rank = new_rank
   ORDER BY turn DESC LIMIT 1;
-  INSERT INTO product_order (product_id, retailer_id, turn, shop_order)
-  VALUES (NEW.product_id, NEW.retailer_id, COALESCE(last.turn, 0) + 1,
-    COALESCE(last.shop_order, NEW.retailer_id))
+  SELECT shop_order INTO shop FROM product_order WHERE retailer_id = NEW.retailer_id LIMIT 1;
+  INSERT INTO product_order (product_id, retailer_id, photo_rank, turn, shop_order)
+  VALUES (NEW.product_id, NEW.retailer_id, new_rank, COALESCE(last.turn, 0) + 1,
+    COALESCE(shop, NEW.retailer_id))
   ON CONFLICT (product_id) DO NOTHING;
   RETURN NULL;
 END $$ LANGUAGE plpgsql;

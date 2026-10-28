@@ -20,8 +20,9 @@ const HowAmarasPickMakesMoney = () => (
         one plus size: UK 18 and up, or bra band 38 and up.
       </li>
       <li>
-        By default, the shops take turns, in an order picked at random each time, so no single shop
-        fills the page.
+        By default, items with clear, professional photos come first: worn by a model, on a plain
+        background. Every shop&apos;s photos are judged the same way. Within that, the shops take turns,
+        in an order we mix once a day, so no single shop fills the page.
       </li>
       <li>You can sort by price, from low to high or high to low, and narrow the results by price and category.</li>
       <li>No shop can pay to rank higher in your results.</li>

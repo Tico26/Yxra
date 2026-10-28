@@ -55,8 +55,9 @@ const IN_STOCK_SIZES = `ARRAY(
 // size (she has not picked one yet), Products in stock in at least one plus
 // size, with no size_label or fits. Every result lists its in_stock_sizes.
 // With priceNear, the closest prices come first (used for "similar").
-// Otherwise they come in the saved product order (lib/product-order.js),
-// where Retailers take turns, so one Retailer's Products are not all together.
+// Otherwise they come in the saved product order (lib/product-order.js):
+// professional photos first, and Retailers take turns, so one Retailer's
+// Products are not all together.
 exports.searchProducts = async ({
   ukSize = null,
   braBand = null,
@@ -89,11 +90,12 @@ exports.searchProducts = async ({
   if (excludeProductId !== null) conditions.push(`p.product_id <> ${param(excludeProductId, "int")}`);
   // Walking the saved order and stopping at the limit reads only the first
   // Products in it; sorting by price has to look at every match.
-  const order = priceNear === null ? "o.turn, o.shop_order, o.product_id" : "distance, o.turn, o.shop_order, o.product_id";
+  const walk = "o.photo_rank, o.turn, o.shop_order, o.product_id";
+  const order = priceNear === null ? walk : `distance, ${walk}`;
 
   const { rows } = await db.query(
     `WITH picked AS (
-       SELECT p.product_id, ${distance} AS distance, o.turn, o.shop_order
+       SELECT p.product_id, ${distance} AS distance, o.photo_rank, o.turn, o.shop_order
        FROM product_order o
        JOIN products p USING (product_id)
        JOIN retailers r ON r.retailer_id = p.retailer_id
@@ -106,7 +108,7 @@ exports.searchProducts = async ({
        SELECT p.product_id, p.title, p.colour, p.brand, p.category, p.image_url, p.product_url,
          p.price_in_pence, r.last_collected_at AS last_checked_at, p.retailer_id, r.retailer_name,
          s.size_label, s.uk_sizes, s.bra_band, s.bra_cup,
-         picked.distance, picked.turn, picked.shop_order
+         picked.distance, picked.photo_rank, picked.turn, picked.shop_order
        FROM picked
        JOIN products p USING (product_id)
        JOIN retailers r USING (retailer_id)
@@ -117,10 +119,10 @@ exports.searchProducts = async ({
          LIMIT 1
        ) s
      ) found
-     ORDER BY found.distance, found.turn, found.shop_order, found.product_id`,
+     ORDER BY found.distance, found.photo_rank, found.turn, found.shop_order, found.product_id`,
     params
   );
-  return rows.map(({ uk_sizes, bra_band, bra_cup, size_label, distance, turn, shop_order, ...row }) => ({
+  return rows.map(({ uk_sizes, bra_band, bra_cup, size_label, distance, photo_rank, turn, shop_order, ...row }) => ({
     ...row,
     size_label: browsing ? null : size_label,
     fits: browsing ? null : fitsRange(uk_sizes),

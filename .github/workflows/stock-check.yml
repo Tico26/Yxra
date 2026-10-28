@@ -12,7 +12,7 @@ name: Nightly Stock check
 # Needs these repository settings (Settings > Secrets and variables > Actions):
 #   secret   DATABASE_URL   Supabase connection string (Session pooler URI)
 #   variable AMARAS_PICK_CONTACT   contact address Retailers see in our User-Agent
-#   secret   ANTHROPIC_API_KEY  for the AI tagging batch (skipped if unset)
+#   secret   ANTHROPIC_API_KEY  for the AI tagging and photo check batches (skipped if unset)
 
 on:
   schedule:
@@ -97,7 +97,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: AI tagging for what the rules could not settle
+      - name: AI tagging for what the rules could not settle, and new photos
         run: npm run ai-tagging
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

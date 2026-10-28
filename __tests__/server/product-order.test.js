@@ -120,6 +120,54 @@ describe("the saved product order (worked out once a night, not per visitor)", (
   });
 });
 
+describe("professional photos first (Tico, 28 Oct 2026)", () => {
+  const judge = (productIds, professional, imageUrl = null) =>
+    db.query(
+      `UPDATE products SET photo_professional = $2, photo_checked_url = COALESCE($3, image_url),
+         image_url = COALESCE($3, image_url)
+       WHERE product_id = ANY ($1::int[])`,
+      [productIds, professional, imageUrl]
+    );
+
+  test("Products with a professional photo come before the rest, while Retailers still take turns", async () => {
+    await twoShopsOfSix();
+    const { rows } = await db.query(`SELECT product_id FROM products ORDER BY product_id`);
+    const ids = rows.map((r) => r.product_id);
+    const pro = [ids[1], ids[4], ids[7], ids[10]];
+    await db.query(`UPDATE products SET image_url = 'https://img.example/' || product_id || '.jpg'`);
+    await judge(pro, true);
+    await judge(ids.filter((id) => !pro.includes(id)).slice(0, 3), false);
+    await rebuildProductOrder();
+    const products = await browse();
+    expect(products.slice(0, 4).map((p) => p.product_id).sort((a, b) => a - b)).toEqual(pro);
+    const firstNames = products.slice(0, 4).map((p) => p.retailer_name);
+    firstNames.slice(1).forEach((name, i) => expect(name).not.toBe(firstNames[i]));
+  });
+
+  test("a photo judged professional no longer counts once the Product's photo changes", async () => {
+    await twoShopsOfSix();
+    const { rows } = await db.query(`SELECT product_id FROM products ORDER BY product_id DESC LIMIT 1`);
+    const id = rows[0].product_id;
+    await judge([id], true, "https://img.example/old.jpg");
+    await db.query(`UPDATE products SET image_url = 'https://img.example/new.jpg' WHERE product_id = $1`, [id]);
+    await rebuildProductOrder();
+    const placed = await db.query(`SELECT photo_rank FROM product_order WHERE product_id = $1`, [id]);
+    expect(placed.rows[0].photo_rank).toBe(1);
+  });
+
+  test("a Product shown during the day with a professional photo joins the professional ones", async () => {
+    const [shop] = await twoShopsOfSix();
+    const { rows } = await db.query(`SELECT product_id FROM products WHERE retailer_id = $1 LIMIT 1`, [shop]);
+    await judge([rows[0].product_id], true, "https://img.example/pro.jpg");
+    await rebuildProductOrder();
+    const waiting = await addProduct(shop, "waiting-pro", "unsettled");
+    await judge([waiting], true, "https://img.example/pro-2.jpg");
+    await db.query(`UPDATE products SET sort_status = 'shown' WHERE product_id = $1`, [waiting]);
+    const ids = (await browse()).map((p) => p.product_id);
+    expect(ids.slice(0, 2)).toEqual([rows[0].product_id, waiting]);
+  });
+});
+
 describe("GET /api/products?retailer_id= (one shop's page)", () => {
   test("lists only that Retailer's Products", async () => {
     const [shop, other] = await twoShopsOfSix();
