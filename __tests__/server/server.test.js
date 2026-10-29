@@ -1,6 +1,7 @@
 const request = require("supertest");
 const { app } = require("../../app");
 const db = require("../../db/connection");
+const { searchProducts } = require("../../models/products.models");
 const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 
@@ -305,4 +306,43 @@ describe("GET /api/products with no size (browse before she picks a size)", () =
   });
 
   test("400: unknown category", () => request(app).get("/api/products?category=shoes").expect(400));
+
+  describe("?type= (spec 0005)", () => {
+    test("rule 11: only Products of that Clothes type, in the saved order", async () => {
+      const all = await browse();
+      const dresses = await browse({ type: "dresses" });
+      expect(dresses.map((p) => `${p.title} (${p.colour})`).sort()).toEqual([
+        "Wrap Midi Dress (Black)",
+        "Wrap Midi Dress (Red)",
+      ]);
+      expect(dresses.map((p) => p.product_id)).toEqual(
+        all.filter((p) => p.clothes_type === "dresses").map((p) => p.product_id)
+      );
+      expect((await browse({ type: "tops" })).map((p) => p.title)).toEqual(["Jersey Tee"]);
+    });
+
+    test("rule 11: the 500 are counted after the filter, so a type deep in the order still fills", async () => {
+      const [first] = await searchProducts({ clothesType: "tops", limit: 1 });
+      expect(first.title).toBe("Jersey Tee");
+    });
+
+    test("every Product listed says its Clothes type", async () => {
+      const products = await browse();
+      expect(products.find((p) => p.title === "Jersey Tee").clothes_type).toBe("tops");
+      expect(products.find((p) => p.title === "Tankini Set").clothes_type).toBe(null);
+    });
+
+    test("rule 16: works with a size", async () => {
+      const products = await browse({ uk_size: 20, type: "dresses" });
+      expect(products.map((p) => `${p.title} (${p.colour})`)).toEqual(["Wrap Midi Dress (Red)"]);
+    });
+
+    test("rule 16: 400 for an unknown type", async () => {
+      const { body } = await request(app).get("/api/products?type=hats").expect(400);
+      expect(body.msg).toMatch(/type must be one of dresses, tops/);
+    });
+
+    test("rule 16: 400 for a type with a Category other than Clothes", () =>
+      request(app).get("/api/products?type=dresses&category=swimwear").expect(400));
+  });
 });

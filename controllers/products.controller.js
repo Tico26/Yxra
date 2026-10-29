@@ -1,6 +1,6 @@
 const { fetchProductById, fetchProductsByIds, searchProducts } = require("../models/products.models");
 const { badRequest, notFound, parseId } = require("../lib/errors");
-const { parseSearchSize, parseCategory, parseIds } = require("../lib/query");
+const { parseSearchSize, parseCategory, parseClothesType, parseIds } = require("../lib/query");
 
 exports.getProducts = async (req, res, next) => {
   try {
@@ -9,9 +9,11 @@ exports.getProducts = async (req, res, next) => {
       const products = await fetchProductsByIds(parseIds(req.query.ids));
       return res.status(200).send({ products });
     }
+    const category = parseCategory(req.query.category);
     const products = await searchProducts({
       ...parseSearchSize(req.query),
-      category: parseCategory(req.query.category),
+      category,
+      clothesType: parseClothesType(req.query.type, category),
       retailerId: req.query.retailer_id === undefined ? null : parseId(req.query.retailer_id, "Retailer"),
     });
     res.status(200).send({ products });

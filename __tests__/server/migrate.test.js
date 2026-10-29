@@ -43,6 +43,31 @@ describe("migrate", () => {
     expect(column).toHaveLength(1);
   });
 
+  test("rule 9: gives every Clothes Product already saved its type from the rules, and other Categories none", async () => {
+    const { rows } = await db.query(
+      `SELECT product_id, title, category FROM products WHERE sort_status = 'shown' ORDER BY product_id LIMIT 1`
+    );
+    const [shown] = rows;
+    await db.query(
+      `UPDATE products SET title = 'Cord Midi Skirt', product_type = '', tags = '{}', category = 'clothes',
+         clothes_type = NULL WHERE product_id = $1`,
+      [shown.product_id]
+    );
+    await db.query(
+      `UPDATE products SET category = 'swimwear', clothes_type = 'dresses'
+       WHERE product_id = (SELECT MAX(product_id) FROM products)`
+    );
+    await migrate(noWaiting);
+    const { rows: after } = await db.query(`SELECT clothes_type FROM products WHERE product_id = $1`, [
+      shown.product_id,
+    ]);
+    expect(after[0].clothes_type).toBe("skirts");
+    const { rows: stray } = await db.query(
+      `SELECT COUNT(*)::int AS n FROM products WHERE category IS DISTINCT FROM 'clothes' AND clothes_type IS NOT NULL`
+    );
+    expect(stray[0].n).toBe(0);
+  });
+
   test("gives up quickly, with a clear reason, when a change it needs is blocked", async () => {
     await db.query("DROP INDEX product_sizes_bra_band_idx");
     const release = await holdStockCheckLocks();

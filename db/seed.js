@@ -3,6 +3,7 @@ const path = require("path");
 const format = require("pg-format");
 const db = require("./connection");
 const { brandKey, sizeLabelKey } = require("../lib/sizes");
+const { clothesTypeFor } = require("../lib/clothes-types");
 
 const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
 
@@ -52,8 +53,8 @@ const seed = async ({
     } = await db.query(
       `INSERT INTO products (retailer_id, external_id, title, description, brand, colour,
          product_url, image_url, price_in_pence, product_type, tags, audience, category,
-         sort_status, last_checked_at, missing_since)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+         sort_status, last_checked_at, missing_since, clothes_type)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        RETURNING product_id`,
       [
         retailerIds[p.retailer_site],
@@ -72,6 +73,7 @@ const seed = async ({
         p.sort_status,
         p.last_checked_at,
         p.missing_since,
+        p.category === "clothes" ? clothesTypeFor(p) : null,
       ]
     );
     for (const s of p.sizes) {

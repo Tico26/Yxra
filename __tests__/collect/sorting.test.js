@@ -52,6 +52,7 @@ describe("sortByRules (R7)", () => {
     expect(sortByRules(product({ title: "The Weekender" }), { womenOnly: true })).toEqual({
       audience: "women",
       category: null,
+      clothes_type: null,
       excluded_as: null,
     });
   });

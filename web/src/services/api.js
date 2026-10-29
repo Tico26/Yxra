@@ -84,6 +84,7 @@ export const mapListProduct = (product) => ({
   size: (product.in_stock_sizes || []).join(', '),
   sizes_in_stock: product.in_stock_sizes || [],
   category: product.category || null,
+  clothes_type: product.clothes_type || null,
   colour: product.colour,
   product_url: product.product_url,
   image_url: product.image_url,
@@ -167,9 +168,10 @@ export const api = {
     }
   },
 
-  async getProducts() {
+  // query: a filter's "?type=dresses" or "?category=swimwear" (spec 0005).
+  async getProducts(query = '') {
     try {
-      return listedProducts(await getJson('/products'));
+      return listedProducts(await getJson(`/products${query}`));
     } catch (error) {
       console.error("Error fetching products:", error.message);
       return [];
