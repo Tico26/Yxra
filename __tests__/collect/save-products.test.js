@@ -4,6 +4,7 @@ const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 const { saveRetailerProducts } = require("../../lib/catalogue");
 const { fetchProductById, searchProducts } = require("../../models/products.models");
+const { settleProduct } = require("../../models/review.models");
 
 let retailer;
 beforeEach(async () => {
@@ -140,6 +141,37 @@ describe("saving a Retailer's products", () => {
 
     await saveRetailerProducts(retailer, [found(1, { product_type: "", title: "Ruby Midi" })]);
     expect(await product("1:black")).toMatchObject({ category: null, sort_status: "unsettled" });
+  });
+
+  describe("Clothes types (spec 0005)", () => {
+    test("a new Clothes Product is saved with its Clothes type", async () => {
+      await saveRetailerProducts(retailer, [found(1), found(2, { title: "Swim Dress 2", product_type: "" })]);
+      expect((await product("1:black")).clothes_type).toBe("dresses");
+      expect(await product("2:black")).toMatchObject({ category: "swimwear", clothes_type: null });
+    });
+
+    test("rule 6: the type is kept when only price changes, and decided again when the wording changes", async () => {
+      await saveRetailerProducts(retailer, [found(1)]);
+      await db.query(`UPDATE products SET clothes_type = 'tops' WHERE external_id = '1:black'`);
+
+      await saveRetailerProducts(retailer, [found(1, { price_in_pence: 3000 })]);
+      expect((await product("1:black")).clothes_type).toBe("tops");
+
+      await saveRetailerProducts(retailer, [found(1, { title: "Wrap Skirt 1", product_type: "" })]);
+      expect((await product("1:black")).clothes_type).toBe("skirts");
+    });
+
+    test("when Tico settles a Product as Clothes, the rules give its type; as anything else, none", async () => {
+      await saveRetailerProducts(retailer, [found(1, { title: "Ruby Shirt Dress", product_type: "", tags: ["Sale"] })]);
+      await db.query(`UPDATE products SET category = NULL, clothes_type = NULL WHERE external_id = '1:black'`);
+      const { product_id } = await product("1:black");
+
+      await settleProduct(product_id, { audience: "women", category: "clothes" });
+      expect((await product("1:black")).clothes_type).toBe("dresses");
+
+      await settleProduct(product_id, { audience: "women", category: "swimwear" });
+      expect((await product("1:black")).clothes_type).toBe(null);
+    });
   });
 
   test("products the shop stops listing are hidden, and come back when listed again", async () => {
