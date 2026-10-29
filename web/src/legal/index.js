@@ -5,6 +5,7 @@ import Contact from './Contact';
 import HowAmarasPickMakesMoney from './HowAmarasPickMakesMoney';
 import ForRetailers from './ForRetailers';
 import About from './About';
+import NewsletterConfirmed from './NewsletterConfirmed';
 
 // The fixed pages carried over from the previous site, at the same addresses,
 // with the same tab titles and descriptions. scripts/prerender.mjs writes
@@ -41,5 +42,11 @@ export const LEGAL_PAGES = [
     Page: ForRetailers,
     title: 'For Retailers',
     description: 'How Amara\'s Pick reads your products, how to join, and how to opt out.',
+  },
+  {
+    path: '/newsletter/confirmed',
+    Page: NewsletterConfirmed,
+    title: 'You\'re on the list',
+    description: 'Your Amara\'s Pick newsletter sign-up is confirmed.',
   },
 ];

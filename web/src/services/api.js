@@ -209,6 +209,24 @@ export const api = {
     }
   },
 
+  // The newsletter band. Resolves to { ok, message } with the words to show
+  // her; never throws. website is the hidden field only bots fill in.
+  async joinNewsletter({ email, website = '' }) {
+    try {
+      const response = await fetch(`${BASE_URL}/newsletter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, website }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!data.msg) throw new Error(`/newsletter returned ${response.status}`);
+      return { ok: response.ok, message: data.msg };
+    } catch (error) {
+      console.error('Error joining the newsletter:', error.message);
+      return { ok: false, message: "Sign-up isn't working right now. Please try again later." };
+    }
+  },
+
   // Amara's Pick keeps one image per product, its image_url.
   async getProductImages(id) {
     try {

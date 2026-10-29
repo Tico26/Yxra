@@ -44,6 +44,12 @@ const Privacy = () => {
           them any time on the Your account page. Our reason: your consent.
         </li>
         <li>
+          <strong>Newsletter.</strong> If you sign up in the newsletter box, your email address and when you
+          confirmed it. We email you a link first, and you join only if you click it. Every newsletter has an
+          unsubscribe link; once you use it, we keep your address only so you are never emailed again. If you ticked the news emails box on
+          your account, your account&apos;s email address is on the list too. Our reason: your consent.
+        </li>
+        <li>
           <strong>When you email us.</strong> We keep your email address and message so we can reply,
           and delete them 12 months after we last hear from you. Our reason: our legitimate interest
           in answering you.
@@ -62,7 +68,8 @@ const Privacy = () => {
       <ul>
         <li>Cloudflare, Inc.: hosting, visit counts and forwarding email sent to us.</li>
         <li>Supabase, Inc.: our database and sign-in, which hold the click records and accounts above.</li>
-        <li>Resend, Inc.: sending sign-in links and news emails.</li>
+        <li>Resend, Inc.: sending sign-in links.</li>
+        <li>Sendinblue SAS (Brevo): sending the newsletter and keeping its mailing list.</li>
         <li>Google LLC: the mailbox our email arrives in, and Continue with Google if you choose it.</li>
       </ul>
       <p>

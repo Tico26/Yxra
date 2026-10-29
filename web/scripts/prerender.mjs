@@ -2,7 +2,8 @@
 // Writes the fixed pages to static HTML so crawlers and Awin see the full
 // text, plus sitemap.xml and robots.txt. Pages that show API data (products,
 // shops) stay as the empty app shell and render in the browser.
-import { readFile, writeFile, rm } from 'node:fs/promises';
+import { readFile, writeFile, rm, mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const dist = fileURLToPath(new URL('../dist/', import.meta.url));
@@ -32,7 +33,9 @@ const page = (url, { title, description } = {}) => {
 await writeFile(`${dist}app.html`, template);
 await writeFile(`${dist}index.html`, page('/'));
 for (const { path, title, description } of LEGAL_PAGES) {
-  await writeFile(`${dist}${path.slice(1)}.html`, page(path, { title, description }));
+  const file = `${dist}${path.slice(1)}.html`;
+  await mkdir(dirname(file), { recursive: true });
+  await writeFile(file, page(path, { title, description }));
 }
 // Any address no route knows renders the not-found page.
 await writeFile(`${dist}404.html`, page('/__not-found'));
