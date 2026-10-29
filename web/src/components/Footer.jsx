@@ -12,6 +12,7 @@ const SITE_LINKS = [
 // Company and Policy are the pages every page must reach (spec 0002 rule 26),
 // as on the previous site's footer.
 const COMPANY_LINKS = [
+  ['/about', 'About us'],
   ['/how-amaras-pick-makes-money', "How Amara's Pick makes money"],
   ['/for-retailers', 'Work with us'],
   ['/contact', 'Contact'],
