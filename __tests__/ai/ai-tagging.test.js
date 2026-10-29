@@ -132,6 +132,73 @@ describe("AI tagging batch", () => {
     expect(subjects(again, "size")).toEqual([]);
   });
 
+  describe("Clothes types (spec 0005)", () => {
+    const typeOf = async (title) =>
+      (await db.query(`SELECT clothes_type FROM products WHERE title = $1`, [title])).rows[0].clothes_type;
+    const untypeLinenShirt = () =>
+      db.query(`UPDATE products SET title = 'The Sunday', clothes_type = NULL WHERE title = 'Linen Shirt'`);
+
+    test("rule 7: a shown Clothes Product the rules could not type is asked about", async () => {
+      await untypeLinenShirt();
+      const model = fakeModel();
+      await runAiTagging({ model, log: () => {} });
+      expect(subjects(model, "product").sort()).toEqual(["The Sunday", "The Weekender"]);
+    });
+
+    test("rule 7: a confident type is used, and the Product stays shown either way", async () => {
+      await untypeLinenShirt();
+      const model = fakeModel({
+        product: {
+          "The Sunday": { audience: "women", kind: "clothes", clothes_type: "tops", confidence: 0.95, clothes_type_confidence: 0.95 },
+          "The Weekender": { audience: "women", kind: "clothes", clothes_type: "dresses", confidence: 0.97, clothes_type_confidence: 0.5 },
+        },
+      });
+      await runAiTagging({ model, log: () => {} });
+      expect(await typeOf("The Sunday")).toBe("tops");
+      expect(await typeOf("The Weekender")).toBe(null);
+      const shown = (await searchProducts({ ukSize: 20, category: "clothes" })).map((p) => p.title);
+      expect(shown).toEqual(expect.arrayContaining(["The Sunday", "The Weekender"]));
+    });
+
+    test("rule 7: an unsure type is not asked about again until the wording changes", async () => {
+      await untypeLinenShirt();
+      await runAiTagging({ model: fakeModel(), log: () => {} });
+      const again = fakeModel();
+      await runAiTagging({ model: again, log: () => {} });
+      expect(subjects(again, "product")).not.toContain("The Sunday");
+    });
+
+    test("rule 8: a Product the AI says is not Clothes gets no Clothes type", async () => {
+      const model = fakeModel({
+        product: {
+          "The Weekender": { audience: "women", kind: "swimwear", clothes_type: "dresses", confidence: 0.97, clothes_type_confidence: 0.97 },
+        },
+      });
+      await runAiTagging({ model, log: () => {} });
+      expect(await typeOf("The Weekender")).toBe(null);
+    });
+
+    test("an answer outside the nine types is not used", async () => {
+      const model = fakeModel({
+        product: {
+          "The Weekender": { audience: "women", kind: "clothes", clothes_type: "capes", confidence: 0.97, clothes_type_confidence: 0.97 },
+        },
+      });
+      await runAiTagging({ model, log: () => {} });
+      expect(await typeOf("The Weekender")).toBe(null);
+    });
+
+    test("the question offers the nine types", async () => {
+      await untypeLinenShirt();
+      const model = fakeModel();
+      await runAiTagging({ model, log: () => {} });
+      const { schema } = model.asked.find((r) => r.subject === "The Sunday");
+      expect(schema.properties.clothes_type.enum).toEqual(
+        expect.arrayContaining(["dresses", "tops", "knitwear", "coats", "jeans", "trousers", "skirts", "jumpsuits", "nightwear"])
+      );
+    });
+  });
+
   test("does nothing when there is nothing to ask", async () => {
     await db.query(`DELETE FROM products WHERE sort_status = 'unsettled' OR product_id IN
       (SELECT product_id FROM product_sizes WHERE size_status = 'unsettled')`);
