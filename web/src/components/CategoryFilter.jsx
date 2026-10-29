@@ -1,9 +1,16 @@
+import { useEffect, useRef } from 'react';
 import { PRODUCT_FILTERS } from '../utils/filters';
 
 const LABELS = new Map(PRODUCT_FILTERS.map((f) => [f.key, f.label]));
 
 // The filter row (spec 0005): All, then the filters given, in filter order.
 const CategoryFilter = ({ filters, value, onChange }) => {
+  const picked = useRef(null);
+  // On a phone the row scrolls sideways; keep the picked filter in view.
+  useEffect(() => {
+    picked.current?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [value]);
+
   if (filters.length < 2 && value === 'all') return null;
   const options = [['all', 'All'], ...filters.map((key) => [key, LABELS.get(key) || key])];
 
@@ -18,6 +25,7 @@ const CategoryFilter = ({ filters, value, onChange }) => {
         return (
           <button
             key={key}
+            ref={selected ? picked : undefined}
             type="button"
             aria-pressed={selected}
             onClick={() => onChange(key)}
