@@ -1,14 +1,16 @@
-import { CATEGORY_LABELS } from '../utils/format';
+import { PRODUCT_FILTERS } from '../utils/filters';
 
-// Category chips, built from the categories present in the products shown.
-const CategoryFilter = ({ categories, value, onChange }) => {
-  if (categories.length < 2) return null;
-  const options = [['all', 'All'], ...categories.map((c) => [c, CATEGORY_LABELS[c] || c])];
+const LABELS = new Map(PRODUCT_FILTERS.map((f) => [f.key, f.label]));
+
+// The filter row (spec 0005): All, then the filters given, in filter order.
+const CategoryFilter = ({ filters, value, onChange }) => {
+  if (filters.length < 2 && value === 'all') return null;
+  const options = [['all', 'All'], ...filters.map((key) => [key, LABELS.get(key) || key])];
 
   return (
     <div
       role="group"
-      aria-label="Filter by category"
+      aria-label="Filter by type"
       className="-mx-4 flex gap-2 overflow-x-auto px-4 py-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
     >
       {options.map(([key, label]) => {
@@ -19,7 +21,7 @@ const CategoryFilter = ({ categories, value, onChange }) => {
             type="button"
             aria-pressed={selected}
             onClick={() => onChange(key)}
-            className={`min-h-10 shrink-0 border border-ink px-4 text-small font-medium transition-colors duration-150 motion-reduce:transition-none ${
+            className={`min-h-10 shrink-0 whitespace-nowrap border border-ink px-4 text-small font-medium transition-colors duration-150 motion-reduce:transition-none ${
               selected ? 'bg-ink text-paper' : 'bg-paper text-ink hover:bg-mist'
             }`}
           >

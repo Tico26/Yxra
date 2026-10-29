@@ -1,12 +1,11 @@
 import { useId, useMemo, useState } from 'react';
 import CategoryFilter from './CategoryFilter';
 import PriceFilter from './PriceFilter';
-import ProductGrid from './ProductGrid';
+import ProductGrid, { ProductGridSkeleton } from './ProductGrid';
 import EmptyState from './EmptyState';
-import { CATEGORY_LABELS } from '../utils/format';
+import { filtersPresent, matchesFilter } from '../utils/filters';
 
 const PAGE_SIZE = 48;
-const CATEGORY_ORDER = Object.keys(CATEGORY_LABELS);
 
 // formatPrice shows nothing for a missing or zero price, so neither counts as a price here.
 const hasPrice = (p) => Number(p.price_in_pence) > 0;
@@ -17,21 +16,28 @@ const SORTS = {
   'price-desc': -1,
 };
 
-// A filterable, sortable product grid that shows 48 at a time.
-const ProductBrowser = ({ products, headingAs = 'h2', showShop = true, defaultSortLabel = 'Shops mixed' }) => {
+// A filterable, sortable product grid that shows 48 at a time. On its own it
+// filters the products it is given. The products page instead passes the
+// filter (filter, onFilterChange) and every filter to offer (filters), and
+// loads each filter's products from the API itself (spec 0005).
+const ProductBrowser = ({
+  products,
+  headingAs = 'h2',
+  showShop = true,
+  defaultSortLabel = 'Shops mixed',
+  filters: offered,
+  filter: chosen,
+  onFilterChange,
+  loading = false,
+}) => {
   const sortId = useId();
-  const [category, setCategory] = useState('all');
+  const [ownFilter, setOwnFilter] = useState('all');
+  const category = chosen ?? ownFilter;
   const [priceRange, setPriceRange] = useState(null); // null: the full range
   const [sort, setSort] = useState('mixed');
   const [visible, setVisible] = useState(PAGE_SIZE);
 
-  const categories = useMemo(() => {
-    const present = new Set(products.map((p) => p.category).filter(Boolean));
-    return [
-      ...CATEGORY_ORDER.filter((c) => present.has(c)),
-      ...[...present].filter((c) => !CATEGORY_ORDER.includes(c)).sort(),
-    ];
-  }, [products]);
+  const categories = useMemo(() => offered ?? filtersPresent(products), [offered, products]);
 
   // Slider bounds in whole pounds, from the products loaded on this page.
   const bounds = useMemo(() => {
@@ -53,7 +59,7 @@ const ProductBrowser = ({ products, headingAs = 'h2', showShop = true, defaultSo
   const hi = range?.[1];
 
   const filtered = useMemo(() => {
-    let list = category === 'all' ? products : products.filter((p) => p.category === category);
+    let list = products.filter((p) => matchesFilter(p, category));
     if (priceActive) {
       list = list.filter((p) => hasPrice(p) && p.price_in_pence >= lo * 100 && p.price_in_pence <= hi * 100);
     }
@@ -69,7 +75,9 @@ const ProductBrowser = ({ products, headingAs = 'h2', showShop = true, defaultSo
   }, [products, category, priceActive, lo, hi, sort]);
 
   const chooseCategory = (next) => {
-    setCategory(next);
+    if (onFilterChange) onFilterChange(next);
+    else setOwnFilter(next);
+    setPriceRange(null);
     setVisible(PAGE_SIZE);
   };
 
@@ -83,7 +91,7 @@ const ProductBrowser = ({ products, headingAs = 'h2', showShop = true, defaultSo
     setVisible(PAGE_SIZE);
   };
 
-  const hasCategories = categories.length > 1;
+  const hasCategories = categories.length > 1 || category !== 'all';
 
   return (
     <div>
@@ -112,18 +120,25 @@ const ProductBrowser = ({ products, headingAs = 'h2', showShop = true, defaultSo
           </select>
         </div>
       </div>
-      {filtered.length > 0 ? (
+      {loading ? (
+        <>
+          <ProductGridSkeleton />
+          <p className="sr-only" role="status">Loading products</p>
+        </>
+      ) : filtered.length > 0 ? (
         <ProductGrid products={filtered.slice(0, visible)} headingAs={headingAs} showShop={showShop} />
       ) : (
         <EmptyState
           message={
-            hasCategories
-              ? 'Nothing in this price range. Widen the range or pick another category.'
-              : 'Nothing in this price range. Widen the range.'
+            products.length === 0
+              ? 'Nothing here right now. Try another filter.'
+              : hasCategories
+                ? 'Nothing in this price range. Widen the range or pick another filter.'
+                : 'Nothing in this price range. Widen the range.'
           }
         />
       )}
-      {filtered.length > visible && (
+      {!loading && filtered.length > visible && (
         <div className="mt-12 flex justify-center">
           <button type="button" className="btn btn-secondary" onClick={() => setVisible((v) => v + PAGE_SIZE)}>
             Show more products

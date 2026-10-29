@@ -8,13 +8,6 @@ export const displaySize = (label) => String(label).replace(/^UK\s+/i, '');
 const listFormat = new Intl.ListFormat('en-GB', { style: 'long', type: 'conjunction' });
 export const joinList = (items) => listFormat.format(items);
 
-export const CATEGORY_LABELS = {
-  clothes: 'Clothes',
-  lingerie: 'Lingerie',
-  swimwear: 'Swimwear',
-  activewear: 'Activewear',
-};
-
 // "Mint Velvet's", "Rock Those Curves'".
 export const possessive = (name) => (/s$/i.test(name) ? `${name}’` : `${name}’s`);
 
