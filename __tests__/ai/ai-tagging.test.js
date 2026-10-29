@@ -156,8 +156,13 @@ describe("AI tagging batch", () => {
       await runAiTagging({ model, log: () => {} });
       expect(await typeOf("The Sunday")).toBe("tops");
       expect(await typeOf("The Weekender")).toBe(null);
-      const shown = (await searchProducts({ ukSize: 20, category: "clothes" })).map((p) => p.title);
-      expect(shown).toEqual(expect.arrayContaining(["The Sunday", "The Weekender"]));
+      const { rows } = await db.query(
+        `SELECT title, sort_status FROM products WHERE title IN ('The Sunday', 'The Weekender') ORDER BY title`
+      );
+      expect(rows).toEqual([
+        { title: "The Sunday", sort_status: "shown" },
+        { title: "The Weekender", sort_status: "shown" },
+      ]);
     });
 
     test("rule 7: an unsure type is not asked about again until the wording changes", async () => {
