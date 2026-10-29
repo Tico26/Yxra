@@ -4,6 +4,7 @@ const { badRequest, notFound } = require("../lib/errors");
 const { brandKey, sizeLabelKey, isUkSize } = require("../lib/sizes");
 const { retranslateAndSortProducts } = require("../lib/catalogue");
 const { LAUNCH_CATEGORIES } = require("../lib/query");
+const { clothesTypeFor } = require("../lib/clothes-types");
 
 const LIVE = `r.removed_at IS NULL AND p.missing_since IS NULL`;
 
@@ -112,14 +113,22 @@ exports.settleProduct = async (productId, { audience, category, excluded_as }) =
       throw badRequest(`category must be one of ${LAUNCH_CATEGORIES.join(", ")}`);
     }
   }
+  // A Clothes Product's type comes from the rules (spec 0005); others have none.
+  const { rows: found } = await db.query(
+    `SELECT title, product_type, tags FROM products WHERE product_id = $1`,
+    [productId]
+  );
+  const typeFromRules = found[0] ? clothesTypeFor(found[0]) : null;
   const { rowCount } = await db.query(
-    `UPDATE products SET audience = COALESCE($2, audience), category = $3, excluded_as = $4
+    `UPDATE products SET audience = COALESCE($2, audience), category = $3::text, excluded_as = $4,
+       clothes_type = CASE WHEN $3::text = 'clothes' THEN COALESCE(clothes_type, $5) END
      WHERE product_id = $1`,
     [
       productId,
       excluded_as ? null : audience,
       excluded_as ? null : category || null,
       excluded_as ? excluded_as.trim() : null,
+      typeFromRules,
     ]
   );
   if (!rowCount) throw notFound("Product");

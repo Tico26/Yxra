@@ -169,6 +169,19 @@ DO $$ BEGIN
   END IF;
 END $$;
 
+-- What kind of garment a Clothes Product is (spec 0005): dresses, tops and
+-- so on, as lib/clothes-types.js lists them. NULL for other Categories, and
+-- for Clothes neither the rules nor the AI could place. When the column is
+-- first added, Clothes Products are opened to the AI again so it can be
+-- asked for their type.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'products' AND column_name = 'clothes_type') THEN
+    ALTER TABLE products ADD COLUMN clothes_type VARCHAR(30);
+    UPDATE products SET ai_asked_hash = NULL WHERE category = 'clothes';
+  END IF;
+END $$;
+
 -- Each Retailer's photos, judged as a whole once a week (lib/shop-photos.js,
 -- Tico 28 Oct 2026): studio when its photos pass every check, mixed when
 -- they fail at least one. NULL: not checked yet, ordered with mixed.
