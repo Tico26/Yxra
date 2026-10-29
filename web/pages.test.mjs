@@ -55,3 +55,55 @@ test('every pre-built page links to /about in the footer', () => {
     assert.match(footer, /<a[^>]*href="\/about"[^>]*>About us<\/a>/, file);
   }
 });
+
+// The newsletter band, above every footer.
+const band = (file) => built(file).split('aria-labelledby="newsletter-heading"')[1]?.split('</section>')[0] || '';
+
+test('the newsletter band is open on every pre-built page but the confirmed one', () => {
+  const pages = readdirSync(new URL('./dist/', import.meta.url)).filter(
+    (f) => f.endsWith('.html') && !['app.html', 'newsletter/confirmed.html'].includes(f),
+  );
+  for (const file of pages) {
+    const html = band(file);
+    assert.match(text(html), /Get the Amara's Pick newsletter/, file);
+    assert.match(html, /<input[^>]*id="newsletter-email"[^>]*>/, file);
+    assert.doesNotMatch(html.match(/<input[^>]*id="newsletter-email"[^>]*>/)[0], /disabled/, file);
+    assert.match(html, /<button[^>]*type="submit"[^>]*>Sign up<\/button>/, file);
+    assert.doesNotMatch(text(html), /Coming soon|Nothing is sent yet/, file);
+  }
+});
+
+test('the band says what she gets, that she confirms by email, and links to Privacy', () => {
+  const html = band('index.html');
+  assert.match(
+    text(html),
+    /New finds in your size and the best offers, by email\. We'll send you a link to confirm, and you can unsubscribe any time\./,
+  );
+  assert.match(html, /<a[^>]*href="\/privacy"[^>]*>/);
+});
+
+test('the band has a field people cannot see, to catch bots', () => {
+  const html = band('index.html');
+  const trap = html.match(/<input[^>]*name="website"[^>]*>/);
+  assert.ok(trap, 'hidden field is there');
+  assert.match(trap[0], /tabindex="-1"/);
+  assert.match(trap[0], /autoComplete="off"|autocomplete="off"/);
+});
+
+test('/newsletter/confirmed is pre-built, thanks her, and has no sign-up band', () => {
+  const html = built('newsletter/confirmed.html');
+  assert.match(html, /<title>You're on the list · Amara's Pick<\/title>/);
+  assert.match(text(html), /You're on the list/);
+  assert.match(text(html), /Your email is confirmed\. The next Amara's Pick newsletter will come to your inbox\./);
+  assert.match(html, /<a[^>]*href="\/products"[^>]*>/);
+  assert.equal(band('newsletter/confirmed.html'), '');
+});
+
+test('Privacy names Brevo as the newsletter sender and explains the sign-up', () => {
+  const words = text(built('privacy.html'));
+  assert.match(words, /Sendinblue SAS \(Brevo\): sending the newsletter/);
+  assert.match(
+    words,
+    /Newsletter\. If you sign up in the newsletter box, your email address and when you confirmed it\./,
+  );
+});

@@ -24,7 +24,8 @@
     "ai-tagging": "node scripts/ai-tagging.js",
     "check-shop-photos": "node scripts/check-shop-photos.js",
     "order-products": "node scripts/order-products.js",
-    "discover": "node scripts/discover.js"
+    "discover": "node scripts/discover.js",
+    "newsletter-sync": "node scripts/newsletter-sync.js"
   },
   "devDependencies": {
     "jest": "^29.7.0",

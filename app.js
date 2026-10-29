@@ -16,6 +16,7 @@ const {
   putSizeChart,
   postProductDecision,
 } = require("./controllers/review.controller");
+const { postNewsletter } = require("./controllers/newsletter.controller");
 const {
   getAllCategories,
   getCategoryById,
@@ -43,6 +44,8 @@ app.post("/api/review/products/:product_id", requireAdmin, postProductDecision);
 app.put("/api/size-charts/:brand", requireAdmin, putSizeChart);
 app.post("/api/suggested-retailers/:suggested_retailer_id/approve", requireAdmin, postApprove);
 app.post("/api/suggested-retailers/:suggested_retailer_id/reject", requireAdmin, postReject);
+
+app.post("/api/newsletter", postNewsletter);
 
 app.get("/api/categories", getAllCategories);
 app.get("/api/categories/:category_id", getCategoryById);
