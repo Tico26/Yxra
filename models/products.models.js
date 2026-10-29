@@ -50,7 +50,7 @@ const IN_STOCK_SIZES = `ARRAY(
            array_position($1::text[], i.bra_cup), i.size_label)`;
 
 // Products in stock in one UK size (or for bras, one band, optionally one
-// cup), optionally in one category or at one Retailer. When several of a
+// cup), optionally in one category or Clothes type, or at one Retailer. When several of a
 // Product's Size labels cover the size, the narrowest one is shown. With no
 // size (she has not picked one yet), Products in stock in at least one plus
 // size, with no size_label or fits. Every result lists its in_stock_sizes.
@@ -63,6 +63,7 @@ exports.searchProducts = async ({
   braBand = null,
   braCup = null,
   category,
+  clothesType = null,
   retailerId = null,
   excludeProductId = null,
   priceNear = null,
@@ -86,6 +87,7 @@ exports.searchProducts = async ({
   const distance = priceNear === null ? "0" : `ABS(p.price_in_pence - ${param(priceNear, "int")})`;
   const conditions = [SHOPPABLE];
   if (category) conditions.push(`p.category = ${param(category, "text")}`);
+  if (clothesType) conditions.push(`p.category = 'clothes' AND p.clothes_type = ${param(clothesType, "text")}`);
   if (retailerId !== null) conditions.push(`o.retailer_id = ${param(retailerId, "int")}`);
   if (excludeProductId !== null) conditions.push(`p.product_id <> ${param(excludeProductId, "int")}`);
   // Walking the saved order and stopping at the limit reads only the first
@@ -105,8 +107,8 @@ exports.searchProducts = async ({
        LIMIT ${param(limit, "int")}
      )
      SELECT found.*, ${IN_STOCK_SIZES} AS in_stock_sizes FROM (
-       SELECT p.product_id, p.title, p.colour, p.brand, p.category, p.image_url, p.product_url,
-         p.price_in_pence, r.last_collected_at AS last_checked_at, p.retailer_id, r.retailer_name,
+       SELECT p.product_id, p.title, p.colour, p.brand, p.category, p.clothes_type, p.image_url,
+         p.product_url, p.price_in_pence, r.last_collected_at AS last_checked_at, p.retailer_id, r.retailer_name,
          s.size_label, s.uk_sizes, s.bra_band, s.bra_cup,
          picked.distance, picked.photo_rank, picked.turn, picked.shop_order
        FROM picked
