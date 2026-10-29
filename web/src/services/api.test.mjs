@@ -85,3 +85,16 @@ test('when the API cannot be reached, she is asked to try again later', async ()
     message: "Sign-up isn't working right now. Please try again later.",
   });
 });
+
+test('a listed product carries its Clothes type', async () => {
+  fakeFetch({ '/api/products': { products: [listed({ category: 'clothes', clothes_type: 'dresses' }), listed({ product_id: 2 })] } });
+  const [dress, other] = await api.getProducts();
+  assert.equal(dress.clothes_type, 'dresses');
+  assert.equal(other.clothes_type, null);
+});
+
+test('a filter asks the API for its own list', async () => {
+  const asked = fakeFetch({ '/api/products': { products: [listed()] } });
+  await api.getProducts('?type=jeans');
+  assert.deepEqual(asked, ['/api/products?type=jeans']);
+});
