@@ -50,6 +50,14 @@ _Avoid_: Photo quality score, professional shop
 One garment in one colour at one Retailer, with its own photos, sizes in stock and link. The same dress in black and in red is two Products.
 _Avoid_: Item, listing, variant, style
 
+**Category**:
+The broad kind of Product: Clothes, Swimwear, Activewear or Lingerie. Every Product a Shopper sees has exactly one.
+_Avoid_: Department, section
+
+**Clothes type**:
+What kind of garment a Clothes Product is: Dresses, Tops, Jumpers & cardigans, Coats & jackets, Jeans, Trousers & shorts, Skirts, Jumpsuits & co-ords, or Nightwear & loungewear (spec 0005). A Clothes Product has one Clothes type or none yet; other Categories have none.
+_Avoid_: Subcategory, product type (that is the Retailer's own field)
+
 ### Size
 
 **Size label**:
