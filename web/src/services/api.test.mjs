@@ -46,3 +46,42 @@ test("a shop's products that could not be loaded come back empty", async () => {
   globalThis.fetch = async () => new Response('down', { status: 500 });
   assert.deepEqual(await api.getShopProducts(3), []);
 });
+
+// The newsletter band (Newsletter.jsx) posts her address and shows the API's words.
+const fakePost = (status, body) => {
+  const sent = [];
+  globalThis.fetch = async (url, options) => {
+    sent.push({ url, method: options.method, headers: options.headers, body: JSON.parse(options.body) });
+    return new Response(JSON.stringify(body), { status });
+  };
+  return sent;
+};
+
+test('joining the newsletter posts her address and the hidden field, and passes on the answer', async () => {
+  const sent = fakePost(202, { msg: 'Check your email to confirm' });
+  const result = await api.joinNewsletter({ email: 'amy@example.com', website: '' });
+  assert.deepEqual(sent, [
+    {
+      url: '/api/newsletter',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: { email: 'amy@example.com', website: '' },
+    },
+  ]);
+  assert.deepEqual(result, { ok: true, message: 'Check your email to confirm' });
+});
+
+test("a turned-down address passes on the API's reason", async () => {
+  fakePost(400, { msg: 'Enter a valid email address' });
+  assert.deepEqual(await api.joinNewsletter({ email: 'amy' }), { ok: false, message: 'Enter a valid email address' });
+});
+
+test('when the API cannot be reached, she is asked to try again later', async () => {
+  globalThis.fetch = async () => {
+    throw new TypeError('Failed to fetch');
+  };
+  assert.deepEqual(await api.joinNewsletter({ email: 'amy@example.com' }), {
+    ok: false,
+    message: "Sign-up isn't working right now. Please try again later.",
+  });
+});
