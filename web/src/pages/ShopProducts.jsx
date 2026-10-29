@@ -17,9 +17,9 @@ const ShopProducts = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [allProducts, allShops] = await Promise.all([api.getProducts(), api.getShops()]);
         const shopId = parseInt(id);
-        setProducts(allProducts.filter((p) => p.shop_id === shopId));
+        const [shopProducts, allShops] = await Promise.all([api.getShopProducts(shopId), api.getShops()]);
+        setProducts(shopProducts);
         setShop(allShops.find((s) => s.shop_id === shopId) || null);
       } catch (error) {
         console.error('Failed to load shop products:', error.message);

@@ -7,7 +7,8 @@
     "express": "^5.3.0",
     "nodenv": "^0.1.0",
     "pg": "^8.23.1",
-    "pg-format": "^1.0.4"
+    "pg-format": "^1.0.4",
+    "sharp": "^0.35.5"
   },
   "scripts": {
     "setup-db": "psql -f ./db/yxra.sql",
@@ -21,6 +22,8 @@
     "add-retailer": "node scripts/add-retailer.js",
     "stock-check": "node scripts/stock-check.js",
     "ai-tagging": "node scripts/ai-tagging.js",
+    "check-shop-photos": "node scripts/check-shop-photos.js",
+    "order-products": "node scripts/order-products.js",
     "discover": "node scripts/discover.js"
   },
   "devDependencies": {

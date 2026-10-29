@@ -159,3 +159,101 @@ DO $$ BEGIN
     CREATE INDEX product_sizes_bra_band_idx ON product_sizes (bra_band) WHERE bra_band IS NOT NULL;
   END IF;
 END $$;
+
+-- How many photos the Retailer shows for a Product (NULL: not counted yet).
+-- The weekly shop photo check (lib/shop-photos.js) reads it.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'products' AND column_name = 'photo_count') THEN
+    ALTER TABLE products ADD COLUMN photo_count INT;
+  END IF;
+END $$;
+
+-- Each Retailer's photos, judged as a whole once a week (lib/shop-photos.js,
+-- Tico 28 Oct 2026): studio when its photos pass every check, mixed when
+-- they fail at least one. NULL: not checked yet, ordered with mixed.
+-- photo_check_note says what the last check found.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'retailers' AND column_name = 'photo_category') THEN
+    ALTER TABLE retailers ADD COLUMN photo_category VARCHAR(10)
+      CHECK (photo_category IN ('studio', 'mixed'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'retailers' AND column_name = 'photo_checked_at') THEN
+    ALTER TABLE retailers ADD COLUMN photo_checked_at TIMESTAMPTZ;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'retailers' AND column_name = 'photo_check_note') THEN
+    ALTER TABLE retailers ADD COLUMN photo_check_note TEXT;
+  END IF;
+END $$;
+
+-- 0: a studio catalogue Retailer (shown first); 1: mixed or not checked yet.
+CREATE OR REPLACE FUNCTION photo_rank(photo_category TEXT) RETURNS SMALLINT AS $$
+  SELECT CASE WHEN photo_category = 'studio' THEN 0 ELSE 1 END::SMALLINT
+$$ LANGUAGE sql IMMUTABLE;
+DROP FUNCTION IF EXISTS photo_rank(BOOLEAN, TEXT, TEXT);
+
+-- The order the product list shows shown Products in, worked out once a
+-- night after the Stock check (lib/product-order.js) rather than for every
+-- visitor: studio catalogue Retailers' Products first (photo_rank), and within
+-- that Retailers take turns (turn), in an order picked at random each night
+-- (shop_order). A search walks this order and stops once it has enough.
+CREATE TABLE IF NOT EXISTS product_order (
+  product_id INT PRIMARY KEY REFERENCES products(product_id) ON DELETE CASCADE,
+  retailer_id INT NOT NULL,
+  photo_rank SMALLINT NOT NULL DEFAULT 1,
+  turn INT NOT NULL,
+  shop_order INT NOT NULL
+);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'product_order' AND column_name = 'photo_rank') THEN
+    ALTER TABLE product_order ADD COLUMN photo_rank SMALLINT NOT NULL DEFAULT 1;
+  END IF;
+  IF to_regclass('product_order_walk_idx') IS NOT NULL THEN
+    DROP INDEX product_order_walk_idx;
+  END IF;
+  IF to_regclass('product_order_retailer_idx') IS NOT NULL THEN
+    DROP INDEX product_order_retailer_idx;
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS product_order_photo_walk_idx
+  ON product_order (photo_rank, turn, shop_order, product_id);
+CREATE INDEX IF NOT EXISTS product_order_photo_retailer_idx
+  ON product_order (retailer_id, photo_rank, turn);
+
+-- A Product shown during the day (collected, or passed by the AI or Tico)
+-- joins at once, after its Retailer's other Products with the same
+-- photo_rank, until the night's rebuild mixes it in. Only a Product newly
+-- shown is added, and its Retailer's last place is read through the index,
+-- so a Stock check saving thousands of Products stays fast.
+CREATE OR REPLACE FUNCTION add_to_product_order() RETURNS trigger AS $$
+DECLARE
+  new_rank SMALLINT;
+  last product_order%ROWTYPE;
+  shop INT;
+BEGIN
+  SELECT photo_rank(r.photo_category) INTO new_rank FROM retailers r WHERE r.retailer_id = NEW.retailer_id;
+  SELECT * INTO last FROM product_order WHERE retailer_id = NEW.retailer_id AND photo_rank = new_rank
+  ORDER BY turn DESC LIMIT 1;
+  SELECT shop_order INTO shop FROM product_order WHERE retailer_id = NEW.retailer_id LIMIT 1;
+  INSERT INTO product_order (product_id, retailer_id, photo_rank, turn, shop_order)
+  VALUES (NEW.product_id, NEW.retailer_id, new_rank, COALESCE(last.turn, 0) + 1,
+    COALESCE(shop, NEW.retailer_id))
+  ON CONFLICT (product_id) DO NOTHING;
+  RETURN NULL;
+END $$ LANGUAGE plpgsql;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'products_add_to_order_on_insert') THEN
+    CREATE TRIGGER products_add_to_order_on_insert AFTER INSERT ON products
+      FOR EACH ROW WHEN (NEW.sort_status = 'shown') EXECUTE FUNCTION add_to_product_order();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'products_add_to_order_on_update') THEN
+    CREATE TRIGGER products_add_to_order_on_update AFTER UPDATE OF sort_status ON products
+      FOR EACH ROW WHEN (NEW.sort_status = 'shown' AND OLD.sort_status IS DISTINCT FROM 'shown')
+      EXECUTE FUNCTION add_to_product_order();
+  END IF;
+END $$;
