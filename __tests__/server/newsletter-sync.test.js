@@ -47,7 +47,7 @@ const fakeBrevo = async (url, { method = "GET", headers = {}, body } = {}) => {
       emailBlacklisted: contact ? contact.emailBlacklisted : false,
       listIds: [...new Set([...(contact ? contact.listIds : []), ...sent.listIds])],
     };
-    return json({}, contact ? 204 : 201);
+    return contact ? new Response(null, { status: 204 }) : json({ id: 1 }, 201);
   }
   match = pathname.match(/^\/v3\/contacts\/lists\/(\d+)\/contacts\/remove$/);
   if (match && method === "POST") {
@@ -188,4 +188,13 @@ describe("syncAccountsList", () => {
     process.env.BREVO_API_KEY = "wrong-key";
     await expect(syncAccountsList()).rejects.toThrow(/Brevo .* 401/);
   });
+});
+
+test("ticking the box again after unsubscribing is unticked again, so the box never promises emails Brevo won't send", async () => {
+  brevo["amy@example.com"] = { emailBlacklisted: true, listIds: [ACCOUNTS] };
+  await syncAccountsList();
+  await db.query("UPDATE shoppers.profiles SET news_emails = TRUE, news_emails_at = NOW() WHERE shopper_id = $1", [AMY]);
+  const summary = await syncAccountsList();
+  expect(await ticked()).toEqual(["Bea@Example.com"]);
+  expect(summary).toEqual({ added: 0, removed: 0, deleted: 0, unticked: 1 });
 });
