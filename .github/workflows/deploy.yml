@@ -14,7 +14,7 @@ name: Deploy
 #   variable AMARAS_PICK_CONTACT_EMAIL   optional, defaults to hello@amaraspick.com
 #   variable AMARAS_PICK_TRADER_NAME     name shown as who runs Amara's Pick
 #   variable AMARAS_PICK_TRADER_ADDRESS  geographic address shown with it
-#   secret   RESEND_API_KEY              newsletter sign-up (full access key); the band says "isn't open yet" without it
+#   secret   BREVO_API_KEY               newsletter sign-up; the band says "isn't open yet" without it
 # Until the AMARAS_PICK_* variables are added, CONTACT, TRADER_NAME and
 # TRADER_ADDRESS fall back to the old YXRA_* ones, so nothing breaks mid-rename.
 
@@ -45,7 +45,7 @@ jobs:
       HYPERDRIVE_ID: ${{ vars.HYPERDRIVE_ID }}
       AMARAS_PICK_DOMAIN: ${{ vars.AMARAS_PICK_DOMAIN }}
       ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
     steps:
       - name: Check the Cloudflare settings are there
         run: |
@@ -93,9 +93,9 @@ jobs:
         if: env.ADMIN_TOKEN != ''
         run: echo "$ADMIN_TOKEN" | npx wrangler secret put ADMIN_TOKEN
       # Newsletter sign-up (controllers/newsletter.controller.js).
-      - name: Set the Resend key
-        if: env.RESEND_API_KEY != ''
-        run: echo "$RESEND_API_KEY" | npx wrangler secret put RESEND_API_KEY
+      - name: Set the Brevo key
+        if: env.BREVO_API_KEY != ''
+        run: echo "$BREVO_API_KEY" | npx wrangler secret put BREVO_API_KEY
 
       - run: npm ci --no-audit --no-fund
         working-directory: web

@@ -1,29 +1,28 @@
 // The newsletter band's sign-up (Newsletter.jsx), with double opt-in. Nothing
 // is stored until she confirms: POST /api/newsletter emails her a signed link
 // to the /newsletter/confirm page, whose button posts it to POST
-// /api/newsletter/confirm, which adds her to Resend's "Newsletter sign-ups"
-// segment and to "Newsletter", the one segment each broadcast goes to. Only
-// the button confirms, so email scanners that open links sign nobody up. The
-// link carries her address and an expiry, signed with the Resend key, so no
-// pending sign-ups are kept anywhere.
+// /api/newsletter/confirm, which adds her to Brevo's "Newsletter sign-ups"
+// list. Only the button confirms, so email scanners that open links sign
+// nobody up. The link carries her address and an expiry, signed with the
+// Brevo key, so no pending sign-ups are kept anywhere.
 const crypto = require("crypto");
 const db = require("../db/connection");
 const { HttpError, badRequest } = require("../lib/errors");
-const resend = require("../lib/resend");
+const brevo = require("../lib/brevo");
 
 const SIGNUPS = "Newsletter sign-ups";
-const NEWSLETTER = "Newsletter";
 const SENT = "Check your email to confirm";
 const TRY_LATER = "Sign-up isn't working right now. Please try again later.";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LINK_DAYS = 7;
-const FROM = "Amara's Pick <no-reply@amaraspick.com>";
-// Resend's free plan sends 100 emails a day, shared with the sign-in links.
+const FROM = { name: "Amara's Pick", email: "no-reply@amaraspick.com" };
+// Brevo's free plan sends 300 emails a day, newsletters included; most of
+// that is kept for the newsletter itself.
 const DAILY_CONFIRM_LIMIT = 50;
 const BUSY = "Lots of people are signing up today. Please try again tomorrow.";
 
 const sign = (text) =>
-  crypto.createHmac("sha256", `newsletter-confirm:${process.env.RESEND_API_KEY}`).update(text).digest("base64url");
+  crypto.createHmac("sha256", `newsletter-confirm:${process.env.BREVO_API_KEY}`).update(text).digest("base64url");
 
 // <address, base64url>.<expiry, ms>.<signature>
 const confirmToken = (email, expiresAt) => {
@@ -43,15 +42,15 @@ const readToken = (token) => {
 };
 
 const confirmEmail = (email, link) => ({
-  from: process.env.NEWSLETTER_FROM || FROM,
-  to: [email],
+  sender: FROM,
+  to: [{ email }],
   subject: "Confirm your Amara's Pick newsletter",
-  html: `<p>Hello,</p>
+  htmlContent: `<p>Hello,</p>
 <p>Please confirm you'd like the Amara's Pick newsletter: new finds in your size and the best offers, by email.</p>
 <p><a href="${link}">Yes, sign me up</a></p>
 <p>The link works for ${LINK_DAYS} days. If you didn't ask for this, ignore this email and you won't hear from us.</p>
 <p>Amara's Pick</p>`,
-  text: `Please confirm you'd like the Amara's Pick newsletter: new finds in your size and the best offers, by email.
+  textContent: `Please confirm you'd like the Amara's Pick newsletter: new finds in your size and the best offers, by email.
 
 Yes, sign me up: ${link}
 
@@ -62,14 +61,14 @@ Amara's Pick`,
 
 const postNewsletter = async (req, res, next) => {
   const { email, website } = req.body || {};
-  if (!process.env.RESEND_API_KEY) return next(new HttpError(503, "The newsletter isn't open yet"));
+  if (!process.env.BREVO_API_KEY) return next(new HttpError(503, "The newsletter isn't open yet"));
   const address = typeof email === "string" ? email.trim().toLowerCase() : "";
   if (address.length > 254 || !EMAIL.test(address)) return next(badRequest("Enter a valid email address"));
   // Only bots fill in the hidden field; they are told it worked.
   if (website) return res.status(202).send({ msg: SENT });
 
   // At most one confirmation email per address a day, and a cap on the day's
-  // total, so a script can't flood someone's inbox or use up the sign-in links.
+  // total, so a script can't flood someone's inbox or use up the newsletter's allowance.
   const hash = crypto.createHash("sha256").update(address).digest("hex");
   await db.query("DELETE FROM newsletter_confirm_sends WHERE sent_at < NOW() - INTERVAL '1 day'");
   const { rows } = await db.query(
@@ -83,7 +82,7 @@ const postNewsletter = async (req, res, next) => {
   const token = confirmToken(address, Date.now() + LINK_DAYS * 24 * 60 * 60 * 1000);
   try {
     // Sent whether or not she is already on the list, so the form never says who is.
-    await resend.sendEmail(confirmEmail(address, `${site}/newsletter/confirm?token=${token}`));
+    await brevo.sendEmail(confirmEmail(address, `${site}/newsletter/confirm?token=${token}`));
   } catch (err) {
     console.error(err.message);
     return next(new HttpError(502, TRY_LATER));
@@ -94,11 +93,10 @@ const postNewsletter = async (req, res, next) => {
 
 // The /newsletter/confirm page's form; answers with the page to show next.
 const postConfirm = async (req, res) => {
-  const email = process.env.RESEND_API_KEY && readToken(req.body?.token);
+  const email = process.env.BREVO_API_KEY && readToken(req.body?.token);
   if (!email) return res.redirect(303, "/newsletter/not-confirmed");
   try {
-    await resend.addToSegment(email, await resend.segmentId(SIGNUPS), { resubscribe: true });
-    await resend.addToSegment(email, await resend.segmentId(NEWSLETTER));
+    await brevo.addToList(email, await brevo.listId(SIGNUPS), { resubscribe: true });
   } catch (err) {
     console.error(err.message);
     return res.redirect(303, "/newsletter/not-confirmed");

@@ -1,12 +1,12 @@
 name: Nightly newsletter sync
 
-# Makes Resend's "Shopper accounts" segment match the "Send me new finds and
-# offers" box on Shopper accounts, and unticks the box for anyone who unsubscribed in Resend
+# Makes Brevo's accounts list match the "Send me new finds and offers" box on
+# Shopper accounts, and unticks the box for anyone who unsubscribed in Brevo
 # (lib/newsletter-sync.js). Run it by hand from the Actions tab with "Run workflow".
 #
 # Needs these repository settings (Settings > Secrets and variables > Actions):
-#   secret   DATABASE_URL            Supabase connection string (Session pooler URI)
-#   secret   RESEND_API_KEY   Resend API key with full access (skipped if unset)
+#   secret   DATABASE_URL    Supabase connection string (Session pooler URI)
+#   secret   BREVO_API_KEY   Brevo API key (skipped if unset)
 
 on:
   schedule:
@@ -27,7 +27,7 @@ jobs:
     env:
       NODE_ENV: production
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,5 +35,5 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Sync the accounts segment with Resend
+      - name: Sync the accounts list with Brevo
         run: npm run newsletter-sync
