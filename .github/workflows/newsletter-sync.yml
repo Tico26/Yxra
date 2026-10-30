@@ -23,7 +23,7 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     env:
       NODE_ENV: production
       DATABASE_URL: ${{ secrets.DATABASE_URL }}

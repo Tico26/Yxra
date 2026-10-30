@@ -5,6 +5,7 @@ import Contact from './Contact';
 import HowAmarasPickMakesMoney from './HowAmarasPickMakesMoney';
 import ForRetailers from './ForRetailers';
 import About from './About';
+import NewsletterConfirm from './NewsletterConfirm';
 import NewsletterConfirmed from './NewsletterConfirmed';
 import NewsletterNotConfirmed from './NewsletterNotConfirmed';
 
@@ -43,6 +44,12 @@ export const LEGAL_PAGES = [
     Page: ForRetailers,
     title: 'For Retailers',
     description: 'How Amara\'s Pick reads your products, how to join, and how to opt out.',
+  },
+  {
+    path: '/newsletter/confirm',
+    Page: NewsletterConfirm,
+    title: 'Confirm your newsletter',
+    description: 'One more step to get the Amara\'s Pick newsletter.',
   },
   {
     path: '/newsletter/confirmed',

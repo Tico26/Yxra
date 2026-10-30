@@ -270,3 +270,14 @@ DO $$ BEGIN
       EXECUTE FUNCTION add_to_product_order();
   END IF;
 END $$;
+
+-- Newsletter confirmation emails sent in the last day (controllers/
+-- newsletter.controller.js), so one address gets at most one a day and the
+-- day's total stays well inside Resend's free allowance, which the sign-in
+-- links share. Only a SHA-256 fingerprint of the address is kept, and rows
+-- older than a day are deleted as new ones arrive.
+CREATE TABLE IF NOT EXISTS newsletter_confirm_sends (
+  address_hash TEXT NOT NULL,
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS newsletter_confirm_sends_hash_idx ON newsletter_confirm_sends (address_hash);

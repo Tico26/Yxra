@@ -16,7 +16,7 @@ const {
   putSizeChart,
   postProductDecision,
 } = require("./controllers/review.controller");
-const { postNewsletter, getConfirm } = require("./controllers/newsletter.controller");
+const { postNewsletter, postConfirm } = require("./controllers/newsletter.controller");
 const {
   getAllCategories,
   getCategoryById,
@@ -46,7 +46,8 @@ app.post("/api/suggested-retailers/:suggested_retailer_id/approve", requireAdmin
 app.post("/api/suggested-retailers/:suggested_retailer_id/reject", requireAdmin, postReject);
 
 app.post("/api/newsletter", postNewsletter);
-app.get("/api/newsletter/confirm", getConfirm);
+// The confirm page posts a plain HTML form.
+app.post("/api/newsletter/confirm", express.urlencoded({ extended: false }), postConfirm);
 
 app.get("/api/categories", getAllCategories);
 app.get("/api/categories/:category_id", getCategoryById);

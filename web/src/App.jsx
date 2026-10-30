@@ -26,8 +26,10 @@ const ScrollToTop = () => {
   return null;
 };
 
-// The sign-up band shows on every page but the one thanking her for signing up.
-const NewsletterBand = () => (useLocation().pathname.startsWith('/newsletter/confirmed') ? null : <Newsletter />);
+// The sign-up band shows on every page but the confirm page and the one
+// thanking her for signing up.
+const NewsletterBand = () =>
+  /^\/newsletter\/confirm(ed)?\/?$/.test(useLocation().pathname) ? null : <Newsletter />;
 
 // The router is supplied by main.jsx (in the browser) or by
 // src/entry-server.jsx (when pages are pre-built to HTML).

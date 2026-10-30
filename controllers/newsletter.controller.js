@@ -1,10 +1,13 @@
 // The newsletter band's sign-up (Newsletter.jsx), with double opt-in. Nothing
-// is stored until she confirms: POST /api/newsletter emails her a signed link,
-// and GET /api/newsletter/confirm (the link) adds her to Resend's
-// "Newsletter sign-ups" segment and to "Newsletter", the one segment each
-// broadcast goes to. The link carries her address and an expiry,
-// signed with the Resend key, so no pending sign-ups are kept anywhere.
+// is stored until she confirms: POST /api/newsletter emails her a signed link
+// to the /newsletter/confirm page, whose button posts it to POST
+// /api/newsletter/confirm, which adds her to Resend's "Newsletter sign-ups"
+// segment and to "Newsletter", the one segment each broadcast goes to. Only
+// the button confirms, so email scanners that open links sign nobody up. The
+// link carries her address and an expiry, signed with the Resend key, so no
+// pending sign-ups are kept anywhere.
 const crypto = require("crypto");
+const db = require("../db/connection");
 const { HttpError, badRequest } = require("../lib/errors");
 const resend = require("../lib/resend");
 
@@ -15,6 +18,9 @@ const TRY_LATER = "Sign-up isn't working right now. Please try again later.";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LINK_DAYS = 7;
 const FROM = "Amara's Pick <no-reply@amaraspick.com>";
+// Resend's free plan sends 100 emails a day, shared with the sign-in links.
+const DAILY_CONFIRM_LIMIT = 50;
+const BUSY = "Lots of people are signing up today. Please try again tomorrow.";
 
 const sign = (text) =>
   crypto.createHmac("sha256", `newsletter-confirm:${process.env.RESEND_API_KEY}`).update(text).digest("base64url");
@@ -62,29 +68,42 @@ const postNewsletter = async (req, res, next) => {
   // Only bots fill in the hidden field; they are told it worked.
   if (website) return res.status(202).send({ msg: SENT });
 
+  // At most one confirmation email per address a day, and a cap on the day's
+  // total, so a script can't flood someone's inbox or use up the sign-in links.
+  const hash = crypto.createHash("sha256").update(address).digest("hex");
+  await db.query("DELETE FROM newsletter_confirm_sends WHERE sent_at < NOW() - INTERVAL '1 day'");
+  const { rows } = await db.query(
+    "SELECT COUNT(*)::int AS today, COUNT(*) FILTER (WHERE address_hash = $1)::int AS hers FROM newsletter_confirm_sends",
+    [hash]
+  );
+  if (rows[0].hers > 0) return res.status(202).send({ msg: SENT });
+  if (rows[0].today >= DAILY_CONFIRM_LIMIT) return next(new HttpError(429, BUSY));
+
   const site = (process.env.AMARAS_PICK_SITE_URL || "https://amaraspick.com").replace(/\/+$/, "");
   const token = confirmToken(address, Date.now() + LINK_DAYS * 24 * 60 * 60 * 1000);
   try {
     // Sent whether or not she is already on the list, so the form never says who is.
-    await resend.sendEmail(confirmEmail(address, `${site}/api/newsletter/confirm?token=${token}`));
+    await resend.sendEmail(confirmEmail(address, `${site}/newsletter/confirm?token=${token}`));
   } catch (err) {
     console.error(err.message);
     return next(new HttpError(502, TRY_LATER));
   }
+  await db.query("INSERT INTO newsletter_confirm_sends (address_hash) VALUES ($1)", [hash]);
   res.status(202).send({ msg: SENT });
 };
 
-const getConfirm = async (req, res) => {
-  const email = process.env.RESEND_API_KEY && readToken(req.query.token);
-  if (!email) return res.redirect(302, "/newsletter/not-confirmed");
+// The /newsletter/confirm page's form; answers with the page to show next.
+const postConfirm = async (req, res) => {
+  const email = process.env.RESEND_API_KEY && readToken(req.body?.token);
+  if (!email) return res.redirect(303, "/newsletter/not-confirmed");
   try {
     await resend.addToSegment(email, await resend.segmentId(SIGNUPS), { resubscribe: true });
     await resend.addToSegment(email, await resend.segmentId(NEWSLETTER));
   } catch (err) {
     console.error(err.message);
-    return res.redirect(302, "/newsletter/not-confirmed");
+    return res.redirect(303, "/newsletter/not-confirmed");
   }
-  res.redirect(302, "/newsletter/confirmed");
+  res.redirect(303, "/newsletter/confirmed");
 };
 
-module.exports = { postNewsletter, getConfirm, confirmToken };
+module.exports = { postNewsletter, postConfirm, confirmToken };
