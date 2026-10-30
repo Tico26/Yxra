@@ -15,8 +15,6 @@ name: Deploy
 #   variable AMARAS_PICK_TRADER_NAME     name shown as who runs Amara's Pick
 #   variable AMARAS_PICK_TRADER_ADDRESS  geographic address shown with it
 #   secret   BREVO_API_KEY               newsletter sign-up; the band says "isn't open yet" without it
-#   variable BREVO_SIGNUPS_LIST_ID       id of the Brevo list "Newsletter sign-ups"
-#   variable BREVO_CONFIRM_TEMPLATE_ID   id of the Brevo double opt-in template
 # Until the AMARAS_PICK_* variables are added, CONTACT, TRADER_NAME and
 # TRADER_ADDRESS fall back to the old YXRA_* ones, so nothing breaks mid-rename.
 
@@ -48,8 +46,6 @@ jobs:
       AMARAS_PICK_DOMAIN: ${{ vars.AMARAS_PICK_DOMAIN }}
       ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
       BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-      BREVO_SIGNUPS_LIST_ID: ${{ vars.BREVO_SIGNUPS_LIST_ID }}
-      BREVO_CONFIRM_TEMPLATE_ID: ${{ vars.BREVO_CONFIRM_TEMPLATE_ID }}
     steps:
       - name: Check the Cloudflare settings are there
         run: |
@@ -91,14 +87,12 @@ jobs:
           contact="${{ vars.AMARAS_PICK_CONTACT || vars.YXRA_CONTACT }}"
           vars=(--var "AMARAS_PICK_CONTACT:${contact:-${site:-https://amaraspick.com}/for-retailers}")
           [ -n "$site" ] && vars+=(--var "AMARAS_PICK_SITE_URL:$site")
-          # Newsletter sign-up (controllers/newsletter.controller.js).
-          [ -n "$BREVO_SIGNUPS_LIST_ID" ] && vars+=(--var "BREVO_SIGNUPS_LIST_ID:$BREVO_SIGNUPS_LIST_ID")
-          [ -n "$BREVO_CONFIRM_TEMPLATE_ID" ] && vars+=(--var "BREVO_CONFIRM_TEMPLATE_ID:$BREVO_CONFIRM_TEMPLATE_ID")
           npx wrangler deploy "${vars[@]}" | tee deploy.log
           echo "url=$(grep -o 'https://[a-z0-9.-]*workers.dev' deploy.log | head -1)" >> "$GITHUB_OUTPUT"
       - name: Set the admin token
         if: env.ADMIN_TOKEN != ''
         run: echo "$ADMIN_TOKEN" | npx wrangler secret put ADMIN_TOKEN
+      # Newsletter sign-up (controllers/newsletter.controller.js).
       - name: Set the Brevo key
         if: env.BREVO_API_KEY != ''
         run: echo "$BREVO_API_KEY" | npx wrangler secret put BREVO_API_KEY

@@ -5,9 +5,8 @@ name: Nightly newsletter sync
 # (lib/newsletter-sync.js). Run it by hand from the Actions tab with "Run workflow".
 #
 # Needs these repository settings (Settings > Secrets and variables > Actions):
-#   secret   DATABASE_URL            Supabase connection string (Session pooler URI)
-#   secret   BREVO_API_KEY           Brevo API key (skipped if unset)
-#   variable BREVO_ACCOUNTS_LIST_ID  id of the Brevo list "Shopper accounts"
+#   secret   DATABASE_URL    Supabase connection string (Session pooler URI)
+#   secret   BREVO_API_KEY   Brevo API key (skipped if unset)
 
 on:
   schedule:
@@ -24,12 +23,11 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     env:
       NODE_ENV: production
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-      BREVO_ACCOUNTS_LIST_ID: ${{ vars.BREVO_ACCOUNTS_LIST_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

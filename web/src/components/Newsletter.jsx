@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 
-// Sign-up band shown above the footer on every page. Brevo emails her a link
+// Sign-up band shown above the footer on every page. We email her a link
 // to confirm, and she joins the list once she clicks it (double opt-in).
 const Newsletter = () => {
   const [email, setEmail] = useState('');

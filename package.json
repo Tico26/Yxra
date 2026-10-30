@@ -36,7 +36,8 @@
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "<rootDir>/web/"
+      "<rootDir>/web/",
+      "<rootDir>/__tests__/fixtures/"
     ]
   }
 }
