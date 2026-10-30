@@ -99,11 +99,23 @@ test('/newsletter/confirmed is pre-built, thanks her, and has no sign-up band', 
   assert.equal(band('newsletter/confirmed.html'), '');
 });
 
-test('Privacy names Brevo as the newsletter sender and explains the sign-up', () => {
+test('Privacy names Resend as the newsletter sender and explains the sign-up', () => {
   const words = text(built('privacy.html'));
-  assert.match(words, /Sendinblue SAS \(Brevo\): sending the newsletter/);
+  assert.match(words, /Resend, Inc\.: sending sign-in links and the newsletter, and keeping its mailing list\./);
+  assert.doesNotMatch(words, /Brevo|Sendinblue/);
   assert.match(
     words,
     /Newsletter\. If you sign up in the newsletter box, your email address and when you confirmed it\./,
   );
+});
+
+test('/newsletter/not-confirmed is pre-built, explains what went wrong, and offers the band again', () => {
+  const html = built('newsletter/not-confirmed.html');
+  assert.match(html, /<title>We couldn't confirm that · Amara's Pick<\/title>/);
+  assert.match(text(html), /We couldn't confirm that/);
+  assert.match(
+    text(html),
+    /The link may be more than seven days old, or something went wrong our end\. Sign up again below and we'll send you a fresh one\./,
+  );
+  assert.match(band('newsletter/not-confirmed.html'), /id="newsletter-email"/);
 });
