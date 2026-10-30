@@ -61,7 +61,7 @@ const band = (file) => built(file).split('aria-labelledby="newsletter-heading"')
 
 test('the newsletter band is open on every pre-built page but the confirmed one', () => {
   const pages = readdirSync(new URL('./dist/', import.meta.url)).filter(
-    (f) => f.endsWith('.html') && !['app.html', 'newsletter/confirmed.html'].includes(f),
+    (f) => f.endsWith('.html') && f !== 'app.html',
   );
   for (const file of pages) {
     const html = band(file);
@@ -118,4 +118,17 @@ test('/newsletter/not-confirmed is pre-built, explains what went wrong, and offe
     /The link may be more than seven days old, or something went wrong our end\. Sign up again below and we'll send you a fresh one\./,
   );
   assert.match(band('newsletter/not-confirmed.html'), /id="newsletter-email"/);
+});
+
+test('/newsletter/confirm is pre-built with a button that posts the token, so opening the link alone confirms nothing', () => {
+  const html = built('newsletter/confirm.html');
+  assert.match(html, /<title>Confirm your newsletter · Amara's Pick<\/title>/);
+  assert.match(text(html), /One more step/);
+  assert.match(text(html), /Press the button to start getting the Amara's Pick newsletter\./);
+  const form = html.match(/<form[^>]*>[\s\S]*?<\/form>/)[0];
+  assert.match(form, /method="post"/);
+  assert.match(form, /action="\/api\/newsletter\/confirm"/);
+  assert.match(form, /<input[^>]*type="hidden"[^>]*name="token"[^>]*>/);
+  assert.match(form, /<button[^>]*type="submit"[^>]*>Yes, sign me up<\/button>/);
+  assert.equal(band('newsletter/confirm.html'), '');
 });

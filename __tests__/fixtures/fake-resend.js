@@ -4,8 +4,10 @@
 //   contacts: { [email]: { unsubscribed, segments: [segment names] } }
 //   segments: [{ id, name }]
 //   emails:   the bodies of POST /emails
+// Set fail to a status to fail every call, or rateLimitNext to answer that
+// many calls with 429 first.
 const fakeResend = ({ key = "test-key", contacts = {}, segments = [] } = {}) => {
-  const state = { contacts, segments, emails: [], fail: null };
+  const state = { contacts, segments, emails: [], fail: null, rateLimitNext: 0 };
   let nextId = 1;
   const segmentById = (id) => state.segments.find((s) => s.id === id);
 
@@ -13,6 +15,13 @@ const fakeResend = ({ key = "test-key", contacts = {}, segments = [] } = {}) => 
     const json = (value, status = 200) => new Response(JSON.stringify(value), { status });
     const error = (status, name, message) => json({ statusCode: status, name, message }, status);
     if (state.fail) return error(state.fail, "application_error", "Something went wrong");
+    if (state.rateLimitNext > 0) {
+      state.rateLimitNext -= 1;
+      return new Response(JSON.stringify({ statusCode: 429, name: "rate_limit_exceeded" }), {
+        status: 429,
+        headers: { "retry-after": "0" },
+      });
+    }
     if (headers.authorization !== `Bearer ${key}`) return error(401, "missing_api_key", "Missing API key");
     const { pathname, searchParams } = new URL(url);
     const sent = body && JSON.parse(body);
