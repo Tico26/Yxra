@@ -1,13 +1,15 @@
 // The newsletter band's sign-up (Newsletter.jsx), with double opt-in. Nothing
 // is stored until she confirms: POST /api/newsletter emails her a signed link,
 // and GET /api/newsletter/confirm (the link) adds her to Resend's
-// "Newsletter sign-ups" segment. The link carries her address and an expiry,
+// "Newsletter sign-ups" segment and to "Newsletter", the one segment each
+// broadcast goes to. The link carries her address and an expiry,
 // signed with the Resend key, so no pending sign-ups are kept anywhere.
 const crypto = require("crypto");
 const { HttpError, badRequest } = require("../lib/errors");
 const resend = require("../lib/resend");
 
 const SIGNUPS = "Newsletter sign-ups";
+const NEWSLETTER = "Newsletter";
 const SENT = "Check your email to confirm";
 const TRY_LATER = "Sign-up isn't working right now. Please try again later.";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,6 +79,7 @@ const getConfirm = async (req, res) => {
   if (!email) return res.redirect(302, "/newsletter/not-confirmed");
   try {
     await resend.addToSegment(email, await resend.segmentId(SIGNUPS), { resubscribe: true });
+    await resend.addToSegment(email, await resend.segmentId(NEWSLETTER));
   } catch (err) {
     console.error(err.message);
     return res.redirect(302, "/newsletter/not-confirmed");
