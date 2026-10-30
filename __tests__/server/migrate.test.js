@@ -2,6 +2,7 @@ const db = require("../../db/connection");
 const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 const { migrate } = require("../../db/migrate");
+const { countClothesTypes } = require("../../lib/catalogue");
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -66,6 +67,17 @@ describe("migrate", () => {
       `SELECT COUNT(*)::int AS n FROM products WHERE category IS DISTINCT FROM 'clothes' AND clothes_type IS NOT NULL`
     );
     expect(stray[0].n).toBe(0);
+  });
+
+  test("counts shown Clothes Products with and without a Clothes type, for the logs", async () => {
+    const before = await countClothesTypes();
+    await db.query(
+      `UPDATE products SET clothes_type = NULL
+       WHERE product_id = (SELECT MIN(product_id) FROM products WHERE sort_status = 'shown' AND category = 'clothes')`
+    );
+    const after = await countClothesTypes();
+    expect(after.untyped).toBe(before.untyped + 1);
+    expect(after.typed).toBe(before.typed - 1);
   });
 
   test("gives up quickly, with a clear reason, when a change it needs is blocked", async () => {
