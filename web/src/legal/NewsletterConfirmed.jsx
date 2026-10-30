@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-// Where Brevo sends her after she clicks the link in the confirmation email
+// Where she lands after clicking the link in the confirmation email
 // (controllers/newsletter.controller.js on the API). The sign-up band is
 // hidden here, since she has just joined.
 const NewsletterConfirmed = () => (
