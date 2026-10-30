@@ -128,6 +128,9 @@ jobs:
           API_URL: ${{ steps.api.outputs.url }}
           SITE_URL: ${{ steps.web.outputs.url }}
         run: |
+          # Wrangler leaves the website's workers.dev address off once it has a
+          # custom domain, so check the domain instead.
+          [ -z "$SITE_URL" ] && [ -n "$AMARAS_PICK_DOMAIN" ] && SITE_URL="https://$AMARAS_PICK_DOMAIN"
           sleep 10
           curl -fsS "$API_URL/api/categories" > /dev/null
           # Save the page first: with pipefail, grep -q stopping at the first
@@ -138,5 +141,5 @@ jobs:
           curl -fsS "$SITE_URL/privacy" -o privacy.html
           grep -q ">Privacy</h1>" privacy.html
           echo "### Live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Website: $SITE_URL ${AMARAS_PICK_DOMAIN:+(and https://$AMARAS_PICK_DOMAIN)}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Website: $SITE_URL" >> "$GITHUB_STEP_SUMMARY"
           echo "- API and Review list: $API_URL/admin" >> "$GITHUB_STEP_SUMMARY"
