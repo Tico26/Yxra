@@ -12,7 +12,7 @@ const path = require("path");
 const format = require("pg-format");
 const db = require("./connection");
 const categories = require("./data/categories");
-const { reopenExcludedLingerie, excludeMenswear, fillClothesTypes } = require("../lib/catalogue");
+const { reopenExcludedLingerie, excludeMenswear, fillClothesTypes, countClothesTypes } = require("../lib/catalogue");
 const { rebuildProductOrder } = require("../lib/product-order");
 
 const LOCK_NOT_AVAILABLE = "55P03";
@@ -67,6 +67,8 @@ const migrate = async ({
   if (menswear) console.log(`Took ${menswear} Products for men or children off the site`);
   const typed = await fillClothesTypes();
   if (typed) console.log(`Gave ${typed} Clothes Products their Clothes type`);
+  const clothes = await countClothesTypes();
+  console.log(`Clothes on the site: ${clothes.typed} with a Clothes type, ${clothes.untyped} without`);
   // The product list reads this order; a deploy mixes it afresh.
   await rebuildProductOrder();
 };
