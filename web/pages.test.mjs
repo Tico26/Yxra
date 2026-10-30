@@ -99,10 +99,10 @@ test('/newsletter/confirmed is pre-built, thanks her, and has no sign-up band', 
   assert.equal(band('newsletter/confirmed.html'), '');
 });
 
-test('Privacy names Resend as the newsletter sender and explains the sign-up', () => {
+test('Privacy names Brevo as the newsletter sender and explains the sign-up', () => {
   const words = text(built('privacy.html'));
-  assert.match(words, /Resend, Inc\.: sending sign-in links and the newsletter, and keeping its mailing list\./);
-  assert.doesNotMatch(words, /Brevo|Sendinblue/);
+  assert.match(words, /Sendinblue SAS \(Brevo\): sending the newsletter/);
+  assert.match(words, /Resend, Inc\.: sending sign-in links\./);
   assert.match(
     words,
     /Newsletter\. If you sign up in the newsletter box, your email address and when you confirmed it\./,

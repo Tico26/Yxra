@@ -1,7 +1,6 @@
-// The nightly newsletter sync: Resend's "Shopper accounts" segment is made to
-// match the Shoppers who ticked "Send me new finds and offers", each of them is
-// also in "Newsletter" (the one segment broadcasts go to), and anyone who
-// unsubscribed in Resend has that box unticked on her account. Resend is a
+// The nightly newsletter sync: Brevo's "Shopper accounts" list is made to
+// match the Shoppers who ticked "Send me new finds and offers", and anyone who
+// unsubscribed in Brevo has that box unticked on her account. Brevo is a
 // stand-in kept in memory, answering the same addresses the real one does.
 const fs = require("fs");
 const path = require("path");
@@ -10,19 +9,18 @@ const seed = require("../../db/seed");
 const data = require("../../db/data/index");
 const { migrate } = require("../../db/migrate");
 const { syncAccountsList } = require("../../lib/newsletter-sync");
-const { fakeResend } = require("../fixtures/fake-resend");
+const { fakeBrevo } = require("../fixtures/fake-brevo");
 
 const authStub = fs.readFileSync(path.join(__dirname, "../fixtures/supabase/auth-stub.sql"), "utf8");
 
 const ACCOUNTS = "Shopper accounts";
 const SIGNUPS = "Newsletter sign-ups";
-const NEWSLETTER = "Newsletter";
 const AMY = "11111111-1111-4111-8111-111111111111";
 const BEA = "22222222-2222-4222-8222-222222222222";
 const CAT = "33333333-3333-4333-8333-333333333333";
 
 const realFetch = global.fetch;
-let resend;
+let brevo;
 
 const ticked = async () => {
   const { rows } = await db.query(
@@ -35,9 +33,12 @@ const untick = (id) =>
   db.query("UPDATE shoppers.profiles SET news_emails = FALSE, news_emails_at = NULL WHERE shopper_id = $1", [id]);
 
 beforeEach(async () => {
-  process.env.RESEND_API_KEY = "test-key";
-  resend = fakeResend({ segments: [{ id: "seg-signups", name: SIGNUPS }] });
-  global.fetch = resend.fetch;
+  process.env.BREVO_API_KEY = "test-key";
+  brevo = fakeBrevo({
+    folders: [{ id: 1, name: "Amara's Pick" }],
+    lists: [{ id: 7, name: SIGNUPS, folderId: 1 }],
+  });
+  global.fetch = brevo.fetch;
   await seed(data);
   await db.query("DROP SCHEMA IF EXISTS shoppers CASCADE");
   await db.query(authStub);
@@ -55,7 +56,7 @@ beforeEach(async () => {
   );
 });
 afterEach(() => {
-  delete process.env.RESEND_API_KEY;
+  delete process.env.BREVO_API_KEY;
   global.fetch = realFetch;
 });
 afterAll(async () => {
@@ -65,19 +66,21 @@ afterAll(async () => {
 });
 
 describe("syncAccountsList", () => {
-  test("adds every Shopper who ticked the box to the accounts and Newsletter segments, and nobody else", async () => {
+  test("adds every Shopper who ticked the box to the accounts list, and nobody else", async () => {
     const summary = await syncAccountsList();
-    expect(resend.contacts).toEqual({
-      "amy@example.com": { unsubscribed: false, segments: [ACCOUNTS, NEWSLETTER] },
-      "bea@example.com": { unsubscribed: false, segments: [ACCOUNTS, NEWSLETTER] },
+    expect(brevo.contacts).toEqual({
+      "amy@example.com": { emailBlacklisted: false, lists: [ACCOUNTS] },
+      "bea@example.com": { emailBlacklisted: false, lists: [ACCOUNTS] },
     });
     expect(summary).toEqual({ added: 2, removed: 0, deleted: 0, unticked: 0 });
   });
 
-  test("makes the accounts and Newsletter segments once, then reuses them", async () => {
+  test("makes the accounts list once, in the Amara's Pick folder, then reuses it", async () => {
     await syncAccountsList();
     await syncAccountsList();
-    expect(resend.segments.map((s) => s.name)).toEqual([SIGNUPS, ACCOUNTS, NEWSLETTER]);
+    expect(brevo.lists.map((l) => l.name)).toEqual([SIGNUPS, ACCOUNTS]);
+    expect(brevo.lists[1].folderId).toBe(1);
+    expect(brevo.folders).toHaveLength(1);
   });
 
   test("running it twice changes nothing the second time", async () => {
@@ -86,33 +89,32 @@ describe("syncAccountsList", () => {
     expect(summary).toEqual({ added: 0, removed: 0, deleted: 0, unticked: 0 });
   });
 
-  test("someone already on the sign-ups segment keeps it when added to the accounts segment", async () => {
-    resend.segments.push({ id: "seg-news", name: NEWSLETTER });
-    resend.contacts["amy@example.com"] = { unsubscribed: false, segments: [SIGNUPS, NEWSLETTER] };
+  test("someone already on the sign-ups list keeps it when added to the accounts list", async () => {
+    brevo.contacts["amy@example.com"] = { emailBlacklisted: false, lists: [SIGNUPS] };
     await syncAccountsList();
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: [SIGNUPS, NEWSLETTER, ACCOUNTS] });
+    expect(brevo.contacts["amy@example.com"]).toEqual({ emailBlacklisted: false, lists: [SIGNUPS, ACCOUNTS] });
   });
 
   test("adding never lifts an unsubscribe", async () => {
-    resend.contacts["amy@example.com"] = { unsubscribed: true, segments: [] };
+    brevo.contacts["amy@example.com"] = { emailBlacklisted: true, lists: [] };
     await syncAccountsList();
-    expect(resend.contacts["amy@example.com"].unsubscribed).toBe(true);
+    expect(brevo.contacts["amy@example.com"].emailBlacklisted).toBe(true);
   });
 
-  test("a Shopper who unsubscribed in Resend has her box unticked", async () => {
+  test("a Shopper who unsubscribed in Brevo has her box unticked", async () => {
     await syncAccountsList();
-    resend.contacts["amy@example.com"].unsubscribed = true;
+    brevo.contacts["amy@example.com"].emailBlacklisted = true;
     const summary = await syncAccountsList();
     expect(await ticked()).toEqual(["Bea@Example.com"]);
     const { rows } = await db.query("SELECT news_emails_at FROM shoppers.profiles WHERE shopper_id = $1", [AMY]);
     expect(rows[0].news_emails_at).toBeNull();
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: true, segments: [ACCOUNTS, NEWSLETTER] });
+    expect(brevo.contacts["amy@example.com"]).toEqual({ emailBlacklisted: true, lists: [ACCOUNTS] });
     expect(summary.unticked).toBe(1);
   });
 
-  test("ticking the box again after unsubscribing is unticked again, so the box never promises emails Resend won't send", async () => {
+  test("ticking the box again after unsubscribing is unticked again, so the box never promises emails Brevo won't send", async () => {
     await syncAccountsList();
-    resend.contacts["amy@example.com"].unsubscribed = true;
+    brevo.contacts["amy@example.com"].emailBlacklisted = true;
     await syncAccountsList();
     await db.query("UPDATE shoppers.profiles SET news_emails = TRUE, news_emails_at = NOW() WHERE shopper_id = $1", [AMY]);
     const summary = await syncAccountsList();
@@ -120,63 +122,61 @@ describe("syncAccountsList", () => {
     expect(summary).toEqual({ added: 0, removed: 0, deleted: 0, unticked: 1 });
   });
 
-  test("a Shopper who unticked the box leaves the accounts segment but, signed up through the band, stays on the Newsletter", async () => {
+  test("a Shopper who unticked the box leaves the accounts list but stays on the sign-ups list", async () => {
     await syncAccountsList();
-    resend.contacts["amy@example.com"].segments.push(SIGNUPS);
+    brevo.contacts["amy@example.com"].lists.push(SIGNUPS);
     await untick(AMY);
     const summary = await syncAccountsList();
-    expect(resend.contacts["amy@example.com"].segments).toEqual([NEWSLETTER, SIGNUPS]);
+    expect(brevo.contacts["amy@example.com"].lists).toEqual([SIGNUPS]);
     expect(summary.removed).toBe(1);
   });
 
-  test("a Shopper who unticked the box, and never signed up through the band, leaves the Newsletter too", async () => {
+  test("a Shopper who unticked the box, and is on no other list, keeps her contact on no list", async () => {
     await syncAccountsList();
     await untick(AMY);
     await syncAccountsList();
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: [] });
+    expect(brevo.contacts["amy@example.com"]).toEqual({ emailBlacklisted: false, lists: [] });
   });
 
-  test("a deleted account's email is deleted from Resend when it is on no other segment", async () => {
+  test("a deleted account's email is deleted from Brevo when it is on no other list", async () => {
     await syncAccountsList();
     await db.query("DELETE FROM auth.users WHERE id = $1", [AMY]);
     const summary = await syncAccountsList();
-    expect(resend.contacts["amy@example.com"]).toBeUndefined();
+    expect(brevo.contacts["amy@example.com"]).toBeUndefined();
     expect(summary.deleted).toBe(1);
   });
 
-  test("a deleted account's email that also signed up through the band only leaves the accounts segment", async () => {
+  test("a deleted account's email that also signed up through the band only leaves the accounts list", async () => {
     await syncAccountsList();
-    resend.contacts["amy@example.com"].segments.push(SIGNUPS);
+    brevo.contacts["amy@example.com"].lists.push(SIGNUPS);
     await db.query("DELETE FROM auth.users WHERE id = $1", [AMY]);
     await syncAccountsList();
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: [NEWSLETTER, SIGNUPS] });
+    expect(brevo.contacts["amy@example.com"]).toEqual({ emailBlacklisted: false, lists: [SIGNUPS] });
   });
 
-  test("pages through segments longer than one page", async () => {
-    resend.segments.push({ id: "seg-acc", name: ACCOUNTS });
-    for (const n of [1, 2, 3, 4]) resend.contacts[`gone${n}@example.com`] = { unsubscribed: false, segments: [ACCOUNTS] };
-    for (const n of [1, 2, 3]) resend.contacts[`band${n}@example.com`] = { unsubscribed: false, segments: [SIGNUPS] };
-    resend.contacts["gone4@example.com"].segments.push(SIGNUPS);
+  test("pages through a list longer than one page", async () => {
+    brevo.lists.push({ id: 9, name: ACCOUNTS, folderId: 1 });
+    for (const n of [1, 2, 3, 4]) brevo.contacts[`gone${n}@example.com`] = { emailBlacklisted: false, lists: [ACCOUNTS] };
+    brevo.contacts["gone4@example.com"].lists.push(SIGNUPS);
     const summary = await syncAccountsList();
-    expect(Object.keys(resend.contacts).sort()).toEqual([
-      "amy@example.com",
-      "band1@example.com",
-      "band2@example.com",
-      "band3@example.com",
-      "bea@example.com",
-      "gone4@example.com",
-    ]);
+    expect(Object.keys(brevo.contacts).sort()).toEqual(["amy@example.com", "bea@example.com", "gone4@example.com"]);
     expect(summary).toEqual({ added: 2, removed: 1, deleted: 3, unticked: 0 });
   });
 
-  test("before Resend is set up, it does nothing and says so", async () => {
-    delete process.env.RESEND_API_KEY;
-    expect(await syncAccountsList()).toEqual({ skipped: "RESEND_API_KEY is not set" });
-    expect(resend.contacts).toEqual({});
+  test("a 429 from Brevo is waited out and tried again", async () => {
+    brevo.rateLimitNext = 2;
+    const summary = await syncAccountsList();
+    expect(summary.added).toBe(2);
   });
 
-  test("a Resend error stops the sync with Resend's message", async () => {
-    process.env.RESEND_API_KEY = "wrong-key";
-    await expect(syncAccountsList()).rejects.toThrow(/Resend answered 401: Missing API key/);
+  test("before Brevo is set up, it does nothing and says so", async () => {
+    delete process.env.BREVO_API_KEY;
+    expect(await syncAccountsList()).toEqual({ skipped: "BREVO_API_KEY is not set" });
+    expect(brevo.contacts).toEqual({});
+  });
+
+  test("a Brevo error stops the sync with Brevo's message", async () => {
+    process.env.BREVO_API_KEY = "wrong-key";
+    await expect(syncAccountsList()).rejects.toThrow(/Brevo answered 401: Key not found/);
   });
 });

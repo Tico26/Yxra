@@ -68,7 +68,8 @@ const Privacy = () => {
       <ul>
         <li>Cloudflare, Inc.: hosting, visit counts and forwarding email sent to us.</li>
         <li>Supabase, Inc.: our database and sign-in, which hold the click records and accounts above.</li>
-        <li>Resend, Inc.: sending sign-in links and the newsletter, and keeping its mailing list.</li>
+        <li>Resend, Inc.: sending sign-in links.</li>
+        <li>Sendinblue SAS (Brevo): sending the newsletter and keeping its mailing list.</li>
         <li>Google LLC: the mailbox our email arrives in, and Continue with Google if you choose it.</li>
       </ul>
       <p>
