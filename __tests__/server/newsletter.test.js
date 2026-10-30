@@ -1,7 +1,8 @@
 // The newsletter band's sign-up, through Resend. POST /api/newsletter emails
 // her a link to confirm; GET /api/newsletter/confirm (the link) adds her to
-// the "Newsletter sign-ups" segment and sends her to the confirmed page
-// (double opt-in). Resend is a stand-in kept in memory.
+// the "Newsletter sign-ups" segment and to "Newsletter", the one segment each
+// broadcast goes to, then sends her to the confirmed page (double opt-in).
+// Resend is a stand-in kept in memory.
 const request = require("supertest");
 const { app } = require("../../app");
 const { confirmToken } = require("../../controllers/newsletter.controller");
@@ -113,17 +114,19 @@ describe("GET /api/newsletter/confirm", () => {
     return linkIn(resend.emails.at(-1));
   };
 
-  test("the emailed link adds her to the sign-ups segment and shows the confirmed page", async () => {
+  test("the emailed link adds her to the sign-ups and Newsletter segments and shows the confirmed page", async () => {
     const res = await confirm(await signedUpLink());
     expect(res.status).toBe(302);
     expect(res.headers.location).toBe("/newsletter/confirmed");
-    expect(resend.contacts).toEqual({ "amy@example.com": { unsubscribed: false, segments: ["Newsletter sign-ups"] } });
+    expect(resend.contacts).toEqual({
+      "amy@example.com": { unsubscribed: false, segments: ["Newsletter sign-ups", "Newsletter"] },
+    });
   });
 
-  test("the segment is made once, then reused", async () => {
+  test("the segments are made once, then reused", async () => {
     await confirm(await signedUpLink("amy@example.com"));
     await confirm(await signedUpLink("bea@example.com"));
-    expect(resend.segments.map((s) => s.name)).toEqual(["Newsletter sign-ups"]);
+    expect(resend.segments.map((s) => s.name)).toEqual(["Newsletter sign-ups", "Newsletter"]);
     expect(Object.keys(resend.contacts).sort()).toEqual(["amy@example.com", "bea@example.com"]);
   });
 
@@ -132,20 +135,23 @@ describe("GET /api/newsletter/confirm", () => {
     await confirm(link);
     const res = await confirm(link);
     expect(res.headers.location).toBe("/newsletter/confirmed");
-    expect(resend.contacts["amy@example.com"].segments).toEqual(["Newsletter sign-ups"]);
+    expect(resend.contacts["amy@example.com"].segments).toEqual(["Newsletter sign-ups", "Newsletter"]);
   });
 
   test("someone on the accounts segment keeps it and joins the sign-ups segment", async () => {
     resend.segments.push({ id: "seg-acc", name: "Shopper accounts" });
     resend.contacts["amy@example.com"] = { unsubscribed: false, segments: ["Shopper accounts"] };
     await confirm(await signedUpLink());
-    expect(resend.contacts["amy@example.com"].segments).toEqual(["Shopper accounts", "Newsletter sign-ups"]);
+    expect(resend.contacts["amy@example.com"].segments).toEqual(["Shopper accounts", "Newsletter sign-ups", "Newsletter"]);
   });
 
   test("someone who unsubscribed and confirms a new sign-up is subscribed again", async () => {
     resend.contacts["amy@example.com"] = { unsubscribed: true, segments: [] };
     await confirm(await signedUpLink());
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: ["Newsletter sign-ups"] });
+    expect(resend.contacts["amy@example.com"]).toEqual({
+      unsubscribed: false,
+      segments: ["Newsletter sign-ups", "Newsletter"],
+    });
   });
 
   test.each([

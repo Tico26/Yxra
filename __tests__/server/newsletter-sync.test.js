@@ -1,5 +1,6 @@
 // The nightly newsletter sync: Resend's "Shopper accounts" segment is made to
-// match the Shoppers who ticked "Send me new finds and offers", and anyone who
+// match the Shoppers who ticked "Send me new finds and offers", each of them is
+// also in "Newsletter" (the one segment broadcasts go to), and anyone who
 // unsubscribed in Resend has that box unticked on her account. Resend is a
 // stand-in kept in memory, answering the same addresses the real one does.
 const fs = require("fs");
@@ -15,6 +16,7 @@ const authStub = fs.readFileSync(path.join(__dirname, "../fixtures/supabase/auth
 
 const ACCOUNTS = "Shopper accounts";
 const SIGNUPS = "Newsletter sign-ups";
+const NEWSLETTER = "Newsletter";
 const AMY = "11111111-1111-4111-8111-111111111111";
 const BEA = "22222222-2222-4222-8222-222222222222";
 const CAT = "33333333-3333-4333-8333-333333333333";
@@ -63,19 +65,19 @@ afterAll(async () => {
 });
 
 describe("syncAccountsList", () => {
-  test("adds every Shopper who ticked the box to the accounts segment, and nobody else", async () => {
+  test("adds every Shopper who ticked the box to the accounts and Newsletter segments, and nobody else", async () => {
     const summary = await syncAccountsList();
     expect(resend.contacts).toEqual({
-      "amy@example.com": { unsubscribed: false, segments: [ACCOUNTS] },
-      "bea@example.com": { unsubscribed: false, segments: [ACCOUNTS] },
+      "amy@example.com": { unsubscribed: false, segments: [ACCOUNTS, NEWSLETTER] },
+      "bea@example.com": { unsubscribed: false, segments: [ACCOUNTS, NEWSLETTER] },
     });
     expect(summary).toEqual({ added: 2, removed: 0, deleted: 0, unticked: 0 });
   });
 
-  test("makes the accounts segment once, then reuses it", async () => {
+  test("makes the accounts and Newsletter segments once, then reuses them", async () => {
     await syncAccountsList();
     await syncAccountsList();
-    expect(resend.segments.map((s) => s.name)).toEqual([SIGNUPS, ACCOUNTS]);
+    expect(resend.segments.map((s) => s.name)).toEqual([SIGNUPS, ACCOUNTS, NEWSLETTER]);
   });
 
   test("running it twice changes nothing the second time", async () => {
@@ -85,9 +87,10 @@ describe("syncAccountsList", () => {
   });
 
   test("someone already on the sign-ups segment keeps it when added to the accounts segment", async () => {
-    resend.contacts["amy@example.com"] = { unsubscribed: false, segments: [SIGNUPS] };
+    resend.segments.push({ id: "seg-news", name: NEWSLETTER });
+    resend.contacts["amy@example.com"] = { unsubscribed: false, segments: [SIGNUPS, NEWSLETTER] };
     await syncAccountsList();
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: [SIGNUPS, ACCOUNTS] });
+    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: [SIGNUPS, NEWSLETTER, ACCOUNTS] });
   });
 
   test("adding never lifts an unsubscribe", async () => {
@@ -103,7 +106,7 @@ describe("syncAccountsList", () => {
     expect(await ticked()).toEqual(["Bea@Example.com"]);
     const { rows } = await db.query("SELECT news_emails_at FROM shoppers.profiles WHERE shopper_id = $1", [AMY]);
     expect(rows[0].news_emails_at).toBeNull();
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: true, segments: [ACCOUNTS] });
+    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: true, segments: [ACCOUNTS, NEWSLETTER] });
     expect(summary.unticked).toBe(1);
   });
 
@@ -117,16 +120,16 @@ describe("syncAccountsList", () => {
     expect(summary).toEqual({ added: 0, removed: 0, deleted: 0, unticked: 1 });
   });
 
-  test("a Shopper who unticked the box leaves the accounts segment but stays on the sign-ups segment", async () => {
+  test("a Shopper who unticked the box leaves the accounts segment but, signed up through the band, stays on the Newsletter", async () => {
     await syncAccountsList();
     resend.contacts["amy@example.com"].segments.push(SIGNUPS);
     await untick(AMY);
     const summary = await syncAccountsList();
-    expect(resend.contacts["amy@example.com"].segments).toEqual([SIGNUPS]);
+    expect(resend.contacts["amy@example.com"].segments).toEqual([NEWSLETTER, SIGNUPS]);
     expect(summary.removed).toBe(1);
   });
 
-  test("a Shopper who unticked the box, and is on no other segment, keeps her contact with no segment", async () => {
+  test("a Shopper who unticked the box, and never signed up through the band, leaves the Newsletter too", async () => {
     await syncAccountsList();
     await untick(AMY);
     await syncAccountsList();
@@ -146,7 +149,7 @@ describe("syncAccountsList", () => {
     resend.contacts["amy@example.com"].segments.push(SIGNUPS);
     await db.query("DELETE FROM auth.users WHERE id = $1", [AMY]);
     await syncAccountsList();
-    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: [SIGNUPS] });
+    expect(resend.contacts["amy@example.com"]).toEqual({ unsubscribed: false, segments: [NEWSLETTER, SIGNUPS] });
   });
 
   test("pages through segments longer than one page", async () => {
